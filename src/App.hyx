@@ -1,0 +1,24 @@
+# [xihanzu-NR]
+from "./components/ClickSpark.hyx" import ClickSpark
+from "./components/BackgroundGrid3D.hyx" import BackgroundGrid3D
+from "./components/Navbar.hyx" import Navbar
+from "./components/Hero.hyx" import Hero
+from "./components/About.hyx" import About
+from "./components/Experience.hyx" import Experience
+from "./components/Evidence.hyx" import Evidence
+from "./components/TechStack.hyx" import TechStack
+from "./components/Certificates.hyx" import Certificates
+from "./components/Contact.hyx" import Contact
+
+component App():
+    ClickSpark(sparkColor="#f54e00", className="w-full min-h-screen bg-[#f7f7f4] text-[#26251e] font-sans selection:bg-[#26251e] selection:text-[#f7f7f4] relative"):
+        BackgroundGrid3D()
+        Navbar()
+        main(className="relative z-10 flex-1"):
+            Hero()
+            About()
+            Experience()
+            Evidence()
+            TechStack()
+            Certificates()
+            Contact()

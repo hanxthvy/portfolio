@@ -140,7 +140,7 @@ export tech_stack = [
     },
     {
         "category": "Frontend & Compilers",
-        "items": ["React 18+", "Tailwind CSS", "Vite", "HydraScript (.hsx)", "HTML5 / WebGL / Canvas"],
+        "items": ["React 18+", "Tailwind CSS", "Vite", "HydraScript (.hyx)", "HTML5 / WebGL / Canvas"],
     },
     {
         "category": "Backend & Virtualization",

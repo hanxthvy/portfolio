@@ -1,6 +1,6 @@
 # [xihanzu-NR]
 from "react" import useRef, useEffect
-from "../utils/sparkEngine.hs" import create_sparks, render_sparks, set_ref, set_canvas_size
+from "../utils/sparkEngine.hys" import create_sparks, render_sparks, set_ref, set_canvas_size
 
 component ClickSpark(children=None, sparkColor="#f54e00", sparkSize=10, sparkRadius=15, sparkCount=8, duration=400, easing="ease-out", extraScale=1.0, className=""):
     canvas_ref = useRef(None)

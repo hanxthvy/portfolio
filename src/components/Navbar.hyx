@@ -1,6 +1,7 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect, useRef
-from "../utils/staggeredMenuEngine.hs" import init_menu_gsap, play_open_menu, play_close_menu, animate_menu_icon, animate_menu_text
+from "./ClickSpark.hyx" import ClickSpark
+from "../utils/staggeredMenuEngine.hys" import init_menu_gsap, play_open_menu, play_close_menu, animate_menu_icon, animate_menu_text
 
 default_items = [
     {"label": "About", "link": "#about", "num": "01"},

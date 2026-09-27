@@ -1,6 +1,6 @@
 # [xihanzu-NR]
 from "react" import useState
-from "./TiltCard.hsx" import TiltCard
+from "./TiltCard.hyx" import TiltCard
 
 artifacts_data = [
     {

@@ -11,7 +11,7 @@ tech_categories = [
         "index": "02",
         "category": "Frontend & Web",
         "description": "Framework dan tools untuk membangun tampilan web interaktif",
-        "items": ["React", "Tailwind CSS", "Vite", "HydraScript (.hsx)", "HTML5 / Canvas"],
+        "items": ["React", "Tailwind CSS", "Vite", "HydraScript (.hyx)", "HTML5 / Canvas"],
     },
     {
         "index": "03",
