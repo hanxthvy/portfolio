@@ -1,7 +1,10 @@
 # [xihanzu-NR]
-from "react-dom/client" import createRoot
+from "react-dom/client" import createRoot, hydrateRoot
 from "./App.hyx" import App
 import "./index.css"
 
 root_el = document.getElementById("root")
-createRoot(root_el).render(App())
+if root_el and root_el.hasChildNodes():
+    hydrateRoot(root_el, App())
+elif root_el:
+    createRoot(root_el).render(App())
