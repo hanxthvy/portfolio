@@ -1,0 +1,69 @@
+# [xihanzu-NR]
+
+experiences_data = [
+    {
+        "role": "Industrial Intern – Mounting & Cutting PCB Audio",
+        "focus": "Pemasangan (mounting) komponen elektronika dan pemotongan (cutting) panel PCB audio industri di PT Panasonic Manufacturing Indonesia.",
+        "impact": [
+            "Menyelesaikan masa Praktik Kerja Lapangan (PKL) di Business Unit Audio bagian PCB Assembly (Mounting & Cutting) periode November 2025 – Januari 2026.",
+            "Meraih nilai akhir 94.3% (Grade A) mencakup aspek disiplin, mutu kerja, sikap, inisiatif, dan teknis.",
+            "Mempelajari standar alur produksi manufaktur elektronika dan ketelitian penempatan komponen fisik.",
+        ],
+    },
+    {
+        "role": "HydraScript – Compiler Toolchain (Personal Project)",
+        "focus": "Proyek eksplorasi pembuatan compiler sederhana berbasis Rust untuk mentranspilasi sintaks Pythonic menjadi TSX dan ES modules.",
+        "impact": [
+            "Merancang parser AST dan generator kode untuk komponen UI berbasis web.",
+            "Membuat plugin integrasi Vite untuk kompilasi berkas .hsx secara lokal saat development.",
+            "Memahami konsep dasar perancangan bahasa, tokenisasi, dan transformasi sintaks.",
+        ],
+    },
+    {
+        "role": "Homelab & Bare-Metal Server (HPE ProLiant DL360 Gen9)",
+        "focus": "Pengelolaan server fisik rack 1U HPE ProLiant DL360 Gen9 di kamar berbasis Proxmox VE 8, tunneling WireGuard via VPS untuk bypass CGNAT, dan node hosting Pterodactyl.",
+        "impact": [
+            "Mengonfigurasi tunnel WireGuard ke VPS publik untuk bypass CGNAT ISP rumah sehingga server lokal mendapatkan akses IP publik dedicated.",
+            "Menjalankan node web dan game hosting berbasis Pterodactyl Panel serta beberapa container LXC di atas host fisik RAM 15.5GB.",
+            "Mengelola administrasi Linux, pemantauan resource CPU/RAM, dan troubleshooting routing jaringan secara mandiri.",
+        ],
+    },
+    {
+        "role": "Android Flashing & Kernel Overclocking (itel RS4)",
+        "focus": "Eksperimen flashing custom ROM AxionOS 2.6 (AOSP) dan tuning kernel untuk memaksimalkan performa harian smartphone.",
+        "impact": [
+            "Melakukan flashing custom ROM AOSP AxionOS 2.6 berbasis Android pada smartphone itel RS4 Helio G99.",
+            "Menerapkan konfigurasi overclocking kernel dan penyesuaian governor CPU/GPU.",
+            "Mengecek stabilitas sistem, konsumsi daya, dan suhu perangkat saat pengujian performa.",
+        ],
+    },
+]
+
+component Experience():
+    section(id="experience", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
+        # Header
+        div(className="max-w-3xl mb-14"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
+                "// RIWAYAT & PENGALAMAN"
+            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
+                "Pengalaman Magang & Proyek Mandiri"
+            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
+                "Catatan pengalaman magang di industri manufaktur serta proyek eksplorasi teknis yang saya kerjakan secara mandiri."
+
+        # Tabular Timeline
+        div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
+            for exp in experiences_data:
+                div(
+                    key=exp["role"],
+                    className="py-8 sm:py-10 text-left transition-colors",
+                ):
+                    h3(className="text-[19px] sm:text-[21px] font-semibold leading-[1.3] text-[#26251e] mb-2"):
+                        exp["role"]
+                    p(className="text-sm font-normal text-[#5a5852] leading-[1.6] mb-4"):
+                        exp["focus"]
+                    ul(className="space-y-2.5"):
+                        for item in exp["impact"]:
+                            li(key=item, className="text-sm font-normal text-[#5a5852] leading-[1.55] flex items-start gap-2.5"):
+                                span(className="text-[#f54e00] font-mono text-xs pt-1 select-none"):
+                                    "—"
+                                span(): item

@@ -1,0 +1,231 @@
+# [xihanzu-NR]
+from "../utils/date" import get_age
+
+current_age = get_age("2009-04-10")
+export hero_subtitle = "Siswa SMK Ma'arif 1 Kroya berusia 17 tahun yang aktif mengeksplorasi web development, server Linux, toolchain compiler, dan perakitan hardware."
+lead_text = "Saya suka mengulik teknologi dari level perakitan hardware, pengelolaan server Linux, hingga pembuatan website."
+
+export profile = {
+    "name": "Reyhan Akhtar Afriansyah",
+    "nickname": "Hanz",
+    "handle": "@hanz",
+    "age": current_age,
+    "birthDate": "2009-04-10",
+    "school": "SMK Ma'arif 1 Kroya",
+    "title": "Developer & Siswa SMK",
+    "dailyOS": "Void Linux (runit)",
+    "tagline": "Eksplorasi web development, Linux server, dan hardware elektronika.",
+    "bio": "Minat utama saya ada di pengembangan web (React, Node.js, TypeScript), pengelolaan server fisik di rumah menggunakan Proxmox VE & LXC container, eksperimen compiler sederhana di Rust (HydraScript), serta perakitan perangkat elektronik.",
+    "about": "Pernah menjalani Praktik Kerja Lapangan (PKL) di PT Panasonic Manufacturing Indonesia bagian perakitan PCB audio (mounting komponen & cutting panel) dengan nilai 94.3 (Grade A), serta menyelesaikan kelas sertifikasi back-end di Dicoding Indonesia.",
+    "status": "Terbuka untuk kesempatan magang dan proyek web/software",
+    "email": "contact@hanz.dev",
+    "github": "https://github.com/hanxthvy",
+    "whatsapp": "https://wa.me/6281234567890",
+}
+
+export about_narrative = {
+    "headline": "Engineering with mechanical sympathy and radical discipline.",
+    "lead": lead_text,
+    "journey": [
+        "Perjalanan engineering saya berakar dari rasa ingin tahu bagaimana komputer bekerja dari physical layer terbawah. Bekerja pada bagian mounting komponen dan cutting panel PCB audio di PT Panasonic Manufacturing Indonesia memberi saya pemahaman nyata tentang penempatan komponen fisik, signal pathway, dan toleransi produksi manufaktur presisi.",
+        "Intuisi fisik itu saya bawa langsung ke software engineering. Baik saat mengelola bare-metal virtualization dengan Proxmox VE dan LXC container, mengembangkan native language compiler di Rust (HydraScript) yang menghasilkan zero-runtime output, hingga flashing custom ROM AxionOS dan kernel overclocking pada MediaTek Helio G99, saya menempatkan performa, kepastian alokasi memory, dan keandalan sistem sebagai prioritas mutlak.",
+    ],
+    "collaboration": [
+        "Dalam kerja tim, saya mengedepankan komunikasi yang jernih, transparan, dan berbobot. Engineering yang bagus bukan tentang bikin abstraksi rumit; melainkan menulis kode yang bersih, deterministik, dan mudah dipahami serta di-maintain oleh rekan tim tanpa keraguan.",
+        "Saya memprioritaskan error handling yang disiplin di setiap module boundary, dependency footprint yang minimal, dan diskusi teknis objektif tanpa ego. Ketika dihadapkan pada pilihan antara spekulasi kompleks atau keandalan yang teruji, saya selalu memilih solusi yang reliable, cepat, dan teruji.",
+    ],
+    "quote": "True engineering craftsmanship is not adding layers until nothing more can be conceived, but refining them until nothing more can be removed.",
+    "principles": [
+        {
+            "index": "01",
+            "title": "Mechanical Sympathy",
+            "summary": "Hardware-aware execution",
+            "description": "Merancang sistem software yang selaras dengan CPU branch prediction, hierarki memory cache (L1/L2/L3), dan OS kernel scheduling.",
+        },
+        {
+            "index": "02",
+            "title": "Zero-Cost Discipline",
+            "summary": "Compile-time verification",
+            "description": "Menegakkan validasi ketat dan type safety saat compile time agar runtime execution di production tetap deterministik, ringan, dan kencang.",
+        },
+        {
+            "index": "03",
+            "title": "Hardware Grounding",
+            "summary": "Physical electronics foundation",
+            "description": "Menerapkan wawasan dari mounting komponen presisi, toleransi cutting panel PCB industri, dan bare-metal server monitoring ke arsitektur software.",
+        },
+        {
+            "index": "04",
+            "title": "Radical Simplicity",
+            "summary": "Boring over clever",
+            "description": "Menolak framework berlebih dan bloated abstractions. Baris kode paling tangguh dan cepat adalah baris kode yang tidak perlu ditulis.",
+        },
+    ],
+}
+
+export stats = [
+    {
+        "label": "PKL Industri",
+        "value": "PT Panasonic Mfg",
+        "desc": "Mounting & Cutting PCB · Nilai 94.3 (Grade A)",
+    },
+    {
+        "label": "Virtualization",
+        "value": "Proxmox & LXC",
+        "desc": "Bare-metal container orchestration",
+    },
+    {
+        "label": "Compiler Core",
+        "value": "HydraScript (Rust)",
+        "desc": "Cold compile ~1ms · Zero runtime overhead",
+    },
+    {
+        "label": "Back-End Certified",
+        "value": "Dicoding Certified",
+        "desc": "JavaScript, Node.js & Dasar AI",
+    },
+]
+
+export artifacts = [
+    {
+        "id": "panasonic-cert",
+        "title": "Sertifikat Fisik PKL Industri & Dicoding",
+        "category": "Credentials",
+        "date": "Jan — Feb 2026",
+        "image": "/images/PXL_20260403_113133217.jpg",
+        "docLink": "/docs/photo_descriptions/PXL_20260403_113133217.md",
+        "description": "Dokumentasi autentik sertifikat fisik Praktik Kerja Lapangan di PT Panasonic Manufacturing Indonesia (Audio PCB Assembly, Nilai 94.3 / Grade A) dan certified back-end credentials dari Dicoding Indonesia.",
+        "tags": ["PKL Industri", "Panasonic Mfg", "Grade A 94.3%", "Dicoding"],
+        "metrics": "Score: 94.3 / 100 · 3 Bulan Industrial Placement",
+    },
+    {
+        "id": "proxmox-telemetry",
+        "title": "Homelab HPE ProLiant DL360 Gen9 & Pterodactyl",
+        "category": "Infrastructure",
+        "date": "Mei 2026",
+        "image": "/images/VID_20260514105929529.jpg",
+        "docLink": "/docs/photo_descriptions/PXL_20260508_092349561.md",
+        "description": "Dokumentasi live telemetry monitor Proxmox VE pada server fisik rack 1U HPE ProLiant DL360 Gen9 di kamar yang difungsikan sebagai node hosting Pterodactyl melalui tunnel WireGuard VPS (bypass CGNAT).",
+        "tags": ["HPE DL360 Gen9", "Proxmox VE", "WireGuard CGNAT", "Pterodactyl"],
+        "metrics": "HPE DL360 Gen9 · WireGuard CGNAT Bypass · Pterodactyl",
+    },
+    {
+        "id": "axion-rom",
+        "title": "Custom ROM AxionOS & Overclocking itel RS4",
+        "category": "Mobile & Firmware",
+        "date": "Mei 2026",
+        "image": "/images/PXL_20260528_190505951.jpg",
+        "docLink": "/docs/photo_descriptions/PXL_20260528_190505951.md",
+        "description": "Dokumentasi smartphone itel RS4 (MediaTek Helio G99, RAM 8GB) setelah di-flash custom ROM AxionOS 2.6 AOSP dan dilakukan kernel overclocking untuk performa komputasi maksimal.",
+        "tags": ["Flashing ROM", "AxionOS AOSP", "Overclocking", "MediaTek G99"],
+        "metrics": "AxionOS 2.6 AOSP · Overclocked Helio G99",
+    },
+    {
+        "id": "pcb-inspection",
+        "title": "Mounting Komponen & Cutting Panel PCB Audio",
+        "category": "Hardware Assembly",
+        "date": "Mei 2026",
+        "image": None,
+        "docLink": "/docs/photo_descriptions/VID_20260514105929529.md",
+        "description": "Pemeriksaan visual penempatan komponen (mounting) dan presisi pemotongan (cutting) panel PCB audio industri di lini produksi PT Panasonic Manufacturing Indonesia.",
+        "tags": ["Mounting PCB", "Cutting PCB", "Audio Elektronik", "Panasonic"],
+        "metrics": "Toleransi presisi cutting · Mounting komponen akurat",
+    },
+]
+
+export tech_stack = [
+    {
+        "category": "Languages",
+        "items": ["TypeScript", "JavaScript", "Rust", "Go", "Python", "Bash / Shell", "SQL"],
+    },
+    {
+        "category": "Frontend & Compilers",
+        "items": ["React 18+", "Tailwind CSS", "Vite", "HydraScript (.hsx)", "HTML5 / WebGL / Canvas"],
+    },
+    {
+        "category": "Backend & Virtualization",
+        "items": ["Node.js", "Express", "Proxmox VE 8.x", "LXC Containers", "Docker", "REST / WebSockets"],
+    },
+    {
+        "category": "Systems & Hardware",
+        "items": ["Linux Kernel", "Flashing AOSP / Android", "Kernel Overclocking", "Mounting & Cutting PCB", "Git & GitHub"],
+    },
+]
+
+export experiences = [
+    {
+        "period": "2025 — 2026",
+        "role": "Industrial Intern – Mounting & Cutting PCB Audio",
+        "organization": "PT Panasonic Manufacturing Indonesia",
+        "focus": "Pemasangan (mounting) komponen elektronika presisi dan pemotongan (cutting) panel PCB audio industri sesuai standar mutu manufaktur.",
+        "impact": [
+            "Menyelesaikan masa Praktik Kerja Lapangan (PKL) di Business Unit Audio bagian PCB Assembly (Mounting & Cutting) periode November 2025 – Januari 2026.",
+            "Meraih predikat kelulusan Grade A dengan nilai akhir 94.3% (Disiplin: 96, Motivasi: 90, Mutu Kerja: 95, Sikap: 95, Inisiatif: 96, Teknis: 94).",
+            "Menerapkan standar presisi tinggi dalam proses mounting komponen audio dan pemotongan panel PCB.",
+        ],
+    },
+    {
+        "period": "2024 — Sekarang",
+        "role": "Compiler & Systems Architect",
+        "organization": "Hydra Toolchain & Language Runtimes",
+        "focus": "Native compiler architecture, zero-cost language runtime, dan pipeline AST parsing berkinerja tinggi.",
+        "impact": [
+            "Merancang native compiler toolchain berbasis Rust yang mentranspilasi sintaks Pythonic menjadi TSX dan ES modules dengan cold compile ~1ms.",
+            "Mengembangkan Vite HMR plugin untuk kompilasi inkremental real-time tanpa runtime overhead eksternal.",
+            "Membangun arsitektur AST parser deterministik untuk komponen UI deklaratif.",
+        ],
+    },
+    {
+        "period": "2024 — Sekarang",
+        "role": "Virtualization & Homelab Systems Engineer",
+        "organization": "Proxmox VE & LXC Infrastructure",
+        "focus": "Bare-metal Linux virtualization, isolasi LXC container, dan optimasi memory host.",
+        "impact": [
+            "Mengelola server node fisik berbasis Proxmox VE dengan dynamic memory allocation dan Kernel Samepage Merging (ksmtuned).",
+            "Mengonfigurasi isolasi filesystem container melalui lxcfs dan daemon pve-lxc-syscalld.",
+            "Monitoring health storage drive secara berkala menggunakan S.M.A.R.T telemetry daemon.",
+        ],
+    },
+    {
+        "period": "2024",
+        "role": "Firmware Customization & Mobile Overclocking",
+        "organization": "AxionOS Flashing & Helio G99 Tuning",
+        "focus": "Flashing custom ROM AOSP (AxionOS 2.6), kernel tuning, serta CPU/GPU overclocking pada MediaTek Helio G99.",
+        "impact": [
+            "Melakukan flashing dan tuning custom ROM AxionOS 2.6 AOSP pada smartphone itel RS4.",
+            "Overclocking prosesor MediaTek Helio G99 dan tuning kernel untuk stabilitas dan performa maksimal.",
+            "Optimalisasi manajemen memory 8GB RAM dan thermal headroom perangkat saat heavy load.",
+        ],
+    },
+]
+
+export credentials = [
+    {
+        "name": "Sertifikat Praktik Kerja Lapangan (PKL) – Audio PCB Assembly (Nilai 94.3 / Grade A)",
+        "issuer": "PT Panasonic Manufacturing Indonesia",
+        "year": "2026",
+        "id": "561/AD-PERS/I/2026",
+        "url": "/docs/photo_descriptions/PXL_20260403_113133217.md",
+    },
+    {
+        "name": "Belajar Back-End Pemula dengan JavaScript",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "98XWO65KLXM3",
+        "url": "https://www.dicoding.com/certificates/98XWO65KLXM3",
+    },
+    {
+        "name": "Belajar Dasar AI",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "RVZKO4110ZD5",
+        "url": "/docs/photo_descriptions/PXL_20260403_113133217.md",
+    },
+    {
+        "name": "Belajar Dasar Pemrograman JavaScript",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "DICODING-JS-2026",
+        "url": "/docs/photo_descriptions/PXL_20260403_113133217.md",
+    },
+]

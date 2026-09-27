@@ -1,0 +1,60 @@
+# [xihanzu-NR]
+
+tech_categories = [
+    {
+        "index": "01",
+        "category": "Bahasa Pemrograman",
+        "description": "Bahasa yang sering saya gunakan untuk web, scripting, dan eksplorasi kode",
+        "items": ["TypeScript", "JavaScript", "Rust", "Go", "Python", "Bash / Shell", "SQL"],
+    },
+    {
+        "index": "02",
+        "category": "Frontend & Web",
+        "description": "Framework dan tools untuk membangun tampilan web interaktif",
+        "items": ["React", "Tailwind CSS", "Vite", "HydraScript (.hsx)", "HTML5 / Canvas"],
+    },
+    {
+        "index": "03",
+        "category": "Backend & Server",
+        "description": "Lingkungan server, database, dan virtualisasi homelab",
+        "items": ["Node.js", "Express", "Void Linux (runit)", "Proxmox VE 8", "LXC Containers", "Docker", "WireGuard", "Pterodactyl", "Git & GitHub"],
+    },
+]
+
+component TechStack():
+    section(id="tech-stack", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
+        # Header
+        div(className="max-w-3xl mb-14"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
+                "// TOOLS & KEAHLIAN"
+            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
+                "Teknologi yang Digunakan"
+            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
+                "Bahasa pemrograman, runtime, dan tools yang aktif saya gunakan dalam pengerjaan proyek web dan server."
+
+        # Cardless Architectural Spec Ledger
+        div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
+            for cat in tech_categories:
+                div(
+                    key=cat["category"],
+                    className="py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start group",
+                ):
+                    # Category Column
+                    div(className="lg:col-span-4 space-y-1.5"):
+                        div(className="flex items-center gap-2.5"):
+                            span(className="text-xs font-mono text-[#f54e00] font-semibold select-none"):
+                                cat["index"]
+                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                                cat["category"]
+                        p(className="text-xs font-normal text-[#5a5852] leading-relaxed max-w-sm pt-0.5"):
+                            cat["description"]
+
+                    # Items Grid
+                    div(className="lg:col-span-8"):
+                        div(className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3"):
+                            for item in cat["items"]:
+                                div(key=item, className="flex items-center gap-2.5 text-[14px] font-mono text-[#26251e] group/item hover:text-[#f54e00] transition-colors"):
+                                    span(className="text-[#cfcdc4] group-hover/item:text-[#f54e00] font-mono text-xs select-none transition-colors"):
+                                        "—"
+                                    span(className="font-medium tracking-tight"):
+                                        item

@@ -1,0 +1,38 @@
+# [xihanzu-NR]
+from "./StrokeText.hsx" import StrokeText
+
+component Hero(className=""):
+    section(className=f"min-h-[100svh] w-full flex flex-col justify-center pt-16 pb-8 px-5 sm:px-8 max-w-[1200px] mx-auto text-left {className}"):
+        div(className="max-w-4xl -mt-8 sm:-mt-14"):
+            p(className="text-xs sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#f54e00] mb-2 sm:mb-3"):
+                "// DEVELOPER & SYSTEMS ENTHUSIAST"
+
+            h1(className="mb-3 sm:mb-4 w-full"):
+                StrokeText(
+                    text="Reyhan Akhtar Afriansyah",
+                    strokeColor="#f54e00",
+                    fillColor="#26251e",
+                    strokeWidth=1.5,
+                    drawDuration=1.5,
+                    fillDelay=0.15,
+                    fontSize=72,
+                    fontWeight=500,
+                    letterSpacing=-2,
+                )
+
+            p(className="text-[15px] sm:text-[18px] lg:text-[19px] font-normal leading-[1.6] text-[#5a5852] max-w-2xl mb-6 sm:mb-8"):
+                "Siswa SMK Ma'arif 1 Kroya berusia 17 tahun yang aktif mengeksplorasi web development, server Linux, toolchain compiler, dan perakitan hardware."
+
+            div(className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
+                a(
+                    href="#experience",
+                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#f54e00] text-white text-[14px] font-medium leading-none hover:bg-[#d04200] transition-colors shadow-sm",
+                ):
+                    span(): "Lihat Pengalaman"
+                    span(className="ml-2 text-xs"): "↓"
+                a(
+                    href="#evidence",
+                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-white border border-[#cfcdc4] text-[#26251e] text-[14px] font-medium leading-none hover:border-[#26251e] transition-colors",
+                ):
+                    span(): "Lihat Dokumentasi"
+                    span(className="ml-2 text-xs"): "→"

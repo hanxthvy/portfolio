@@ -1,0 +1,82 @@
+# [xihanzu-NR]
+from "react" import useState
+
+component Contact():
+    copied, set_copied = useState(False)
+
+    def copy_email():
+        navigator.clipboard.writeText("contact@hanz.dev")
+        set_copied(True)
+        setTimeout(lambda: set_copied(False), 2000)
+
+    section(id="contact", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
+        div(className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mb-20"):
+            # Left Column: Statement & Direct Actions
+            div(className="lg:col-span-6 space-y-6"):
+                p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72]"):
+                    "// KONTAK"
+                h2(className="text-3xl sm:text-4xl lg:text-[44px] font-normal leading-[1.12] tracking-[-1px] text-[#26251e]"):
+                    "Mari terhubung dan berkolaborasi."
+                p(className="text-base sm:text-lg font-normal leading-[1.6] text-[#5a5852] max-w-lg"):
+                    "Terbuka untuk kesempatan magang, proyek web development, atau sekadar bertukar pikiran seputar teknologi dan open-source."
+
+                div(className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
+                    a(
+                        href="mailto:contact@hanz.dev",
+                        className="h-11 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#26251e] text-[#f7f7f4] text-sm font-medium hover:bg-[#f54e00] transition-colors shadow-sm",
+                    ):
+                        span(): "Kirim Email"
+                        span(className="ml-2 font-mono text-xs"): "↗"
+
+                    button(
+                        onClick=copy_email,
+                        className="h-11 px-5 inline-flex items-center justify-center rounded-[8px] border border-[#cfcdc4] bg-white text-xs font-mono text-[#26251e] hover:border-[#26251e] transition-colors cursor-pointer",
+                    ):
+                        "[TERSALIN]" if copied else "[SALIN EMAIL]"
+
+            # Right Column: Clean Editorial Channel List (Zero Cards)
+            div(className="lg:col-span-6 flex flex-col justify-center"):
+                div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
+                    # Channel 1: Email
+                    div(className="py-4 flex items-center justify-between group"):
+                        div():
+                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Email"
+                            a(href="mailto:contact@hanz.dev", className="text-[15px] font-mono font-medium text-[#26251e] hover:text-[#f54e00] transition-colors"):
+                                "contact@hanz.dev"
+                        button(
+                            onClick=copy_email,
+                            className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors cursor-pointer",
+                        ):
+                            "[TERSALIN]" if copied else "[SALIN]"
+
+                    # Channel 2: GitHub
+                    a(
+                        href="https://github.com/hanxthvy",
+                        target="_blank",
+                        rel="noreferrer",
+                        className="py-4 flex items-center justify-between group transition-colors",
+                    ):
+                        div():
+                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "GitHub"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                                "github.com/hanxthvy"
+                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
+
+                    # Channel 3: WhatsApp
+                    a(
+                        href="https://wa.me/6281234567890",
+                        target="_blank",
+                        rel="noreferrer",
+                        className="py-4 flex items-center justify-between group transition-colors",
+                    ):
+                        div():
+                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "WhatsApp"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                                "+62 812-3456-7890"
+                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
+
+        # Footer
+        footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
+            p(): "HANZ.DEV // REYHAN AKHTAR AFRIANSYAH"
+            p(): "Dibuat dengan HydraScript (.hsx/.hs) & Vite"
+            p(): "© 2026 Hanz. All rights reserved."

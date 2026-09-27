@@ -1,0 +1,84 @@
+# [xihanzu-NR]
+from "react" import useRef, useEffect
+from "../utils/sparkEngine.hs" import create_sparks, render_sparks, set_ref, set_canvas_size
+
+component ClickSpark(children=None, sparkColor="#f54e00", sparkSize=10, sparkRadius=15, sparkCount=8, duration=400, easing="ease-out", extraScale=1.0, className=""):
+    canvas_ref = useRef(None)
+    sparks_ref = useRef([])
+    anim_id_ref = useRef(None)
+
+    def run_animation():
+        if anim_id_ref.current:
+            return None
+
+        def loop(timestamp):
+            canvas = canvas_ref.current
+            if not canvas:
+                set_ref(anim_id_ref, None)
+                return None
+
+            ctx = canvas.getContext("2d")
+            if not ctx:
+                set_ref(anim_id_ref, None)
+                return None
+
+            if len(sparks_ref.current) > 0:
+                next_sparks = render_sparks(
+                    ctx,
+                    canvas.width,
+                    canvas.height,
+                    sparks_ref.current,
+                    timestamp,
+                    duration,
+                    sparkRadius,
+                    extraScale,
+                    sparkSize,
+                    sparkColor,
+                    easing,
+                )
+                set_ref(sparks_ref, next_sparks)
+                set_ref(anim_id_ref, requestAnimationFrame(loop))
+            else:
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                set_ref(anim_id_ref, None)
+
+        set_ref(anim_id_ref, requestAnimationFrame(loop))
+
+    def handle_click(e):
+        canvas = canvas_ref.current
+        if canvas:
+            rect = canvas.getBoundingClientRect()
+            x = e.clientX - rect.left
+            y = e.clientY - rect.top
+            now = performance.now()
+            new_sparks = create_sparks(x, y, sparkCount, now)
+            sparks_ref.current.push(*new_sparks)
+            run_animation()
+
+    def init_spark_canvas():
+        canvas = canvas_ref.current
+        if not canvas:
+            return None
+
+        def update_size():
+            w = window.innerWidth
+            h = window.innerHeight
+            if canvas.width != w or canvas.height != h:
+                set_canvas_size(canvas, w, h)
+
+        update_size()
+        window.addEventListener("orientationchange", update_size)
+
+        def cleanup():
+            window.removeEventListener("orientationchange", update_size)
+            if anim_id_ref.current:
+                cancelAnimationFrame(anim_id_ref.current)
+                set_ref(anim_id_ref, None)
+
+        return cleanup
+
+    useEffect(init_spark_canvas, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easing, extraScale])
+
+    div(className=f"relative w-full {className}", onClick=handle_click):
+        canvas(ref=canvas_ref, className="fixed inset-0 pointer-events-none z-50")
+        children

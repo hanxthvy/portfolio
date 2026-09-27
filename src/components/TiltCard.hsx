@@ -1,0 +1,28 @@
+# [xihanzu-NR]
+from "react" import useState
+
+component TiltCard(children, className="", maxTilt=6):
+    rot_x, set_rot_x = useState(0)
+    rot_y, set_rot_y = useState(0)
+    is_hovered, set_is_hovered = useState(False)
+
+    def handle_mouse_move(e):
+        rect = e.currentTarget.getBoundingClientRect()
+        nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
+        ny = ((e.clientY - rect.top) / rect.height) * 2 - 1
+        set_rot_x(-ny * maxTilt)
+        set_rot_y(nx * maxTilt)
+
+    def handle_leave():
+        set_is_hovered(False)
+        set_rot_x(0)
+        set_rot_y(0)
+
+    div(
+        onMouseMove=handle_mouse_move,
+        onMouseEnter=lambda: set_is_hovered(True),
+        onMouseLeave=handle_leave,
+        className=f"relative will-change-transform transform-gpu {className}",
+        style={"perspective": "1000px", "transform": f"perspective(1000px) rotateX({rot_x}deg) rotateY({rot_y}deg) translate3d(0, -2px, 0)" if is_hovered else "none", "transformStyle": "preserve-3d"},
+    ):
+        children
