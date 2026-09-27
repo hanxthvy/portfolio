@@ -42,14 +42,14 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#f54e00", fil
         className=f"block w-full leading-[0] {className}",
         style=style,
         role="img",
-        ariaLabel=text,
+        aria_label=text,
     ):
         svg(
             className="block w-full overflow-visible",
             style={"height": "auto", "maxHeight": "110px"},
             viewBox=view_box,
             preserveAspectRatio="xMinYMid meet",
-            ariaHidden="true",
+            aria_hidden=True,
         ):
             if fillMode == "wipe" and box:
                 defs():

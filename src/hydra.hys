@@ -1,6 +1,7 @@
 # [xihanzu-NR]
 # Hydra runtime — Pythonic batteries for React & Web platforms.
-from "react" import useState, useEffect, useRef, useCallback
+from "react" import useState, useEffect, useRef, useCallback, createElement
+from "react-dom/client" import createRoot, hydrateRoot
 
 export def state(initial):
     val, set_val = useState(initial)
@@ -23,3 +24,48 @@ export def use_mounted():
     mounted, set_mounted = useState(False)
     useEffect(lambda: set_mounted(True), [])
     return mounted
+
+# [xihanzu-NR]
+# SaaS routing & hydration helpers
+export def mount(vnode, element):
+    if not element:
+        return None
+    if element.hasChildNodes() and element.children.length > 0:
+        return hydrateRoot(element, vnode)
+    else:
+        root = createRoot(element)
+        root.render(vnode)
+        return root
+
+export def use_path():
+    get_path = lambda: (window.location.pathname if window.location.pathname != "/" else (window.location.hash or "/")) if (typeof window) != "undefined" else "/"
+    path, set_path = useState(get_path)
+    def on_popstate():
+        set_path(get_path())
+    def setup():
+        if (typeof window) != "undefined":
+            window.addEventListener("popstate", on_popstate)
+            window.addEventListener("hashchange", on_popstate)
+            def teardown():
+                window.removeEventListener("popstate", on_popstate)
+                window.removeEventListener("hashchange", on_popstate)
+            return teardown
+    useEffect(setup, [])
+    return path
+
+export def navigate(to):
+    if (typeof window) != "undefined":
+        window.history.pushState({}, "", to)
+        window.dispatchEvent(Reflect.construct(window.PopStateEvent, ["popstate"]))
+
+export def Link(props):
+    to = props.to or props.href or ""
+    def on_click(e):
+        if props.onClick:
+            props.onClick(e)
+        if not e.defaultPrevented and e.button == 0 and not e.metaKey and not e.altKey and not e.ctrlKey and not e.shiftKey:
+            e.preventDefault()
+            navigate(to)
+    link_props = Object.assign({}, props, {"href": to, "onClick": on_click})
+    return createElement("a", link_props, props.children)
+

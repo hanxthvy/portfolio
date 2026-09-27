@@ -12,6 +12,9 @@
     "target": "react-18",
     "strict": true
   },
+  "rendering": {
+    "ssg": true
+  },
   "styling": {
     "tailwind": true
   },

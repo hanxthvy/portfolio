@@ -16,7 +16,7 @@ component BackgroundGrid3D():
         lambda: window.removeEventListener("mousemove", handle_mouse)
     )[-1], [])
 
-    div(className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none", ariaHidden="true"):
+    div(className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none", aria_hidden=True):
         div(className="absolute inset-0 w-full h-full flex items-center justify-center [perspective:1000px]"):
             div(
                 className="w-[180vw] h-[180vh] transition-transform duration-700 ease-out will-change-transform transform-gpu",

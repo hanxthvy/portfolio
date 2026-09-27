@@ -118,7 +118,7 @@ component Navbar():
                 button(
                     onClick=toggle_menu,
                     className="h-10 px-3.5 inline-flex items-center gap-2 rounded-[8px] border border-[#cfcdc4] bg-white text-[#26251e] hover:border-[#26251e] transition-colors text-xs font-mono select-none cursor-pointer shadow-sm relative z-50",
-                    ariaLabel="Toggle Navigation Menu",
+                    aria_label="Toggle Navigation Menu",
                 ):
                     # Rolling Text (Menu / Close)
                     span(className="relative inline-block h-3.5 overflow-hidden w-9 text-left font-medium"):
@@ -135,7 +135,7 @@ component Navbar():
         div(
             ref=pre_container_ref,
             className="fixed top-0 right-0 bottom-0 pointer-events-none z-[60] w-full sm:w-[420px] h-full",
-            ariaHidden="true",
+            aria_hidden=True,
         ):
             for c in prelayer_colors:
                 div(
@@ -155,7 +155,7 @@ component Navbar():
         aside(
             ref=panel_ref,
             className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
-            ariaHidden=not is_open,
+            aria_hidden=not is_open,
         ):
             # Top header inside panel
             div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):
