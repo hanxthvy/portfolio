@@ -15,7 +15,7 @@ experiences_data = [
         "focus": "Proyek eksplorasi pembuatan compiler sederhana berbasis Rust untuk mentranspilasi sintaks Pythonic menjadi TSX dan ES modules.",
         "impact": [
             "Merancang parser AST dan generator kode untuk komponen UI berbasis web.",
-            "Membuat plugin integrasi Vite untuk kompilasi berkas .hsx secara lokal saat development.",
+            "Membuat plugin integrasi Vite untuk kompilasi berkas .hyx secara lokal saat development.",
             "Memahami konsep dasar perancangan bahasa, tokenisasi, dan transformasi sintaks.",
         ],
     },

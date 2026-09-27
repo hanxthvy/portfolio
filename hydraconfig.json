@@ -16,6 +16,10 @@
     "tailwind": true
   },
   "tailwind": {
+    "content": [
+      "./index.html",
+      "./src/**/*.{hyx,hys,html,css}"
+    ],
     "theme": {
       "extend": {
         "colors": {

@@ -1,5 +1,5 @@
 # [xihanzu-NR]
-from "./StrokeText.hsx" import StrokeText
+from "./StrokeText.hyx" import StrokeText
 
 component Hero(className=""):
     section(className=f"min-h-[100svh] w-full flex flex-col justify-center pt-16 pb-8 px-5 sm:px-8 max-w-[1200px] mx-auto text-left {className}"):

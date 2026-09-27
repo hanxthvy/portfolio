@@ -78,5 +78,5 @@ component Contact():
         # Footer
         footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
             p(): "HANZ.DEV // REYHAN AKHTAR AFRIANSYAH"
-            p(): "Dibuat dengan HydraScript (.hsx/.hs) & Vite"
+            p(): "Dibuat dengan HydraScript (.hyx/.hys) & Vite"
             p(): "© 2026 Hanz. All rights reserved."
