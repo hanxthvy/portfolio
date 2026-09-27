@@ -1,0 +1,86 @@
+# [xihanzu-NR]
+from "react" import useRef, useState, useEffect, useId
+from "../utils/strokeEngine.hs" import split_indexed_chars, measure_bbox, is_box_equal, animate_stroke
+
+component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#f54e00", fillColor="#26251e", strokeWidth=1.5, drawDuration=1.5, fillDelay=0.15, stagger=0.04, ease="power2.out", fillMode="wipe", fontSize=72, fontWeight=500, letterSpacing=-2, className="", style={}):
+    root_ref = useRef(None)
+    stroke_text_ref = useRef(None)
+    wipe_rect_ref = useRef(None)
+    box, set_box = useState(None)
+
+    raw_id = useId()
+    clean_id = raw_id.replace(":", "").replace("-", "")
+    wipe_id = f"stroke-wipe-{clean_id}"
+    characters = split_indexed_chars(text)
+    dash = 500
+
+    def measure_effect():
+        node = stroke_text_ref.current
+        if node:
+            bbox = measure_bbox(node, strokeWidth, fontSize)
+            if bbox and not is_box_equal(box, bbox):
+                set_box(bbox)
+        return lambda: None
+
+    useEffect(measure_effect, [text, fontSize, strokeWidth])
+
+    def anim_effect():
+        root = root_ref.current
+        if not root or not box:
+            return lambda: None
+
+        wipe_rect = wipe_rect_ref.current
+        tl = animate_stroke(root, wipe_rect, box["width"], dash, drawDuration, fillDelay, stagger, ease, fillMode)
+        return lambda: tl.kill() if tl else None
+
+    useEffect(anim_effect, [box, drawDuration, fillDelay, stagger, ease, fillMode])
+
+    view_box = f"{box['x']} {box['y']} {box['width']} {box['height']}" if box else f"0 {-fontSize} 850 {fontSize * 1.3}"
+
+    span(
+        ref=root_ref,
+        className=f"block w-full leading-[0] {className}",
+        style=style,
+        role="img",
+        ariaLabel=text,
+    ):
+        svg(
+            className="block w-full overflow-visible",
+            style={"height": "auto", "maxHeight": "110px"},
+            viewBox=view_box,
+            preserveAspectRatio="xMinYMid meet",
+            ariaHidden="true",
+        ):
+            if fillMode == "wipe" and box:
+                defs():
+                    clipPath(id=wipe_id, clipPathUnits="userSpaceOnUse"):
+                        rect(ref=wipe_rect_ref, x=box["x"], y=box["y"], width=0, height=box["height"])
+
+            text(
+                ref=stroke_text_ref,
+                className="select-none font-sans",
+                x=0,
+                y=0,
+                fill="none",
+                stroke=strokeColor,
+                strokeWidth=strokeWidth,
+                strokeLinejoin="round",
+                strokeLinecap="round",
+                style={"fontSize": f"{fontSize}px", "fontWeight": fontWeight, "letterSpacing": f"{letterSpacing}px"},
+            ):
+                for item in characters:
+                    tspan(data_stroke_char=True, key=f"s-{item['key']}"):
+                        item["char"]
+
+            text(
+                className="select-none font-sans",
+                x=0,
+                y=0,
+                fill=fillColor,
+                stroke="none",
+                style={"fontSize": f"{fontSize}px", "fontWeight": fontWeight, "letterSpacing": f"{letterSpacing}px"},
+                clipPath=f"url(#{wipe_id})" if fillMode == "wipe" and box else None,
+            ):
+                for item in characters:
+                    tspan(data_fill_char=True, key=f"f-{item['key']}"):
+                        item["char"]

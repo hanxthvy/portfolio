@@ -1,0 +1,31 @@
+# [xihanzu-NR]
+from "react" import useState, useEffect
+
+component BackgroundGrid3D():
+    sway, set_sway = useState({"rx": 58, "ry": 0})
+
+    def handle_mouse(e):
+        nx = (e.clientX / window.innerWidth) * 2 - 1
+        ny = (e.clientY / window.innerHeight) * 2 - 1
+        rx = 58 - ny * 3
+        ry = nx * 3
+        set_sway({"rx": rx, "ry": ry})
+
+    useEffect(lambda: (
+        window.addEventListener("mousemove", handle_mouse, {"passive": True}),
+        lambda: window.removeEventListener("mousemove", handle_mouse)
+    )[-1], [])
+
+    div(className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none", ariaHidden="true"):
+        div(className="absolute inset-0 w-full h-full flex items-center justify-center [perspective:1000px]"):
+            div(
+                className="w-[180vw] h-[180vh] transition-transform duration-700 ease-out will-change-transform transform-gpu",
+                style={
+                    "transform": f"perspective(1000px) rotateX({sway['rx']}deg) rotateZ({sway['ry']}deg) translateY(-10%)",
+                    "transformOrigin": "center 30%",
+                    "backgroundImage": "radial-gradient(circle at 1px 1px, #cfcdc4 1px, transparent 0)",
+                    "backgroundSize": "48px 48px",
+                    "maskImage": "radial-gradient(ellipse 65% 55% at 50% 45%, black 20%, transparent 80%)",
+                    "WebkitMaskImage": "radial-gradient(ellipse 65% 55% at 50% 45%, black 20%, transparent 80%)",
+                },
+            )

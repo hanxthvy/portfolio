@@ -1,0 +1,197 @@
+# [xihanzu-NR]
+from "react" import useState, useEffect, useRef
+from "../utils/staggeredMenuEngine.hs" import init_menu_gsap, play_open_menu, play_close_menu, animate_menu_icon, animate_menu_text
+
+default_items = [
+    {"label": "About", "link": "#about", "num": "01"},
+    {"label": "Experience", "link": "#experience", "num": "02"},
+    {"label": "Evidence", "link": "#evidence", "num": "03"},
+    {"label": "Credentials", "link": "#certificates", "num": "04"},
+    {"label": "Contact", "link": "#contact", "num": "05"},
+]
+
+default_socials = [
+    {"label": "GitHub", "link": "https://github.com/hanxthvy"},
+    {"label": "Email", "link": "mailto:contact@hanz.dev"},
+    {"label": "WhatsApp", "link": "https://wa.me/6281234567890"},
+]
+
+prelayer_colors = ["#e6e5e0", "#cfcdc4", "#26251e"]
+
+component Navbar():
+    scroll_progress, set_scroll_progress = useState(0)
+    is_scrolled, set_is_scrolled = useState(False)
+    is_open, set_is_open = useState(False)
+
+    panel_ref = useRef(None)
+    pre_container_ref = useRef(None)
+    icon_ref = useRef(None)
+    plus_h_ref = useRef(None)
+    plus_v_ref = useRef(None)
+    text_inner_ref = useRef(None)
+
+    def handle_scroll():
+        total_scroll = document.documentElement.scrollHeight - window.innerHeight
+        if total_scroll > 0:
+            pct = (window.scrollY / total_scroll) * 100
+            clamped = 0 if pct < 0 else (100 if pct > 100 else pct)
+            set_scroll_progress(clamped)
+        set_is_scrolled(window.scrollY > 20)
+
+    useEffect(lambda: (
+        window.addEventListener("scroll", handle_scroll, {"passive": True}),
+        lambda: window.removeEventListener("scroll", handle_scroll)
+    )[-1], [])
+
+    def init_effect():
+        panel = panel_ref.current
+        pre_container = pre_container_ref.current
+        layers = pre_container.children if pre_container else []
+        plus_h = plus_h_ref.current
+        plus_v = plus_v_ref.current
+        icon = icon_ref.current
+        text_inner = text_inner_ref.current
+        init_menu_gsap(panel, layers, plus_h, plus_v, icon, text_inner)
+        return lambda: None
+
+    useEffect(init_effect, [])
+
+    def open_menu():
+        panel = panel_ref.current
+        pre_container = pre_container_ref.current
+        layers = pre_container.children if pre_container else []
+        set_is_open(True)
+        animate_menu_icon(icon_ref.current, plus_h_ref.current, plus_v_ref.current, True)
+        animate_menu_text(text_inner_ref.current, True)
+        play_open_menu(panel, layers)
+
+    def close_menu():
+        panel = panel_ref.current
+        pre_container = pre_container_ref.current
+        layers = pre_container.children if pre_container else []
+        set_is_open(False)
+        animate_menu_icon(icon_ref.current, plus_h_ref.current, plus_v_ref.current, False)
+        animate_menu_text(text_inner_ref.current, False)
+        play_close_menu(panel, layers)
+
+    def toggle_menu():
+        if is_open:
+            close_menu()
+        else:
+            open_menu()
+
+    div():
+        # Top Navigation Bar (Fixed 64px)
+        header(
+            className=f"fixed top-0 left-0 right-0 z-40 transition-all duration-200 {'bg-[#f7f7f4]/95 backdrop-blur-md border-b border-[#e6e5e0] shadow-sm' if is_scrolled else 'bg-[#f7f7f4]/80 backdrop-blur-sm border-b border-transparent'}",
+        ):
+            # Scroll progress
+            div(className="absolute top-0 left-0 right-0 h-[2px] bg-[#e6e5e0]"):
+                div(
+                    className="h-full bg-[#f54e00] will-change-[width] transition-[width] duration-75",
+                    style={"width": f"{scroll_progress}%"},
+                )
+
+            div(className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between"):
+                # Brand
+                div(className="flex items-center gap-4"):
+                    a(href="#", className="text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#f54e00] transition-colors"):
+                        "Hanz"
+                    span(className="hidden md:inline-block text-xs font-mono text-[#807d72]"):
+                        "// DEVELOPER"
+
+                # Desktop Inline Links
+                nav(className="hidden md:flex items-center gap-6 lg:gap-8"):
+                    a(href="#about", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "About"
+                    a(href="#experience", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "Experience"
+                    a(href="#evidence", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "Evidence"
+                    a(href="#certificates", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "Credentials"
+                    a(href="#contact", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "Contact"
+
+                # Staggered Menu Toggle Button
+                button(
+                    onClick=toggle_menu,
+                    className="h-10 px-3.5 inline-flex items-center gap-2 rounded-[8px] border border-[#cfcdc4] bg-white text-[#26251e] hover:border-[#26251e] transition-colors text-xs font-mono select-none cursor-pointer shadow-sm relative z-50",
+                    ariaLabel="Toggle Navigation Menu",
+                ):
+                    # Rolling Text (Menu / Close)
+                    span(className="relative inline-block h-3.5 overflow-hidden w-9 text-left font-medium"):
+                        span(ref=text_inner_ref, className="flex flex-col leading-none transition-transform"):
+                            span(className="h-3.5 leading-none block"): "Menu"
+                            span(className="h-3.5 leading-none block text-[#f54e00]"): "Close"
+
+                    # Plus to Cross Icon
+                    span(ref=icon_ref, className="relative w-3.5 h-3.5 inline-flex items-center justify-center"):
+                        span(ref=plus_h_ref, className="absolute w-full h-[1.5px] bg-[#26251e] rounded-full transition-transform")
+                        span(ref=plus_v_ref, className="absolute w-full h-[1.5px] bg-[#26251e] rounded-full transition-transform")
+
+        # OUTSIDE HEADER: Staggered Pre-layers (Escapes header backdrop-filter!)
+        div(
+            ref=pre_container_ref,
+            className="fixed top-0 right-0 bottom-0 pointer-events-none z-[60] w-full sm:w-[420px] h-full",
+            ariaHidden="true",
+        ):
+            for c in prelayer_colors:
+                div(
+                    key=c,
+                    className="absolute top-0 right-0 h-full w-full",
+                    style={"backgroundColor": c},
+                )
+
+        # OUTSIDE HEADER: Backdrop Overlay
+        if is_open:
+            div(
+                className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity cursor-pointer",
+                onClick=close_menu,
+            )
+
+        # OUTSIDE HEADER: Main Staggered Drawer Panel
+        aside(
+            ref=panel_ref,
+            className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
+            ariaHidden=not is_open,
+        ):
+            # Top header inside panel
+            div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):
+                span(className="text-xs font-mono text-[#807d72] tracking-[0.88px] uppercase"):
+                    "// NAVIGATION INDEX"
+                button(
+                    onClick=close_menu,
+                    className="text-xs font-mono text-[#807d72] hover:text-[#f54e00] transition-colors cursor-pointer",
+                ):
+                    "[ESC / CLOSE]"
+
+            # Navigation list
+            ul(className="flex flex-col gap-6 my-auto py-8 list-none"):
+                for it in default_items:
+                    li(key=it["link"], className="overflow-hidden leading-none"):
+                        a(
+                            href=it["link"],
+                            onClick=close_menu,
+                            className="group flex items-baseline justify-between text-3xl sm:text-4xl font-normal text-[#26251e] hover:text-[#f54e00] transition-colors tracking-tight",
+                        ):
+                            span(className="sm-panel-itemLabel inline-block"):
+                                it["label"]
+                            span(className="sm-panel-num text-xs font-mono text-[#f54e00] opacity-0 transition-opacity"):
+                                it["num"]
+
+            # Social links footer
+            div(className="pt-8 border-t border-[#e6e5e0] space-y-3"):
+                p(className="text-[11px] font-mono uppercase tracking-[0.88px] text-[#807d72]"):
+                    "// CHANNELS & PROFILES"
+                div(className="flex flex-wrap gap-4"):
+                    for s in default_socials:
+                        a(
+                            key=s["label"],
+                            href=s["link"],
+                            target="_blank",
+                            rel="noreferrer",
+                            className="sm-socials-link text-xs font-mono text-[#26251e] hover:text-[#f54e00] transition-colors inline-flex items-center gap-1",
+                        ):
+                            span(): s["label"]
+                            span(className="text-[#f54e00] text-[10px]"): "↗"

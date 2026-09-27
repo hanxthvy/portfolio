@@ -1,0 +1,81 @@
+/* [xihanzu-NR] */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  ::selection {
+    background-color: #26251e;
+    color: #f7f7f4;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #f7f7f4;
+    color: #26251e;
+  }
+
+  body, #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #f7f7f4;
+    color: #26251e;
+  }
+
+  body {
+    overflow-x: hidden;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f7f7f4;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cfcdc4;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #807d72;
+  }
+}
+
+@layer utilities {
+  .card-lift {
+    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-lift:hover {
+    border-color: #26251e;
+    transform: translateY(-3px) scale(1.005);
+  }
+
+  /* 3D Spatial Perspective & Scroll Zoom Engine */
+  .perspective-container {
+    perspective: 1400px;
+    perspective-origin: center center;
+  }
+
+  .scroll-3d-card {
+    transform-style: preserve-3d;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease-out;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
