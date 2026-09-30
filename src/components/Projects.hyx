@@ -3,33 +3,29 @@
 projects_data = [
     {
         "id": "hydrascript",
-        "num": "01",
         "title": "HydraScript Compiler & Meta-Framework",
-        "category": "Systems & Compiler",
+        "category": "Rust & Core Compiler",
         "description": "Compiler mandiri berbasis Rust yang mentranspilasi sintaks Pythonic menjadi komponen React (.hyx) dan modul backend Node.js (.hys) dalam ~1ms tanpa runtime overhead.",
-        "tags": ["Rust", "Compiler", "Node.js", "AST", "Vite HMR"],
+        "tags": ["Rust", "Compiler", "Pythonic JSX", "Node.js", "Vite HMR"],
         "metrics": "Cold compile ~1ms · Zero runtime overhead",
         "github": "https://github.com/hanxthvy/hydrascript",
     },
     {
-        "id": "hremote",
-        "num": "02",
-        "title": "HRemote: Android SSH Client & AI Agent",
-        "category": "Mobile & Systems",
-        "description": "Aplikasi Android SSH & SFTP client dengan terminal multi-tab ala Chrome, live telemetry dashboard, dan embedded Claude Code agent loop yang berjalan mandiri di sisi klien.",
-        "tags": ["React Native", "Android", "TypeScript", "SSH/SFTP", "Claude Agent"],
-        "metrics": "Zero VPS Footprint · Play Protect Compliant",
-        "github": "https://github.com/hanxthvy/hremote",
+        "id": "hydra-llm",
+        "title": "HydraScript LLM (qn3-hxprjkt)",
+        "category": "AI & Deep Learning",
+        "description": "Model kecerdasan buatan hasil fine-tuning Qwen3-0.6B khusus untuk menghasilkan kode HydraScript yang valid secara compiler. Dilatih dari 6.965 contoh kode terverifikasi dan dioptimasi ke GGUF Q8_0 untuk CPU.",
+        "tags": ["Qwen3-0.6B", "LoRA", "PyTorch", "GGUF Q8_0", "Distillation"],
+        "metrics": "6.965 Sampel · 100% Compiler Pass · 610MB GGUF",
+        "github": "https://github.com/hanxthvy/hydrascript-llm",
     },
     {
         "id": "hydra-portfolio",
-        "num": "03",
         "title": "Personal Portfolio (100% HydraScript)",
-        "badge": "Web Application",
-        "category": "Frontend & Creative",
-        "description": "Website portofolio developer yang ditulis 100% menggunakan HydraScript (.hyx/.hys). Menggunakan in-memory compilation tanpa config eksternal, dilengkapi animasi canvas partikel dan 3D grid.",
+        "category": "Web Application & Showcase",
+        "description": "Website portofolio developer yang ditulis 100% menggunakan HydraScript (.hyx untuk komponen tampilan dan .hys untuk data). Menggunakan in-memory compilation tanpa berkas konfigurasi eksternal.",
         "tags": ["HydraScript (.hyx)", "HydraScript (.hys)", "Tailwind", "Canvas", "GSAP"],
-        "metrics": "Pure HydraScript · Zero JS/TS config",
+        "metrics": "100% Pure HydraScript · Zero JS/TS config",
         "github": "https://github.com/hanxthvy/portfolio",
     },
 ]
@@ -42,7 +38,7 @@ component Projects():
             h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
                 "Proyek Open Source"
             p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
-                "Proyek sistem, compiler, dan aplikasi mobile yang saya kembangkan dan rilis secara terbuka di GitHub."
+                "Ekosistem HydraScript yang saya rancang dan kembangkan, mencakup compiler inti, model bahasa AI khusus, hingga implementasi web nyata."
 
         div(className="grid grid-cols-1 md:grid-cols-3 gap-6"):
             for prj in projects_data:
