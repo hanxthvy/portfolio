@@ -1,13 +1,13 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect, useRef
 from "./ClickSpark.hyx" import ClickSpark
-from "../utils/staggeredMenuEngine.hys" import init_menu_gsap, play_open_menu, play_close_menu, animate_menu_icon, animate_menu_text
+from "../utils/staggeredMenuEngine.hys" import init_menu_gsap, play_open_menu, play_close_menu, animate_hamburger
 
 default_items = [
     {"label": "About", "link": "#about", "num": "01"},
-    {"label": "Experience", "link": "#experience", "num": "02"},
-    {"label": "Evidence", "link": "#evidence", "num": "03"},
-    {"label": "Credentials", "link": "#certificates", "num": "04"},
+    {"label": "Projects", "link": "#projects", "num": "02"},
+    {"label": "Experience", "link": "#experience", "num": "03"},
+    {"label": "Evidence", "link": "#evidence", "num": "04"},
     {"label": "Contact", "link": "#contact", "num": "05"},
 ]
 
@@ -26,10 +26,9 @@ component Navbar():
 
     panel_ref = useRef(None)
     pre_container_ref = useRef(None)
-    icon_ref = useRef(None)
-    plus_h_ref = useRef(None)
-    plus_v_ref = useRef(None)
-    text_inner_ref = useRef(None)
+    bar1_ref = useRef(None)
+    bar2_ref = useRef(None)
+    bar3_ref = useRef(None)
 
     def handle_scroll():
         total_scroll = document.documentElement.scrollHeight - window.innerHeight
@@ -48,11 +47,7 @@ component Navbar():
         panel = panel_ref.current
         pre_container = pre_container_ref.current
         layers = pre_container.children if pre_container else []
-        plus_h = plus_h_ref.current
-        plus_v = plus_v_ref.current
-        icon = icon_ref.current
-        text_inner = text_inner_ref.current
-        init_menu_gsap(panel, layers, plus_h, plus_v, icon, text_inner)
+        init_menu_gsap(panel, layers, bar1_ref.current, bar2_ref.current, bar3_ref.current)
         return lambda: None
 
     useEffect(init_effect, [])
@@ -62,8 +57,7 @@ component Navbar():
         pre_container = pre_container_ref.current
         layers = pre_container.children if pre_container else []
         set_is_open(True)
-        animate_menu_icon(icon_ref.current, plus_h_ref.current, plus_v_ref.current, True)
-        animate_menu_text(text_inner_ref.current, True)
+        animate_hamburger(bar1_ref.current, bar2_ref.current, bar3_ref.current, True)
         play_open_menu(panel, layers)
 
     def close_menu():
@@ -71,8 +65,7 @@ component Navbar():
         pre_container = pre_container_ref.current
         layers = pre_container.children if pre_container else []
         set_is_open(False)
-        animate_menu_icon(icon_ref.current, plus_h_ref.current, plus_v_ref.current, False)
-        animate_menu_text(text_inner_ref.current, False)
+        animate_hamburger(bar1_ref.current, bar2_ref.current, bar3_ref.current, False)
         play_close_menu(panel, layers)
 
     def toggle_menu():
@@ -82,11 +75,9 @@ component Navbar():
             open_menu()
 
     div():
-        # Top Navigation Bar (Fixed 64px)
         header(
             className=f"fixed top-0 left-0 right-0 z-40 transition-all duration-200 {'bg-[#f7f7f4]/95 backdrop-blur-md border-b border-[#e6e5e0] shadow-sm' if is_scrolled else 'bg-[#f7f7f4]/80 backdrop-blur-sm border-b border-transparent'}",
         ):
-            # Scroll progress
             div(className="absolute top-0 left-0 right-0 h-[2px] bg-[#e6e5e0]"):
                 div(
                     className="h-full bg-[#f54e00] will-change-[width] transition-[width] duration-75",
@@ -94,44 +85,33 @@ component Navbar():
                 )
 
             div(className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between"):
-                # Brand
-                div(className="flex items-center gap-4"):
-                    a(href="#", className="text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#f54e00] transition-colors"):
-                        "Hanz"
+                div(className="flex items-center gap-3"):
+                    a(href="#", className="text-[17px] sm:text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#f54e00] transition-colors"):
+                        "Reyhan Akhtar"
                     span(className="hidden md:inline-block text-xs font-mono text-[#807d72]"):
                         "// DEVELOPER"
 
-                # Desktop Inline Links
                 nav(className="hidden md:flex items-center gap-6 lg:gap-8"):
                     a(href="#about", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
                         "About"
+                    a(href="#projects", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
+                        "Projects"
                     a(href="#experience", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
                         "Experience"
                     a(href="#evidence", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
                         "Evidence"
-                    a(href="#certificates", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "Credentials"
                     a(href="#contact", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
                         "Contact"
 
-                # Staggered Menu Toggle Button
                 button(
                     onClick=toggle_menu,
-                    className="h-10 px-3.5 inline-flex items-center gap-2 rounded-[8px] border border-[#cfcdc4] bg-white text-[#26251e] hover:border-[#26251e] transition-colors text-xs font-mono select-none cursor-pointer shadow-sm relative z-50",
-                    aria_label="Toggle Navigation Menu",
+                    className="w-10 h-10 p-2 inline-flex flex-col justify-center items-center gap-[5px] bg-transparent hover:bg-black/5 active:bg-black/10 rounded-[6px] transition-colors cursor-pointer select-none relative z-50",
+                    aria_label="Toggle Menu",
                 ):
-                    # Rolling Text (Menu / Close)
-                    span(className="relative inline-block h-3.5 overflow-hidden w-9 text-left font-medium"):
-                        span(ref=text_inner_ref, className="flex flex-col leading-none transition-transform"):
-                            span(className="h-3.5 leading-none block"): "Menu"
-                            span(className="h-3.5 leading-none block text-[#f54e00]"): "Close"
+                    span(ref=bar1_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
+                    span(ref=bar2_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
+                    span(ref=bar3_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
 
-                    # Plus to Cross Icon
-                    span(ref=icon_ref, className="relative w-3.5 h-3.5 inline-flex items-center justify-center"):
-                        span(ref=plus_h_ref, className="absolute w-full h-[1.5px] bg-[#26251e] rounded-full transition-transform")
-                        span(ref=plus_v_ref, className="absolute w-full h-[1.5px] bg-[#26251e] rounded-full transition-transform")
-
-        # OUTSIDE HEADER: Staggered Pre-layers (Escapes header backdrop-filter!)
         div(
             ref=pre_container_ref,
             className="fixed top-0 right-0 bottom-0 pointer-events-none z-[60] w-full sm:w-[420px] h-full",
@@ -144,30 +124,26 @@ component Navbar():
                     style={"backgroundColor": c},
                 )
 
-        # OUTSIDE HEADER: Backdrop Overlay
         if is_open:
             div(
                 className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity cursor-pointer",
                 onClick=close_menu,
             )
 
-        # OUTSIDE HEADER: Main Staggered Drawer Panel
         aside(
             ref=panel_ref,
             className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
             aria_hidden=not is_open,
         ):
-            # Top header inside panel
             div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):
                 span(className="text-xs font-mono text-[#807d72] tracking-[0.88px] uppercase"):
-                    "// NAVIGATION INDEX"
+                    "// MENU NAVIGASI"
                 button(
                     onClick=close_menu,
                     className="text-xs font-mono text-[#807d72] hover:text-[#f54e00] transition-colors cursor-pointer",
                 ):
-                    "[ESC / CLOSE]"
+                    "[TUTUP]"
 
-            # Navigation list
             ul(className="flex flex-col gap-6 my-auto py-8 list-none"):
                 for it in default_items:
                     li(key=it["link"], className="overflow-hidden leading-none"):
@@ -181,10 +157,9 @@ component Navbar():
                             span(className="sm-panel-num text-xs font-mono text-[#f54e00] opacity-0 transition-opacity"):
                                 it["num"]
 
-            # Social links footer
             div(className="pt-8 border-t border-[#e6e5e0] space-y-3"):
                 p(className="text-[11px] font-mono uppercase tracking-[0.88px] text-[#807d72]"):
-                    "// CHANNELS & PROFILES"
+                    "// KONTAK & TAUTAN"
                 div(className="flex flex-wrap gap-4"):
                     for s in default_socials:
                         a(

@@ -1,21 +1,19 @@
 # [xihanzu-NR]
 from "gsap" import gsap
 
-export def init_menu_gsap(panel, pre_layers, plus_h, plus_v, icon, text_inner):
+export def init_menu_gsap(panel, pre_layers, bar1, bar2, bar3):
     try:
         layers = gsap.utils.toArray(pre_layers)
         if panel:
             gsap.set(panel, {"xPercent": 100, "opacity": 1})
         if len(layers) > 0:
             gsap.set(layers, {"xPercent": 100, "opacity": 1})
-        if plus_h:
-            gsap.set(plus_h, {"transformOrigin": "50% 50%", "rotate": 0})
-        if plus_v:
-            gsap.set(plus_v, {"transformOrigin": "50% 50%", "rotate": 90})
-        if icon:
-            gsap.set(icon, {"rotate": 0, "transformOrigin": "50% 50%"})
-        if text_inner:
-            gsap.set(text_inner, {"yPercent": 0})
+        if bar1:
+            gsap.set(bar1, {"y": 0, "rotate": 0, "transformOrigin": "50% 50%"})
+        if bar2:
+            gsap.set(bar2, {"opacity": 1, "scaleX": 1})
+        if bar3:
+            gsap.set(bar3, {"y": 0, "rotate": 0, "transformOrigin": "50% 50%"})
     except:
         pass
 
@@ -95,26 +93,20 @@ export def play_close_menu(panel, pre_layers, on_complete=None):
     except:
         return None
 
-export def animate_menu_icon(icon, plus_h, plus_v, opening):
+export def animate_hamburger(bar1, bar2, bar3, opening):
     try:
-        if not plus_h or not plus_v:
+        if not bar1 or not bar2 or not bar3:
             return None
         tl = gsap.timeline({"defaults": {"ease": "power4.out" if opening else "power3.inOut"}})
         if opening:
-            tl.to(plus_h, {"rotate": 45, "duration": 0.4}, 0)
-            tl.to(plus_v, {"rotate": -45, "duration": 0.4}, 0)
+            # 3 bars collapse to X: bar1 down 6px & rotate 45, bar2 fade out, bar3 up 6px & rotate -45
+            tl.to(bar1, {"y": 6, "rotate": 45, "duration": 0.35}, 0)
+            tl.to(bar2, {"opacity": 0, "scaleX": 0, "duration": 0.2}, 0)
+            tl.to(bar3, {"y": -6, "rotate": -45, "duration": 0.35}, 0)
         else:
-            tl.to(plus_h, {"rotate": 0, "duration": 0.3}, 0)
-            tl.to(plus_v, {"rotate": 90, "duration": 0.3}, 0)
+            tl.to(bar1, {"y": 0, "rotate": 0, "duration": 0.3}, 0)
+            tl.to(bar2, {"opacity": 1, "scaleX": 1, "duration": 0.25}, 0.05)
+            tl.to(bar3, {"y": 0, "rotate": 0, "duration": 0.3}, 0)
         return tl
-    except:
-        return None
-
-export def animate_menu_text(text_inner, is_open):
-    try:
-        if not text_inner:
-            return None
-        target_shift = -50 if is_open else 0
-        return gsap.to(text_inner, {"yPercent": target_shift, "duration": 0.4, "ease": "power4.out"})
     except:
         return None

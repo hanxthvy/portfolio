@@ -4,10 +4,10 @@ from "./components/BackgroundGrid3D.hyx" import BackgroundGrid3D
 from "./components/Navbar.hyx" import Navbar
 from "./components/Hero.hyx" import Hero
 from "./components/About.hyx" import About
+from "./components/Projects.hyx" import Projects
 from "./components/Experience.hyx" import Experience
 from "./components/Evidence.hyx" import Evidence
 from "./components/TechStack.hyx" import TechStack
-from "./components/Certificates.hyx" import Certificates
 from "./components/Contact.hyx" import Contact
 
 component App():
@@ -17,8 +17,8 @@ component App():
         main(className="relative z-10 flex-1"):
             Hero()
             About()
+            Projects()
             Experience()
             Evidence()
             TechStack()
-            Certificates()
             Contact()
