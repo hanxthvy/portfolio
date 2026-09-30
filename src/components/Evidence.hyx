@@ -7,7 +7,6 @@ artifacts_data = [
         "id": "panasonic-cert",
         "title": "Sertifikat Fisik PKL Industri & Dicoding",
         "category": "Credentials",
-        "date": "Jan — Feb 2026",
         "image": "/images/PXL_20260403_113133217.jpg",
         "description": "Dokumentasi sertifikat fisik Praktik Kerja Lapangan di PT Panasonic Manufacturing Indonesia (Audio PCB Assembly, Nilai 94.3 / Grade A) dan sertifikat kelulusan back-end dari Dicoding Indonesia.",
         "metrics": "Nilai: 94.3 / 100 · 3 Bulan PKL",
@@ -16,7 +15,6 @@ artifacts_data = [
         "id": "proxmox-telemetry",
         "title": "Homelab HPE ProLiant DL360 Gen9 & Pterodactyl",
         "category": "Infrastructure",
-        "date": "Mei 2026",
         "image": "/images/VID_20260514105929529.jpg",
         "description": "Dokumentasi live telemetry monitor Proxmox VE pada server fisik rack 1U HPE ProLiant DL360 Gen9 di kamar yang difungsikan sebagai node hosting Pterodactyl melalui tunnel WireGuard VPS (bypass CGNAT).",
         "metrics": "HPE DL360 Gen9 · WireGuard CGNAT Bypass · Pterodactyl",
@@ -25,7 +23,6 @@ artifacts_data = [
         "id": "axion-rom",
         "title": "Custom ROM AxionOS & Overclocking itel RS4",
         "category": "Mobile & Firmware",
-        "date": "Mei 2026",
         "image": "/images/PXL_20260528_190505951.jpg",
         "description": "Dokumentasi smartphone itel RS4 (MediaTek Helio G99, RAM 8GB) yang telah di-flash custom ROM AxionOS 2.6 AOSP dan dilakukan overclocking kernel untuk pengujian performa.",
         "metrics": "AxionOS 2.6 AOSP · Helio G99",
@@ -34,32 +31,72 @@ artifacts_data = [
         "id": "pcb-inspection",
         "title": "Mounting Komponen & Cutting Panel PCB Audio",
         "category": "Hardware Assembly",
-        "date": "Mei 2026",
         "image": None,
         "description": "Aktivitas penempatan komponen (mounting) dan pemotongan (cutting) panel PCB audio di lini perakitan PT Panasonic Manufacturing Indonesia.",
         "metrics": "Lini Assembly Audio · SOP Pabrik",
     },
 ]
 
+credentials_data = [
+    {
+        "name": "Sertifikat Praktik Kerja Lapangan (PKL) – Audio PCB Assembly",
+        "issuer": "PT Panasonic Manufacturing Indonesia",
+        "year": "2026",
+        "id": "561/AD-PERS/I/2026",
+        "url": "#evidence",
+        "score": "Nilai 94.3 / Grade A",
+    },
+    {
+        "name": "Belajar Back-End Pemula dengan JavaScript",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "98XWO65KLXM3",
+        "url": "https://www.dicoding.com/certificates/98XWO65KLXM3",
+        "score": "Tersertifikasi",
+    },
+    {
+        "name": "Belajar Dasar AI",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "RVZKO4110ZD5",
+        "url": "https://www.dicoding.com/certificates/RVZKO4110ZD5",
+        "score": "Tersertifikasi",
+    },
+    {
+        "name": "Belajar Dasar Pemrograman JavaScript",
+        "issuer": "Dicoding Indonesia",
+        "year": "2026",
+        "id": "DICODING-JS-2026",
+        "url": "https://www.dicoding.com/certificates/98XWO65KLXM3",
+        "score": "Tersertifikasi",
+    },
+]
+
 component Evidence():
     selected, set_selected = useState(None)
+    copied_id, set_copied_id = useState(None)
 
     def open_modal(item):
         if item["image"]:
             set_selected(item)
 
+    def copy_credential_id(cid):
+        navigator.clipboard.writeText(cid)
+        set_copied_id(cid)
+        setTimeout(lambda: set_copied_id(None), 1800)
+
     section(id="evidence", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
         # Header
         div(className="max-w-3xl mb-12"):
             p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
-                "// DOKUMENTASI & BUKTI"
+                "// DOKUMENTASI & SERTIFIKASI"
             h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
                 "Dokumentasi Sertifikat & Perangkat"
             p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
                 "Dokumentasi foto sertifikat resmi, server homelab lokal, dan hasil oprek perangkat yang pernah saya kerjakan."
 
-        # Grid of Cards with 3D TiltCard (Clean, headerless & footerless)
-        div(className="grid grid-cols-1 md:grid-cols-2 gap-6"):
+        # Evidence Cards (Balik ke teks teknis awal)
+        div(className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16"):
             for item in artifacts_data:
                 TiltCard(key=item["id"], maxTilt=5, className="h-full"):
                     div(
@@ -91,7 +128,53 @@ component Evidence():
                                 p(className="text-xs text-[#5a5852] max-w-xs leading-relaxed font-sans"):
                                     "Dokumentasi foto di dalam lini manufaktur PT Panasonic Manufacturing Indonesia dilarang sesuai aturan kerahasiaan pabrik."
 
-        # Lightbox Modal (Photo only)
+        # Certificates Table
+        div(className="border-t border-[#e6e5e0] pt-12"):
+            h3(className="text-xl sm:text-2xl font-normal tracking-[-0.5px] text-[#26251e] mb-6"):
+                "Sertifikat & Pelatihan"
+
+            div(className="w-full border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
+                div(className="hidden md:grid md:grid-cols-12 gap-6 py-3.5 text-[11px] font-mono font-medium uppercase tracking-[0.88px] text-[#807d72] select-none"):
+                    div(className="md:col-span-5"): "Nama Sertifikat"
+                    div(className="md:col-span-3"): "Penerbit"
+                    div(className="md:col-span-2"): "ID Kredensial"
+                    div(className="md:col-span-2 text-right"): "Verifikasi"
+
+                for cert in credentials_data:
+                    div(
+                        key=cert["id"],
+                        className="py-5 grid grid-cols-1 md:grid-cols-12 gap-2.5 md:gap-6 items-baseline md:items-center hover:bg-black/[0.015] transition-colors group",
+                    ):
+                        div(className="md:col-span-5 space-y-1"):
+                            span(className="text-[15px] sm:text-[16px] font-medium leading-[1.4] text-[#26251e] group-hover:text-[#f54e00] transition-colors block"):
+                                cert["name"]
+                            span(className="md:hidden text-xs font-mono text-[#807d72] block"):
+                                f"{cert['issuer']} · {cert['year']}"
+
+                        div(className="hidden md:block md:col-span-3"):
+                            span(className="text-[13px] font-normal text-[#5a5852]"):
+                                cert["issuer"]
+
+                        div(className="md:col-span-2 flex items-center gap-2"):
+                            button(
+                                onClick=lambda cid=cert["id"]: copy_credential_id(cid),
+                                className="text-[12px] font-mono text-[#26251e] hover:text-[#f54e00] transition-colors inline-flex items-center gap-1.5 group/btn text-left cursor-pointer",
+                            ):
+                                span(className="select-all"): cert["id"]
+                                span(className="text-[10px] text-[#807d72] group-hover/btn:text-[#f54e00] transition-colors"):
+                                    "[TERSALIN]" if copied_id == cert["id"] else "[SALIN]"
+
+                        div(className="md:col-span-2 flex items-center justify-end"):
+                            a(
+                                href=cert["url"],
+                                target="_blank" if cert["url"].startswith("http") else "_self",
+                                rel="noreferrer" if cert["url"].startswith("http") else None,
+                                className="inline-flex items-center text-[12px] font-mono text-[#f54e00] hover:text-[#d04200] transition-colors",
+                            ):
+                                span(): "Verifikasi"
+                                span(className="ml-1 text-[11px] font-mono"): "↗"
+
+        # Lightbox Modal
         if selected:
             div(
                 className="fixed inset-0 z-50 bg-[#26251e]/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 cursor-zoom-out",

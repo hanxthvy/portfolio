@@ -2,7 +2,6 @@
 
 component About():
     section(id="about", className="py-24 px-6 max-w-[1200px] mx-auto text-left"):
-        # Header
         div(className="max-w-3xl mb-12"):
             p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
                 "// TENTANG SAYA"
@@ -10,29 +9,19 @@ component About():
                 span(className="block sm:inline"): "Reyhan Akhtar Afriansyah"
                 span(className="hidden sm:inline text-[#807d72] font-light"): " — "
                 span(className="block sm:inline text-base sm:text-xl md:text-[28px] text-[#807d72] font-mono sm:font-sans mt-1 sm:mt-0"):
-                    "Developer & Siswa SMK"
-            p(className="text-base sm:text-[18px] font-normal leading-[1.6] text-[#5a5852] mt-2"):
-                "Saya suka mengulik teknologi dari level perakitan hardware, pengelolaan server Linux, hingga pembuatan website."
+                    "Developer & Systems Enthusiast"
 
-        # Profile Details (Cardless Editorial Layout)
         div(className="pt-10 border-t border-[#e6e5e0]"):
-            div(className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8 mb-8 border-b border-[#e6e5e0]"):
+            div(className="grid grid-cols-1 lg:grid-cols-12 gap-8"):
                 div(className="lg:col-span-5 space-y-3"):
-                    h3(className="text-2xl sm:text-[28px] font-medium tracking-[-0.6px] text-[#26251e] mb-4"):
-                        "Reyhan Akhtar Afriansyah (Hanz)"
                     div(className="space-y-2 text-xs font-mono"):
                         div(className="flex items-baseline gap-3"):
                             span(className="text-[#807d72] w-24 shrink-0"): "Fokus"
-                            span(className="text-[#f54e00] font-medium"): "Web & Systems Explorer"
+                            span(className="text-[#f54e00] font-medium"): "Web, Systems & AI"
                         div(className="flex items-baseline gap-3"):
-                            span(className="text-[#807d72] w-24 shrink-0"): "Usia"
-                            span(className="text-[#26251e]"): "17 Tahun"
-                        div(className="flex items-baseline gap-3"):
-                            span(className="text-[#807d72] w-24 shrink-0"): "Pendidikan"
-                            span(className="text-[#26251e]"): "SMK Ma'arif 1 Kroya"
+                            span(className="text-[#807d72] w-24 shrink-0"): "Daily OS"
+                            span(className="text-[#26251e]"): "Void Linux (runit)"
 
-                div(className="lg:col-span-7 space-y-4 text-[15px] sm:text-base font-normal leading-[1.7] text-[#5a5852]"):
+                div(className="lg:col-span-7 text-[15px] sm:text-base font-normal leading-[1.7] text-[#5a5852]"):
                     p():
-                        "Minat utama saya ada di pengembangan web (React, Node.js, TypeScript), pengelolaan server fisik HPE ProLiant DL360 Gen9 di kamar (Proxmox VE, WireGuard bypass CGNAT, Pterodactyl node), eksperimen compiler sederhana di Rust (HydraScript), serta perakitan perangkat elektronik."
-                    p():
-                        "Pernah menjalani Praktik Kerja Lapangan (PKL) di PT Panasonic Manufacturing Indonesia bagian perakitan PCB audio (mounting komponen & cutting panel) dengan nilai 94.3 (Grade A), serta menyelesaikan kelas sertifikasi back-end di Dicoding Indonesia."
+                        "Saya tertarik mengulik teknologi dari level perangkat keras, mengelola server Linux mandiri di rumah, sampai membuat website dan melatih model kecerdasan buatan (AI). Seluruh riwayat pengalaman dan sertifikat bisa dilihat di bawah."

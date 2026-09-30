@@ -11,14 +11,13 @@ component Contact():
 
     section(id="contact", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
         div(className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mb-20"):
-            # Left Column: Statement & Direct Actions
             div(className="lg:col-span-6 space-y-6"):
                 p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72]"):
                     "// KONTAK"
                 h2(className="text-3xl sm:text-4xl lg:text-[44px] font-normal leading-[1.12] tracking-[-1px] text-[#26251e]"):
-                    "Mari terhubung dan berkolaborasi."
+                    "Mari terhubung."
                 p(className="text-base sm:text-lg font-normal leading-[1.6] text-[#5a5852] max-w-lg"):
-                    "Terbuka untuk kesempatan magang, proyek web development, atau sekadar bertukar pikiran seputar teknologi dan open-source."
+                    "Terbuka untuk kesempatan magang, proyek pembuatan website, atau diskusi seputar server Linux dan pemrograman."
 
                 div(className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
                     a(
@@ -34,10 +33,8 @@ component Contact():
                     ):
                         "[TERSALIN]" if copied else "[SALIN EMAIL]"
 
-            # Right Column: Clean Editorial Channel List (Zero Cards)
             div(className="lg:col-span-6 flex flex-col justify-center"):
                 div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
-                    # Channel 1: Email
                     div(className="py-4 flex items-center justify-between group"):
                         div():
                             span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Email"
@@ -49,7 +46,6 @@ component Contact():
                         ):
                             "[TERSALIN]" if copied else "[SALIN]"
 
-                    # Channel 2: GitHub
                     a(
                         href="https://github.com/hanxthvy",
                         target="_blank",
@@ -62,7 +58,6 @@ component Contact():
                                 "github.com/hanxthvy"
                         span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
 
-                    # Channel 3: WhatsApp
                     a(
                         href="https://wa.me/6281234567890",
                         target="_blank",
@@ -75,8 +70,7 @@ component Contact():
                                 "+62 812-3456-7890"
                         span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
 
-        # Footer
         footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
-            p(): "HANZ.DEV // REYHAN AKHTAR AFRIANSYAH"
-            p(): "Dibuat dengan HydraScript (.hyx/.hys) & Vite"
-            p(): "© 2026 Hanz. All rights reserved."
+            p(): "REYHAN AKHTAR AFRIANSYAH // PORTFOLIO"
+            p(): "Dibuat dengan HydraScript (.hyx/.hys)"
+            p(): "© 2026 Reyhan Akhtar. Hak cipta dilindungi."

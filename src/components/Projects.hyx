@@ -1,0 +1,83 @@
+# [xihanzu-NR]
+
+projects_data = [
+    {
+        "id": "hydrascript",
+        "num": "01",
+        "title": "HydraScript Compiler & Meta-Framework",
+        "category": "Systems & Compiler",
+        "description": "Compiler mandiri berbasis Rust yang mentranspilasi sintaks Pythonic menjadi komponen React (.hyx) dan modul backend Node.js (.hys) dalam ~1ms tanpa runtime overhead.",
+        "tags": ["Rust", "Compiler", "Node.js", "AST", "Vite HMR"],
+        "metrics": "Cold compile ~1ms · Zero runtime overhead",
+        "github": "https://github.com/hanxthvy/hydrascript",
+    },
+    {
+        "id": "hremote",
+        "num": "02",
+        "title": "HRemote: Android SSH Client & AI Agent",
+        "category": "Mobile & Systems",
+        "description": "Aplikasi Android SSH & SFTP client dengan terminal multi-tab ala Chrome, live telemetry dashboard, dan embedded Claude Code agent loop yang berjalan mandiri di sisi klien.",
+        "tags": ["React Native", "Android", "TypeScript", "SSH/SFTP", "Claude Agent"],
+        "metrics": "Zero VPS Footprint · Play Protect Compliant",
+        "github": "https://github.com/hanxthvy/hremote",
+    },
+    {
+        "id": "hydra-portfolio",
+        "num": "03",
+        "title": "Personal Portfolio (100% HydraScript)",
+        "badge": "Web Application",
+        "category": "Frontend & Creative",
+        "description": "Website portofolio developer yang ditulis 100% menggunakan HydraScript (.hyx/.hys). Menggunakan in-memory compilation tanpa config eksternal, dilengkapi animasi canvas partikel dan 3D grid.",
+        "tags": ["HydraScript (.hyx)", "HydraScript (.hys)", "Tailwind", "Canvas", "GSAP"],
+        "metrics": "Pure HydraScript · Zero JS/TS config",
+        "github": "https://github.com/hanxthvy/portfolio",
+    },
+]
+
+component Projects():
+    section(id="projects", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
+        div(className="max-w-3xl mb-14"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#f54e00] mb-2"):
+                "// REPOSITORI & KARYA"
+            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
+                "Proyek Open Source"
+            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
+                "Proyek sistem, compiler, dan aplikasi mobile yang saya kembangkan dan rilis secara terbuka di GitHub."
+
+        div(className="grid grid-cols-1 md:grid-cols-3 gap-6"):
+            for prj in projects_data:
+                a(
+                    key=prj["id"],
+                    href=prj["github"],
+                    target="_blank",
+                    rel="noreferrer",
+                    className="group block p-7 sm:p-8 rounded-[12px] bg-white border border-[#e6e5e0] hover:border-[#26251e] shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between min-h-[380px] relative overflow-hidden",
+                ):
+                    div(className="absolute top-0 left-0 right-0 h-[2px] bg-transparent group-hover:bg-[#f54e00] transition-colors duration-300"): ""
+
+                    div():
+                        div(className="flex items-center justify-between mb-8"):
+                            span(className="text-xs font-mono font-medium text-[#807d72] tracking-wider uppercase"):
+                                f"// {prj['category']}"
+                            div(className="w-8 h-8 rounded-full border border-[#e6e5e0] group-hover:border-[#26251e] group-hover:bg-[#26251e] flex items-center justify-center transition-all duration-300"):
+                                span(className="text-xs font-mono text-[#807d72] group-hover:text-white transition-colors"):
+                                    "↗"
+
+                        h3(className="text-[20px] font-semibold leading-[1.3] text-[#26251e] group-hover:text-[#f54e00] transition-colors mb-3 tracking-tight"):
+                            prj["title"]
+
+                        p(className="text-[13.5px] font-normal leading-[1.65] text-[#5a5852]"):
+                            prj["description"]
+
+                    div(className="pt-6 border-t border-[#f0eee6] mt-8 space-y-3.5"):
+                        div(className="flex items-center gap-2 text-[12px] font-mono text-[#26251e]"):
+                            span(className="w-1.5 h-1.5 rounded-full bg-[#f54e00]"): ""
+                            span(className="font-medium"): prj["metrics"]
+
+                        div(className="flex flex-wrap gap-1.5"):
+                            for tag in prj["tags"]:
+                                span(
+                                    key=tag,
+                                    className="text-[11px] font-mono text-[#807d72] group-hover:text-[#26251e] transition-colors",
+                                ):
+                                    f"#{tag}"

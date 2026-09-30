@@ -21,14 +21,14 @@ component Hero(className=""):
                 )
 
             p(className="text-[15px] sm:text-[18px] lg:text-[19px] font-normal leading-[1.6] text-[#5a5852] max-w-2xl mb-6 sm:mb-8"):
-                "Siswa SMK Ma'arif 1 Kroya berusia 17 tahun yang aktif mengeksplorasi web development, server Linux, toolchain compiler, dan perakitan hardware."
+                "Pengembang yang fokus mendalami web development, pengelolaan server Linux, toolchain compiler, dan perakitan hardware elektronika."
 
             div(className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
                 a(
-                    href="#experience",
+                    href="#projects",
                     className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#f54e00] text-white text-[14px] font-medium leading-none hover:bg-[#d04200] transition-colors shadow-sm",
                 ):
-                    span(): "Lihat Pengalaman"
+                    span(): "Lihat Proyek"
                     span(className="ml-2 text-xs"): "↓"
                 a(
                     href="#evidence",
