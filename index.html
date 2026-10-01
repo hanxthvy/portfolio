@@ -10,8 +10,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#f7f7f4] text-[#26251e] antialiased selection:bg-[#f54e00] selection:text-white font-sans">
+  <body class="bg-[#f7f7f4] text-[#26251e] antialiased selection:bg-[#cc785c] selection:text-white font-sans">
     <div id="root"></div>
     <script type="module" src="/src/main.hyx"></script>
   </body>

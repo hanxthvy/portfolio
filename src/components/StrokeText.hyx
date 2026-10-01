@@ -2,7 +2,7 @@
 from "react" import useRef, useState, useEffect, useId
 from "../utils/strokeEngine.hys" import split_indexed_chars, measure_bbox, is_box_equal, animate_stroke
 
-component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#f54e00", fillColor="#26251e", strokeWidth=1.5, drawDuration=1.5, fillDelay=0.15, stagger=0.04, ease="power2.out", fillMode="wipe", fontSize=72, fontWeight=500, letterSpacing=-2, className="", style={}):
+component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fillColor="#26251e", strokeWidth=1.5, drawDuration=1.5, fillDelay=0.15, stagger=0.04, ease="power2.out", fillMode="wipe", fontSize=72, fontWeight=500, letterSpacing=-2, className="", style={}):
     root_ref = useRef(None)
     stroke_text_ref = useRef(None)
     wipe_rect_ref = useRef(None)
@@ -73,7 +73,7 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#f54e00", fil
                         item["char"]
 
             text(
-                className="select-none font-sans",
+                className="select-none font-sans fill-ink",
                 x=0,
                 y=0,
                 fill=fillColor,

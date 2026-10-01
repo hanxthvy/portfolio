@@ -47,7 +47,7 @@ component Certificates():
     section(id="certificates", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
         # Header (Clean, concise, zero redundancy)
         div(className="max-w-3xl mb-12"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#f54e00] mb-2"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#cc785c] mb-2"):
                 "// SERTIFIKASI"
             h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-3"):
                 "Sertifikat & Pelatihan"
@@ -72,7 +72,7 @@ component Certificates():
                 ):
                     # Name & Mobile Meta
                     div(className="md:col-span-5 space-y-1"):
-                        span(className="text-[15px] sm:text-[16px] font-medium leading-[1.4] text-[#26251e] group-hover:text-[#f54e00] transition-colors block"):
+                        span(className="text-[15px] sm:text-[16px] font-medium leading-[1.4] text-[#26251e] group-hover:text-[#cc785c] transition-colors block"):
                             cert["name"]
                         span(className="md:hidden text-xs font-mono text-[#807d72] block"):
                             f"{cert['issuer']} · {cert['year']}"
@@ -92,10 +92,10 @@ component Certificates():
                         span(className="md:hidden text-xs font-mono text-[#807d72]"): "ID:"
                         button(
                             onClick=lambda cid=cert["id"]: copy_credential_id(cid),
-                            className="text-[12px] font-mono text-[#26251e] hover:text-[#f54e00] transition-colors inline-flex items-center gap-1.5 group/btn text-left cursor-pointer",
+                            className="text-[12px] font-mono text-[#26251e] hover:text-[#cc785c] transition-colors inline-flex items-center gap-1.5 group/btn text-left cursor-pointer",
                         ):
                             span(className="select-all"): cert["id"]
-                            span(className="text-[10px] text-[#807d72] group-hover/btn:text-[#f54e00] transition-colors"):
+                            span(className="text-[10px] text-[#807d72] group-hover/btn:text-[#cc785c] transition-colors"):
                                 "[TERSALIN]" if copied_id == cert["id"] else "[SALIN]"
 
                     # Verification Action
@@ -104,7 +104,7 @@ component Certificates():
                             href=cert["url"],
                             target="_blank" if cert["url"].startswith("http") else "_self",
                             rel="noreferrer" if cert["url"].startswith("http") else None,
-                            className="inline-flex items-center text-[12px] font-mono text-[#f54e00] hover:text-[#d04200] transition-colors",
+                            className="inline-flex items-center text-[12px] font-mono text-[#cc785c] hover:text-[#a9583e] transition-colors",
                         ):
                             span(): "Verifikasi"
                             span(className="ml-1 text-[11px] font-mono"): "↗"

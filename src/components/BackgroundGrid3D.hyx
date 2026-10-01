@@ -23,7 +23,7 @@ component BackgroundGrid3D():
                 style={
                     "transform": f"perspective(1000px) rotateX({sway['rx']}deg) rotateZ({sway['ry']}deg) translateY(-10%)",
                     "transformOrigin": "center 30%",
-                    "backgroundImage": "radial-gradient(circle at 1px 1px, #cfcdc4 1px, transparent 0)",
+                    "backgroundImage": "radial-gradient(circle at 1px 1px, var(--grid-dot, #cfcdc4) 1px, transparent 0)",
                     "backgroundSize": "48px 48px",
                     "maskImage": "radial-gradient(ellipse 65% 55% at 50% 45%, black 20%, transparent 80%)",
                     "WebkitMaskImage": "radial-gradient(ellipse 65% 55% at 50% 45%, black 20%, transparent 80%)",

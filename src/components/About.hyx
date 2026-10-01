@@ -1,7 +1,7 @@
 # [xihanzu-NR]
 
 component About():
-    section(id="about", className="py-24 px-6 max-w-[1200px] mx-auto text-left"):
+    section(id="about", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
         div(className="max-w-3xl mb-12"):
             p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
                 "// TENTANG SAYA"
@@ -17,7 +17,7 @@ component About():
                     div(className="space-y-2 text-xs font-mono"):
                         div(className="flex items-baseline gap-3"):
                             span(className="text-[#807d72] w-24 shrink-0"): "Fokus"
-                            span(className="text-[#f54e00] font-medium"): "Web, Systems & AI"
+                            span(className="text-[#cc785c] font-medium"): "Web, Systems & AI"
                         div(className="flex items-baseline gap-3"):
                             span(className="text-[#807d72] w-24 shrink-0"): "Daily OS"
                             span(className="text-[#26251e]"): "Void Linux (runit)"

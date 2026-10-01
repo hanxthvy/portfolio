@@ -2,7 +2,7 @@
 from "react" import useRef, useEffect
 from "../utils/sparkEngine.hys" import create_sparks, render_sparks, set_ref, set_canvas_size
 
-component ClickSpark(children=None, sparkColor="#f54e00", sparkSize=10, sparkRadius=15, sparkCount=8, duration=400, easing="ease-out", extraScale=1.0, className=""):
+component ClickSpark(children=None, sparkColor="#cc785c", sparkSize=10, sparkRadius=15, sparkCount=8, duration=400, easing="ease-out", extraScale=1.0, className=""):
     canvas_ref = useRef(None)
     sparks_ref = useRef([])
     anim_id_ref = useRef(None)

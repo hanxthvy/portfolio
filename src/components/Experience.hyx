@@ -36,7 +36,7 @@ component Experience():
                         span(className="text-xs font-mono text-[#807d72]"):
                             exp["period"]
 
-                    p(className="text-xs font-mono text-[#f54e00] mb-3"):
+                    p(className="text-xs font-mono text-[#cc785c] mb-3"):
                         exp["organization"]
 
                     p(className="text-sm font-normal text-[#5a5852] leading-[1.65] mb-5 max-w-3xl"):
@@ -45,6 +45,6 @@ component Experience():
                     ul(className="space-y-2.5"):
                         for item in exp["impact"]:
                             li(key=item, className="text-sm font-normal text-[#5a5852] leading-[1.55] flex items-start gap-2.5"):
-                                span(className="text-[#f54e00] font-mono text-xs pt-1 select-none"):
+                                span(className="text-[#cc785c] font-mono text-xs pt-1 select-none"):
                                     "—"
                                 span(): item

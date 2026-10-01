@@ -34,8 +34,8 @@
           "hairline-soft": "#efeee8",
           "hairline-strong": "#cfcdc4",
           "primary": {
-            "DEFAULT": "#f54e00",
-            "active": "#d04200"
+            "DEFAULT": "#cc785c",
+            "active": "#a9583e"
           },
           "on-primary": "#ffffff",
           "ink": "#26251e",

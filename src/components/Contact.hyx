@@ -22,7 +22,7 @@ component Contact():
                 div(className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
                     a(
                         href="mailto:contact@hanz.dev",
-                        className="h-11 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#26251e] text-[#f7f7f4] text-sm font-medium hover:bg-[#f54e00] transition-colors shadow-sm",
+                        className="h-11 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#26251e] text-[#f7f7f4] text-sm font-medium hover:bg-[#cc785c] transition-colors shadow-sm",
                     ):
                         span(): "Kirim Email"
                         span(className="ml-2 font-mono text-xs"): "↗"
@@ -38,11 +38,11 @@ component Contact():
                     div(className="py-4 flex items-center justify-between group"):
                         div():
                             span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Email"
-                            a(href="mailto:contact@hanz.dev", className="text-[15px] font-mono font-medium text-[#26251e] hover:text-[#f54e00] transition-colors"):
+                            a(href="mailto:contact@hanz.dev", className="text-[15px] font-mono font-medium text-[#26251e] hover:text-[#cc785c] transition-colors"):
                                 "contact@hanz.dev"
                         button(
                             onClick=copy_email,
-                            className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors cursor-pointer",
+                            className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors cursor-pointer",
                         ):
                             "[TERSALIN]" if copied else "[SALIN]"
 
@@ -54,9 +54,9 @@ component Contact():
                     ):
                         div():
                             span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "GitHub"
-                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
                                 "github.com/hanxthvy"
-                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
+                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
 
                     a(
                         href="https://wa.me/6281234567890",
@@ -66,9 +66,9 @@ component Contact():
                     ):
                         div():
                             span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "WhatsApp"
-                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
                                 "+62 812-3456-7890"
-                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#f54e00] transition-colors"): "↗"
+                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
 
         footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
             p(): "REYHAN AKHTAR AFRIANSYAH // PORTFOLIO"

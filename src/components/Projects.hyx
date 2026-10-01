@@ -27,7 +27,7 @@ projects_data = [
 component Projects():
     section(id="projects", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
         div(className="max-w-3xl mb-14"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#f54e00] mb-2"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#cc785c] mb-2"):
                 "// REPOSITORI & KARYA"
             h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
                 "Proyek Open Source"
@@ -43,7 +43,7 @@ component Projects():
                     rel="noreferrer",
                     className="group block p-7 sm:p-8 rounded-[12px] bg-white border border-[#e6e5e0] hover:border-[#26251e] shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden",
                 ):
-                    div(className="absolute top-0 left-0 right-0 h-[2px] bg-transparent group-hover:bg-[#f54e00] transition-colors duration-300"): ""
+                    div(className="absolute top-0 left-0 right-0 h-[2px] bg-transparent group-hover:bg-[#cc785c] transition-colors duration-300"): ""
 
                     div(className="flex items-center justify-between mb-6"):
                         span(className="text-xs font-mono font-medium text-[#807d72] tracking-wider uppercase"):
@@ -52,7 +52,7 @@ component Projects():
                             span(className="text-xs font-mono text-[#807d72] group-hover:text-white transition-colors"):
                                 "↗"
 
-                    h3(className="text-[20px] font-semibold leading-[1.3] text-[#26251e] group-hover:text-[#f54e00] transition-colors mb-3 tracking-tight"):
+                    h3(className="text-[20px] font-semibold leading-[1.3] text-[#26251e] group-hover:text-[#cc785c] transition-colors mb-3 tracking-tight"):
                         prj["title"]
 
                     p(className="text-[13.5px] font-normal leading-[1.65] text-[#5a5852]"):

@@ -1,0 +1,59 @@
+# [xihanzu-NR]
+from "react" import useState, useEffect
+
+component SplashScreen():
+    is_mounted, set_is_mounted = useState(True)
+    is_animating, set_is_animating = useState(False)
+
+    def on_mount():
+        try:
+            if window.matchMedia("(prefers-reduced-motion: reduce)").matches:
+                set_is_mounted(False)
+                return None
+        except:
+            pass
+
+        def start_anim():
+            set_is_animating(True)
+        t1 = setTimeout(start_anim, 20)
+
+        def finish():
+            set_is_mounted(False)
+        t2 = setTimeout(finish, 2100)
+
+        def cleanup():
+            clearTimeout(t1)
+            clearTimeout(t2)
+        return cleanup
+
+    useEffect(on_mount, [])
+
+    if not is_mounted:
+        return None
+
+    def on_last_end(e):
+        set_is_mounted(False)
+
+    div(className="fixed inset-0 z-[9999] flex w-full h-[100dvh] pointer-events-none overflow-hidden select-none"):
+        div(
+            className=f"flex-1 bg-[#cc785c] will-change-transform transition-transform ease-[cubic-bezier(0.53,0,0.14,1)] duration-[1000ms] {'-translate-y-full' if is_animating else 'translate-y-0'}",
+            style={"transitionDelay": "0ms", "marginRight": "-1px"}
+        )
+        div(
+            className=f"flex-1 bg-[#cc785c] will-change-transform transition-transform ease-[cubic-bezier(0.53,0,0.14,1)] duration-[1000ms] {'-translate-y-full' if is_animating else 'translate-y-0'}",
+            style={"transitionDelay": "200ms", "marginRight": "-1px"}
+        )
+        div(
+            className=f"flex-1 bg-[#cc785c] will-change-transform transition-transform ease-[cubic-bezier(0.53,0,0.14,1)] duration-[1000ms] {'-translate-y-full' if is_animating else 'translate-y-0'}",
+            style={"transitionDelay": "400ms", "marginRight": "-1px"}
+        )
+        div(
+            onTransitionEnd=on_last_end,
+            className=f"flex-1 bg-[#cc785c] will-change-transform transition-transform ease-[cubic-bezier(0.53,0,0.14,1)] duration-[1000ms] {'-translate-y-full' if is_animating else 'translate-y-0'}",
+            style={"transitionDelay": "600ms", "marginRight": "-1px"}
+        )
+        div(
+            onTransitionEnd=on_last_end,
+            className=f"hidden md:block flex-1 bg-[#cc785c] will-change-transform transition-transform ease-[cubic-bezier(0.53,0,0.14,1)] duration-[1000ms] {'-translate-y-full' if is_animating else 'translate-y-0'}",
+            style={"transitionDelay": "800ms"}
+        )

@@ -4,22 +4,72 @@
 @tailwind utilities;
 
 @layer base {
+  /* ========================================================
+     CENTRALIZED DESIGN SYSTEM TOKENS
+     Ubah nilai di sini untuk mengubah tema di SELURUH website!
+     ======================================================== */
+  :root {
+    --color-primary: #cc785c;
+    --color-primary-active: #a9583e;
+    --color-primary-disabled: #e6dfd8;
+    --color-ink: #141413;
+    --color-body: #3d3d3a;
+    --color-body-strong: #252523;
+    --color-muted: #6c6a64;
+    --color-muted-soft: #8e8b82;
+    --color-hairline: #e6dfd8;
+    --color-hairline-soft: #ebe6df;
+    --color-canvas: #faf9f5;
+    --color-surface-soft: #f5f0e8;
+    --color-surface-card: #ffffff;
+    --color-surface-cream-strong: #e8e0d2;
+    --grid-dot: #cfcdc4;
+  }
+
+  html.dark {
+    --color-primary: #cc785c;
+    --color-primary-active: #a9583e;
+    --color-primary-disabled: #3d3d3a;
+    --color-ink: #faf9f5;
+    --color-body: #a09d96;
+    --color-body-strong: #ebe6df;
+    --color-muted: #8e8b82;
+    --color-muted-soft: #6c6a64;
+    --color-hairline: #2e2b26;
+    --color-hairline-soft: #252320;
+    --color-canvas: #141413;
+    --color-surface-soft: #181715;
+    --color-surface-card: #1f1e1b;
+    --color-surface-cream-strong: #252320;
+    --grid-dot: rgba(255, 255, 255, 0.08);
+
+    background-color: var(--color-canvas) !important;
+    color: var(--color-ink) !important;
+    color-scheme: dark;
+  }
+
+  html.dark body,
+  html.dark #root {
+    background-color: var(--color-canvas) !important;
+    color: var(--color-ink) !important;
+  }
+
   ::selection {
-    background-color: #26251e;
-    color: #f7f7f4;
+    background-color: var(--color-primary);
+    color: #ffffff;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #f7f7f4;
-    color: #26251e;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
   }
 
   body, #root {
     min-height: 100vh;
     min-height: 100dvh;
-    background-color: #f7f7f4;
-    color: #26251e;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
   }
 
   body {
@@ -33,21 +83,192 @@
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Custom subtle scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* Desktop: restore subtle custom scrollbar for usability */
+  @media (min-width: 769px) {
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cfcdc4;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-muted);
+    }
+
+    html.dark ::-webkit-scrollbar-track {
+      background: var(--color-canvas) !important;
+    }
+    html.dark ::-webkit-scrollbar-thumb {
+      background: var(--color-hairline) !important;
+    }
+    html.dark ::-webkit-scrollbar-thumb:hover {
+      background: #524f46 !important;
+    }
   }
-  ::-webkit-scrollbar-track {
-    background: #f7f7f4;
+
+  /* Mobile: clean borderless scrollbar */
+  @media (max-width: 768px) {
+    html, body {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    ::-webkit-scrollbar {
+      display: none;
+      width: 0px;
+      height: 0px;
+    }
   }
-  ::-webkit-scrollbar-thumb {
-    background: #cfcdc4;
-    border-radius: 3px;
+
+  /* Smooth color transition animation for theme toggle */
+  html,
+  body,
+  #root,
+  header,
+  main,
+  footer,
+  section,
+  nav,
+  aside,
+  div,
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  a,
+  button {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 400ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #807d72;
-  }
+}
+
+/* ========================================================
+   CENTRALIZED TOKEN ALIASES (Connects all components to tokens)
+   ======================================================== */
+.bg-primary,
+.bg-\[\#f54e00\],
+.bg-\[\#cc785c\] {
+  background-color: var(--color-primary) !important;
+}
+
+.text-primary,
+.text-\[\#f54e00\],
+.text-\[\#cc785c\] {
+  color: var(--color-primary) !important;
+}
+
+.border-primary,
+.border-\[\#f54e00\],
+.border-\[\#cc785c\] {
+  border-color: var(--color-primary) !important;
+}
+
+.hover\:bg-primary-active:hover,
+.hover\:bg-\[\#d04200\]:hover,
+.hover\:bg-\[\#a9583e\]:hover,
+.hover\:bg-\[\#f54e00\]:hover,
+.hover\:bg-\[\#cc785c\]:hover {
+  background-color: var(--color-primary-active) !important;
+}
+
+.hover\:text-primary:hover,
+.hover\:text-\[\#f54e00\]:hover,
+.hover\:text-\[\#cc785c\]:hover,
+.group-hover\:text-\[\#f54e00\],
+.group-hover\:text-\[\#cc785c\],
+.group-hover\/btn\:text-\[\#f54e00\],
+.group-hover\/btn\:text-\[\#cc785c\],
+.group-hover\/item\:text-\[\#f54e00\],
+.group-hover\/item\:text-\[\#cc785c\] {
+  color: var(--color-primary) !important;
+}
+
+.hover\:border-primary:hover,
+.hover\:border-\[\#f54e00\]:hover,
+.hover\:border-\[\#cc785c\]:hover,
+.group-hover\:border-\[\#f54e00\],
+.group-hover\:border-\[\#cc785c\] {
+  border-color: var(--color-primary) !important;
+}
+
+/* Global Dark Mode Palette Mappings */
+html.dark .bg-\[\#f7f7f4\],
+html.dark .bg-\[\#f7f7f4\]\/95,
+html.dark .bg-\[\#f7f7f4\]\/80 {
+  background-color: rgba(20, 20, 19, 0.95) !important;
+}
+
+html.dark .bg-white {
+  background-color: var(--color-surface-card) !important;
+}
+
+html.dark .bg-\[\#fafaf7\] {
+  background-color: var(--color-surface-soft) !important;
+}
+
+html.dark .bg-\[\#efeee8\] {
+  background-color: var(--color-surface-cream-strong) !important;
+}
+
+html.dark .text-\[\#26251e\] {
+  color: var(--color-ink) !important;
+}
+
+html.dark .text-\[\#5a5852\],
+html.dark .text-\[\#807d72\],
+html.dark .text-\[\#3d3d3a\] {
+  color: var(--color-body) !important;
+}
+
+html.dark .border-\[\#e6e5e0\],
+html.dark .divide-\[\#e6e5e0\] > :not([hidden]) ~ :not([hidden]),
+html.dark .border-\[\#cfcdc4\],
+html.dark .border-\[\#e6dfd8\] {
+  border-color: var(--color-hairline) !important;
+}
+
+html.dark .hover\:border-\[\#26251e\]:hover {
+  border-color: var(--color-ink) !important;
+}
+
+html.dark .hover\:text-\[\#26251e\]:hover {
+  color: #ffffff !important;
+}
+
+html.dark .hover\:bg-black\/5:hover,
+html.dark .hover\:bg-black\/\[0\.015\]:hover,
+html.dark .hover\:bg-\[\#26251e\]\/5:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.dark .shadow-sm {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl,
+html.dark .shadow-2xl {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* SVG Text Fill - dynamic per mode */
+svg text[stroke="none"],
+[data-fill-char],
+.fill-ink {
+  fill: var(--color-ink) !important;
+}
+
+html.dark svg text[stroke="none"],
+html.dark [data-fill-char],
+html.dark .fill-ink {
+  fill: var(--color-ink) !important;
 }
 
 @layer utilities {
@@ -55,11 +276,10 @@
     transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .card-lift:hover {
-    border-color: #26251e;
+    border-color: var(--color-ink);
     transform: translateY(-3px) scale(1.005);
   }
 
-  /* 3D Spatial Perspective & Scroll Zoom Engine */
   .perspective-container {
     perspective: 1400px;
     perspective-origin: center center;

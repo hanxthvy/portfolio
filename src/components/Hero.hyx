@@ -1,17 +1,78 @@
 # [xihanzu-NR]
+from "react" import useState, useEffect, useRef
 from "./StrokeText.hyx" import StrokeText
 
 component Hero(className=""):
-    section(className=f"min-h-[100svh] w-full flex flex-col justify-center pt-16 pb-8 px-5 sm:px-8 max-w-[1200px] mx-auto text-left {className}"):
-        div(className="max-w-4xl -mt-8 sm:-mt-14"):
-            p(className="text-xs sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#f54e00] mb-2 sm:mb-3"):
+    content_ref = useRef(None)
+    content_y, set_content_y = useState(0)
+    is_covered, set_is_covered = useState(False)
+
+    def handle_scroll():
+        vh = window.innerHeight
+        sy = window.scrollY
+        set_is_covered(sy >= vh)
+
+        node = content_ref.current
+        if not node:
+            return
+
+        c_h = node.offsetHeight
+
+        y_top0 = (vh - c_h) / 2
+        y_bottom0 = y_top0 + c_h
+
+        target_top = 52 if vh < 700 else 66
+        max_shift = Math.max(0, y_top0 - target_top)
+
+        target_gap = 30 if vh < 700 else 38
+
+        initial_gap = vh - y_bottom0
+        approach_gap = Math.min(initial_gap - 15, target_gap + (120 if vh >= 700 else 90))
+
+        s_start = Math.max(0, initial_gap - approach_gap)
+        s_end = s_start + max_shift + (approach_gap - target_gap)
+
+        if sy <= s_start:
+            set_content_y(0)
+        elif sy >= s_end:
+            set_content_y(-max_shift)
+        else:
+            t = (sy - s_start) / (s_end - s_start)
+            p = t * t * (3 - 2 * t)
+            set_content_y(-p * max_shift)
+
+    useEffect(lambda: (
+        window.addEventListener("scroll", handle_scroll, {"passive": True}),
+        handle_scroll(),
+        lambda: window.removeEventListener("scroll", handle_scroll)
+    )[-1], [])
+
+    def scroll_to(e, target):
+        if e and e.preventDefault:
+            e.preventDefault()
+        el = document.getElementById(target)
+        if el:
+            el.scrollIntoView({"behavior": "smooth"})
+
+    div(
+        className=f"fixed top-0 left-0 right-0 h-[100svh] w-full flex flex-col justify-center items-start px-5 sm:px-8 max-w-[1200px] mx-auto text-left z-0 {'pointer-events-none' if is_covered else ''} {className}",
+        style={"visibility": "hidden" if is_covered else "visible"}
+    ):
+        div(
+            ref=content_ref,
+            className="max-w-4xl will-change-transform",
+            style={
+                "transform": f"translate3d(0, {content_y}px, 0)",
+            }
+        ):
+            p(className="text-xs sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#cc785c] mb-2 sm:mb-3"):
                 "// DEVELOPER & SYSTEMS ENTHUSIAST"
 
             h1(className="mb-3 sm:mb-4 w-full"):
                 StrokeText(
                     text="Reyhan Akhtar Afriansyah",
-                    strokeColor="#f54e00",
-                    fillColor="#26251e",
+                    strokeColor="#cc785c",
+                    fillColor="var(--color-ink, #141413)",
                     strokeWidth=1.5,
                     drawDuration=1.5,
                     fillDelay=0.15,
@@ -26,13 +87,15 @@ component Hero(className=""):
             div(className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
                 a(
                     href="#projects",
-                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#f54e00] text-white text-[14px] font-medium leading-none hover:bg-[#d04200] transition-colors shadow-sm",
+                    onClick=lambda e: scroll_to(e, "projects"),
+                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#cc785c] text-white text-[14px] font-medium leading-none hover:bg-[#a9583e] transition-colors shadow-sm cursor-pointer",
                 ):
                     span(): "Lihat Proyek"
                     span(className="ml-2 text-xs"): "↓"
                 a(
                     href="#evidence",
-                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-white border border-[#cfcdc4] text-[#26251e] text-[14px] font-medium leading-none hover:border-[#26251e] transition-colors",
+                    onClick=lambda e: scroll_to(e, "evidence"),
+                    className="h-11 sm:h-10 px-6 inline-flex items-center justify-center rounded-[8px] bg-white border border-[#cfcdc4] text-[#26251e] text-[14px] font-medium leading-none hover:border-[#26251e] transition-colors cursor-pointer",
                 ):
                     span(): "Lihat Dokumentasi"
                     span(className="ml-2 text-xs"): "→"
