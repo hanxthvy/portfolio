@@ -42,9 +42,9 @@ component TechStack():
                     # Category Column
                     div(className="lg:col-span-4 space-y-1.5"):
                         div(className="flex items-center gap-2.5"):
-                            span(className="text-xs font-mono text-[#f54e00] font-semibold select-none"):
+                            span(className="text-xs font-mono text-[#cc785c] font-semibold select-none"):
                                 cat["index"]
-                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#f54e00] transition-colors"):
+                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
                                 cat["category"]
                         p(className="text-xs font-normal text-[#5a5852] leading-relaxed max-w-sm pt-0.5"):
                             cat["description"]
@@ -53,8 +53,8 @@ component TechStack():
                     div(className="lg:col-span-8"):
                         div(className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3"):
                             for item in cat["items"]:
-                                div(key=item, className="flex items-center gap-2.5 text-[14px] font-mono text-[#26251e] group/item hover:text-[#f54e00] transition-colors"):
-                                    span(className="text-[#cfcdc4] group-hover/item:text-[#f54e00] font-mono text-xs select-none transition-colors"):
+                                div(key=item, className="flex items-center gap-2.5 text-[14px] font-mono text-[#26251e] group/item hover:text-[#cc785c] transition-colors"):
+                                    span(className="text-[#cfcdc4] group-hover/item:text-[#cc785c] font-mono text-xs select-none transition-colors"):
                                         "—"
                                     span(className="font-medium tracking-tight"):
                                         item

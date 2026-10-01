@@ -21,8 +21,9 @@ prelayer_colors = ["#e6e5e0", "#cfcdc4", "#26251e"]
 
 component Navbar():
     scroll_progress, set_scroll_progress = useState(0)
-    is_scrolled, set_is_scrolled = useState(False)
+    is_visible, set_is_visible = useState(False)
     is_open, set_is_open = useState(False)
+    is_dark, set_is_dark = useState(False)
 
     panel_ref = useRef(None)
     pre_container_ref = useRef(None)
@@ -30,13 +31,52 @@ component Navbar():
     bar2_ref = useRef(None)
     bar3_ref = useRef(None)
 
+    def init_theme():
+        saved = localStorage.getItem("theme")
+        is_d = False
+        if saved == "dark":
+            is_d = True
+        elif saved == "light":
+            is_d = False
+        else:
+            is_d = window.matchMedia("(prefers-color-scheme: dark)").matches
+
+        if is_d:
+            document.documentElement.classList.add("dark")
+        else:
+            document.documentElement.classList.remove("dark")
+        set_is_dark(is_d)
+
+        def cleanup():
+            pass
+        return cleanup
+
+    useEffect(init_theme, [])
+
+    def toggle_theme():
+        is_d = document.documentElement.classList.contains("dark")
+        if is_d:
+            document.documentElement.classList.remove("dark")
+            localStorage.setItem("theme", "light")
+            set_is_dark(False)
+        else:
+            document.documentElement.classList.add("dark")
+            localStorage.setItem("theme", "dark")
+            set_is_dark(True)
+
     def handle_scroll():
         total_scroll = document.documentElement.scrollHeight - window.innerHeight
         if total_scroll > 0:
             pct = (window.scrollY / total_scroll) * 100
             clamped = 0 if pct < 0 else (100 if pct > 100 else pct)
             set_scroll_progress(clamped)
-        set_is_scrolled(window.scrollY > 20)
+
+        about_el = document.getElementById("about")
+        if about_el:
+            rect = about_el.getBoundingClientRect()
+            set_is_visible(rect.top <= 80)
+        else:
+            set_is_visible(window.scrollY >= (window.innerHeight * 0.7))
 
     useEffect(lambda: (
         window.addEventListener("scroll", handle_scroll, {"passive": True}),
@@ -74,47 +114,112 @@ component Navbar():
         else:
             open_menu()
 
+    def scroll_to_target(e, target):
+        if e and e.preventDefault:
+            e.preventDefault()
+        close_menu()
+        if target == "top" or not target or target == "#":
+            window.scrollTo({"top": 0, "behavior": "smooth"})
+        else:
+            clean_id = target.replace("#", "")
+            el = document.getElementById(clean_id)
+            if el:
+                el.scrollIntoView({"behavior": "smooth"})
+
     div():
         header(
-            className=f"fixed top-0 left-0 right-0 z-40 transition-all duration-200 {'bg-[#f7f7f4]/95 backdrop-blur-md border-b border-[#e6e5e0] shadow-sm' if is_scrolled else 'bg-[#f7f7f4]/80 backdrop-blur-sm border-b border-transparent'}",
+            className="fixed top-0 left-0 right-0 z-40 bg-[#f7f7f4]/95 backdrop-blur-md border-b border-[#e6e5e0] shadow-sm select-none",
+            style={
+                "clipPath": "inset(0 0 0 0)" if is_visible else "inset(0 100% 0 0)",
+                "opacity": "1" if is_visible else "0",
+                "pointerEvents": "auto" if is_visible else "none",
+                "transition": "clip-path 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out",
+                "willChange": "clip-path, opacity",
+            },
         ):
             div(className="absolute top-0 left-0 right-0 h-[2px] bg-[#e6e5e0]"):
                 div(
-                    className="h-full bg-[#f54e00] will-change-[width] transition-[width] duration-75",
+                    className="h-full bg-[#cc785c] will-change-[width] transition-[width] duration-75",
                     style={"width": f"{scroll_progress}%"},
                 )
 
             div(className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between"):
                 div(className="flex items-center gap-3"):
-                    a(href="#", className="text-[17px] sm:text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#f54e00] transition-colors"):
+                    a(
+                        href="#",
+                        onClick=lambda e: scroll_to_target(e, "top"),
+                        className="text-[17px] sm:text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#cc785c] transition-colors cursor-pointer",
+                    ):
                         "Reyhan Akhtar"
                     span(className="hidden md:inline-block text-xs font-mono text-[#807d72]"):
                         "// DEVELOPER"
 
-                nav(className="hidden md:flex items-center gap-6 lg:gap-8"):
-                    a(href="#about", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "About"
-                    a(href="#projects", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "Projects"
-                    a(href="#experience", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "Experience"
-                    a(href="#evidence", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "Evidence"
-                    a(href="#contact", className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors"):
-                        "Contact"
+                div(className="flex items-center gap-3 sm:gap-6"):
+                    nav(className="hidden md:flex items-center gap-6 lg:gap-8"):
+                        a(
+                            href="#about",
+                            onClick=lambda e: scroll_to_target(e, "about"),
+                            className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors cursor-pointer",
+                        ):
+                            "About"
+                        a(
+                            href="#projects",
+                            onClick=lambda e: scroll_to_target(e, "projects"),
+                            className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors cursor-pointer",
+                        ):
+                            "Projects"
+                        a(
+                            href="#experience",
+                            onClick=lambda e: scroll_to_target(e, "experience"),
+                            className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors cursor-pointer",
+                        ):
+                            "Experience"
+                        a(
+                            href="#evidence",
+                            onClick=lambda e: scroll_to_target(e, "evidence"),
+                            className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors cursor-pointer",
+                        ):
+                            "Evidence"
+                        a(
+                            href="#contact",
+                            onClick=lambda e: scroll_to_target(e, "contact"),
+                            className="text-[13px] font-mono text-[#5a5852] hover:text-[#26251e] transition-colors cursor-pointer",
+                        ):
+                            "Contact"
 
-                button(
-                    onClick=toggle_menu,
-                    className="w-10 h-10 p-2 inline-flex flex-col justify-center items-center gap-[5px] bg-transparent hover:bg-black/5 active:bg-black/10 rounded-[6px] transition-colors cursor-pointer select-none relative z-50",
-                    aria_label="Toggle Menu",
-                ):
-                    span(ref=bar1_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
-                    span(ref=bar2_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
-                    span(ref=bar3_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
+                    button(
+                        onClick=toggle_theme,
+                        className="w-8 h-8 rounded-full border border-[#cfcdc4] flex items-center justify-center text-[#5a5852] hover:text-[#cc785c] hover:border-[#cc785c] transition-colors cursor-pointer bg-transparent",
+                        title="Ganti Mode Gelap / Terang",
+                        aria_label="Toggle theme",
+                    ):
+                        if is_dark:
+                            svg(className="w-4 h-4", viewBox="0 0 24 24", fill="none", stroke="currentColor", strokeWidth="2", strokeLinecap="round", strokeLinejoin="round"):
+                                circle(cx="12", cy="12", r="4")
+                                path(d="M12 2v2")
+                                path(d="M12 20v2")
+                                path(d="m4.93 4.93 1.41 1.41")
+                                path(d="m17.66 17.66 1.41 1.41")
+                                path(d="M2 12h2")
+                                path(d="M20 12h2")
+                                path(d="m6.34 17.66-1.41 1.41")
+                                path(d="m19.07 4.93-1.41 1.41")
+                        else:
+                            svg(className="w-4 h-4", viewBox="0 0 24 24", fill="none", stroke="currentColor", strokeWidth="2", strokeLinecap="round", strokeLinejoin="round"):
+                                path(d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z")
+
+                    button(
+                        onClick=toggle_menu,
+                        className="md:hidden w-10 h-10 p-2 inline-flex flex-col justify-center items-center gap-[5px] bg-transparent hover:bg-black/5 active:bg-black/10 rounded-[6px] transition-colors cursor-pointer select-none relative z-50",
+                        aria_label="Toggle Menu",
+                    ):
+                        span(ref=bar1_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
+                        span(ref=bar2_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
+                        span(ref=bar3_ref, className="w-5 h-[1.8px] bg-[#26251e] rounded-full transition-transform origin-center")
 
         div(
             ref=pre_container_ref,
-            className="fixed top-0 right-0 bottom-0 pointer-events-none z-[60] w-full sm:w-[420px] h-full",
+            className="md:hidden fixed top-0 right-0 bottom-0 pointer-events-none z-[60] w-full sm:w-[420px] h-full",
             aria_hidden=True,
         ):
             for c in prelayer_colors:
@@ -126,35 +231,41 @@ component Navbar():
 
         if is_open:
             div(
-                className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity cursor-pointer",
+                className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity cursor-pointer",
                 onClick=close_menu,
             )
 
         aside(
             ref=panel_ref,
-            className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
+            className="md:hidden fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
             aria_hidden=not is_open,
         ):
             div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):
                 span(className="text-xs font-mono text-[#807d72] tracking-[0.88px] uppercase"):
                     "// MENU NAVIGASI"
-                button(
-                    onClick=close_menu,
-                    className="text-xs font-mono text-[#807d72] hover:text-[#f54e00] transition-colors cursor-pointer",
-                ):
-                    "[TUTUP]"
+                div(className="flex items-center gap-4"):
+                    button(
+                        onClick=toggle_theme,
+                        className="text-xs font-mono text-[#807d72] hover:text-[#cc785c] transition-colors cursor-pointer",
+                    ):
+                        "[MODE TERANG]" if is_dark else "[MODE GELAP]"
+                    button(
+                        onClick=close_menu,
+                        className="text-xs font-mono text-[#807d72] hover:text-[#cc785c] transition-colors cursor-pointer",
+                    ):
+                        "[TUTUP]"
 
             ul(className="flex flex-col gap-6 my-auto py-8 list-none"):
                 for it in default_items:
                     li(key=it["link"], className="overflow-hidden leading-none"):
                         a(
                             href=it["link"],
-                            onClick=close_menu,
-                            className="group flex items-baseline justify-between text-3xl sm:text-4xl font-normal text-[#26251e] hover:text-[#f54e00] transition-colors tracking-tight",
+                            onClick=lambda e, lid=it["link"]: scroll_to_target(e, lid),
+                            className="group flex items-baseline justify-between text-3xl sm:text-4xl font-normal text-[#26251e] hover:text-[#cc785c] transition-colors tracking-tight cursor-pointer",
                         ):
                             span(className="sm-panel-itemLabel inline-block"):
                                 it["label"]
-                            span(className="sm-panel-num text-xs font-mono text-[#f54e00] opacity-0 transition-opacity"):
+                            span(className="sm-panel-num text-xs font-mono text-[#cc785c] opacity-0 transition-opacity"):
                                 it["num"]
 
             div(className="pt-8 border-t border-[#e6e5e0] space-y-3"):
@@ -167,7 +278,7 @@ component Navbar():
                             href=s["link"],
                             target="_blank",
                             rel="noreferrer",
-                            className="sm-socials-link text-xs font-mono text-[#26251e] hover:text-[#f54e00] transition-colors inline-flex items-center gap-1",
+                            className="sm-socials-link text-xs font-mono text-[#26251e] hover:text-[#cc785c] transition-colors inline-flex items-center gap-1",
                         ):
                             span(): s["label"]
-                            span(className="text-[#f54e00] text-[10px]"): "↗"
+                            span(className="text-[#cc785c] text-[10px]"): "↗"

@@ -1,6 +1,5 @@
 # [xihanzu-NR]
 from "react" import useState
-from "./TiltCard.hyx" import TiltCard
 
 artifacts_data = [
     {
@@ -95,38 +94,38 @@ component Evidence():
             p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
                 "Dokumentasi foto sertifikat resmi, server homelab lokal, dan hasil oprek perangkat yang pernah saya kerjakan."
 
-        # Evidence Cards (Balik ke teks teknis awal)
+        # Evidence Cards
         div(className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16"):
             for item in artifacts_data:
-                TiltCard(key=item["id"], maxTilt=5, className="h-full"):
-                    div(
-                        onClick=lambda: open_modal(item),
-                        className=f"p-6 sm:p-7 rounded-[12px] border border-[#e6e5e0] bg-white flex flex-col justify-between h-full card-lift shadow-sm hover:shadow-lg transition-all group {'cursor-pointer' if item['image'] else 'cursor-default'}",
-                    ):
-                        div():
-                            h3(className="text-[19px] font-semibold leading-[1.3] text-[#26251e] group-hover:text-[#f54e00] transition-colors mb-2"):
-                                item["title"]
-                            p(className="text-sm font-normal leading-[1.55] text-[#5a5852] mb-5"):
-                                item["description"]
+                div(
+                    key=item["id"],
+                    onClick=lambda it=item: open_modal(it),
+                    className=f"p-6 sm:p-7 rounded-[12px] border border-[#e6e5e0] bg-white flex flex-col justify-between h-full hover:border-[#26251e] shadow-sm hover:shadow-lg transition-all duration-200 group select-none {'cursor-pointer' if item['image'] else 'cursor-default'}",
+                ):
+                    div():
+                        h3(className="text-[19px] font-semibold leading-[1.3] text-[#26251e] group-hover:text-[#cc785c] transition-colors mb-2"):
+                            item["title"]
+                        p(className="text-sm font-normal leading-[1.55] text-[#5a5852] mb-5"):
+                            item["description"]
 
-                        if item["image"]:
-                            div(className="w-full h-56 rounded-[8px] border border-[#e6e5e0] overflow-hidden relative bg-[#fafaf7]"):
-                                img(
-                                    src=item["image"],
-                                    alt=item["title"],
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
-                                )
-                                div(className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center"):
-                                    span(className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-mono text-white bg-[#26251e]/85 px-3 py-1.5 rounded-[6px] shadow-sm"):
-                                        "Lihat Foto Asli"
-                        else:
-                            div(className="w-full h-56 rounded-[8px] border border-dashed border-[#cfcdc4] bg-[#fafaf7] flex flex-col items-center justify-center p-6 text-center"):
-                                span(className="text-xs font-mono text-[#807d72] mb-2 select-none"):
-                                    "// REGULASI PABRIK"
-                                p(className="text-sm font-mono text-[#26251e] mb-1.5"):
-                                    "Fotografi Tidak Diizinkan"
-                                p(className="text-xs text-[#5a5852] max-w-xs leading-relaxed font-sans"):
-                                    "Dokumentasi foto di dalam lini manufaktur PT Panasonic Manufacturing Indonesia dilarang sesuai aturan kerahasiaan pabrik."
+                    if item["image"]:
+                        div(className="w-full h-56 rounded-[8px] border border-[#e6e5e0] overflow-hidden relative bg-[#fafaf7]"):
+                            img(
+                                src=item["image"],
+                                alt=item["title"],
+                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300",
+                            )
+                            div(className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none"):
+                                span(className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-mono text-white bg-[#26251e]/85 px-3 py-1.5 rounded-[6px] shadow-sm"):
+                                    "Lihat Foto Asli"
+                    else:
+                        div(className="w-full h-56 rounded-[8px] border border-dashed border-[#cfcdc4] bg-[#fafaf7] flex flex-col items-center justify-center p-6 text-center"):
+                            span(className="text-xs font-mono text-[#807d72] mb-2 select-none"):
+                                "// REGULASI PABRIK"
+                            p(className="text-sm font-mono text-[#26251e] mb-1.5"):
+                                "Fotografi Tidak Diizinkan"
+                            p(className="text-xs text-[#5a5852] max-w-xs leading-relaxed font-sans"):
+                                "Dokumentasi foto di dalam lini manufaktur PT Panasonic Manufacturing Indonesia dilarang sesuai aturan kerahasiaan pabrik."
 
         # Certificates Table
         div(className="border-t border-[#e6e5e0] pt-12"):
@@ -146,7 +145,7 @@ component Evidence():
                         className="py-5 grid grid-cols-1 md:grid-cols-12 gap-2.5 md:gap-6 items-baseline md:items-center hover:bg-black/[0.015] transition-colors group",
                     ):
                         div(className="md:col-span-5 space-y-1"):
-                            span(className="text-[15px] sm:text-[16px] font-medium leading-[1.4] text-[#26251e] group-hover:text-[#f54e00] transition-colors block"):
+                            span(className="text-[15px] sm:text-[16px] font-medium leading-[1.4] text-[#26251e] group-hover:text-[#cc785c] transition-colors block"):
                                 cert["name"]
                             span(className="md:hidden text-xs font-mono text-[#807d72] block"):
                                 f"{cert['issuer']} · {cert['year']}"
@@ -158,10 +157,10 @@ component Evidence():
                         div(className="md:col-span-2 flex items-center gap-2"):
                             button(
                                 onClick=lambda cid=cert["id"]: copy_credential_id(cid),
-                                className="text-[12px] font-mono text-[#26251e] hover:text-[#f54e00] transition-colors inline-flex items-center gap-1.5 group/btn text-left cursor-pointer",
+                                className="text-[12px] font-mono text-[#26251e] hover:text-[#cc785c] transition-colors inline-flex items-center gap-1.5 group/btn text-left cursor-pointer",
                             ):
                                 span(className="select-all"): cert["id"]
-                                span(className="text-[10px] text-[#807d72] group-hover/btn:text-[#f54e00] transition-colors"):
+                                span(className="text-[10px] text-[#807d72] group-hover/btn:text-[#cc785c] transition-colors"):
                                     "[TERSALIN]" if copied_id == cert["id"] else "[SALIN]"
 
                         div(className="md:col-span-2 flex items-center justify-end"):
@@ -169,7 +168,7 @@ component Evidence():
                                 href=cert["url"],
                                 target="_blank" if cert["url"].startswith("http") else "_self",
                                 rel="noreferrer" if cert["url"].startswith("http") else None,
-                                className="inline-flex items-center text-[12px] font-mono text-[#f54e00] hover:text-[#d04200] transition-colors",
+                                className="inline-flex items-center text-[12px] font-mono text-[#cc785c] hover:text-[#a9583e] transition-colors",
                             ):
                                 span(): "Verifikasi"
                                 span(className="ml-1 text-[11px] font-mono"): "↗"

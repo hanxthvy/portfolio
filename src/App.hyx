@@ -1,4 +1,5 @@
 # [xihanzu-NR]
+from "./components/SplashScreen.hyx" import SplashScreen
 from "./components/ClickSpark.hyx" import ClickSpark
 from "./components/BackgroundGrid3D.hyx" import BackgroundGrid3D
 from "./components/Navbar.hyx" import Navbar
@@ -11,14 +12,17 @@ from "./components/TechStack.hyx" import TechStack
 from "./components/Contact.hyx" import Contact
 
 component App():
-    ClickSpark(sparkColor="#f54e00", className="w-full min-h-screen bg-[#f7f7f4] text-[#26251e] font-sans selection:bg-[#26251e] selection:text-[#f7f7f4] relative"):
+    ClickSpark(sparkColor="#cc785c", className="w-full min-h-screen bg-[#f7f7f4] text-[#26251e] font-sans selection:bg-[#26251e] selection:text-[#f7f7f4] relative"):
+        SplashScreen()
         BackgroundGrid3D()
         Navbar()
         main(className="relative z-10 flex-1"):
             Hero()
-            About()
-            Projects()
-            Experience()
-            Evidence()
-            TechStack()
-            Contact()
+            div(className="w-full h-[100svh] pointer-events-none")
+            div(className="relative z-20 bg-[#f7f7f4] shadow-[0_-15px_35px_-5px_rgba(38,37,30,0.06)]"):
+                About()
+                Projects()
+                Experience()
+                Evidence()
+                TechStack()
+                Contact()
