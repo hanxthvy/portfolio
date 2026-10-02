@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hanz.dev/sitemap.xml
+Sitemap: https://hanxthvy.my.id/sitemap.xml

@@ -13,8 +13,9 @@ default_items = [
 
 default_socials = [
     {"label": "GitHub", "link": "https://github.com/hanxthvy"},
+    {"label": "Instagram", "link": "https://instagram.com/hanxthvy"},
+    {"label": "TikTok", "link": "https://www.tiktok.com/@homexihanzu"},
     {"label": "Email", "link": "mailto:contact@hanz.dev"},
-    {"label": "WhatsApp", "link": "https://wa.me/6281234567890"},
 ]
 
 prelayer_colors = ["#e6e5e0", "#cfcdc4", "#26251e"]
