@@ -1,0 +1,5 @@
+# [xihanzu-NR]
+User-agent: *
+Allow: /
+
+Sitemap: https://hanz.dev/sitemap.xml

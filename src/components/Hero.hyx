@@ -68,7 +68,8 @@ component Hero(className=""):
             p(className="text-xs sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#cc785c] mb-2 sm:mb-3"):
                 "// DEVELOPER & SYSTEMS ENTHUSIAST"
 
-            h1(className="mb-3 sm:mb-4 w-full"):
+            h1(className="mb-3 sm:mb-4 w-full relative"):
+                span(className="sr-only"): "Reyhan Akhtar Afriansyah"
                 StrokeText(
                     text="Reyhan Akhtar Afriansyah",
                     strokeColor="#cc785c",
