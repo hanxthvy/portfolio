@@ -16,6 +16,9 @@ component About():
                 div(className="lg:col-span-5 space-y-3"):
                     div(className="space-y-2 text-xs font-mono"):
                         div(className="flex items-baseline gap-3"):
+                            span(className="text-[#807d72] w-24 shrink-0"): "Pendidikan"
+                            span(className="text-[#26251e]"): "SMK Ma'arif 1 Kroya"
+                        div(className="flex items-baseline gap-3"):
                             span(className="text-[#807d72] w-24 shrink-0"): "Fokus"
                             span(className="text-[#cc785c] font-medium"): "Web, Systems & AI"
                         div(className="flex items-baseline gap-3"):
