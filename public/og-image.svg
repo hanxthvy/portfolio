@@ -1,0 +1,64 @@
+<!-- [xihanzu-NR] -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <!-- Deep Background -->
+  <rect width="1200" height="630" fill="#141413"/>
+
+  <!-- Subtle Dot Grid -->
+  <defs>
+    <pattern id="og-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#33312c"/>
+    </pattern>
+    <radialGradient id="og-glow" cx="20%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#cc785c" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#cc785c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#og-grid)" opacity="0.6"/>
+  <rect width="1200" height="630" fill="url(#og-glow)"/>
+
+  <!-- Outer Hairline Border -->
+  <rect x="24" y="24" width="1152" height="582" rx="16" stroke="#2e2b26" stroke-width="1.5"/>
+
+  <!-- Top Status Pill -->
+  <g transform="translate(64, 72)">
+    <rect width="280" height="36" rx="18" fill="#1f1e1b" stroke="#38352f" stroke-width="1"/>
+    <circle cx="20" cy="18" r="4.5" fill="#cc785c"/>
+    <text x="36" y="23" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="13" font-weight="700" letter-spacing="1" fill="#cc785c">DEVELOPER &amp; SYSTEMS ENTHUSIAST</text>
+  </g>
+
+  <!-- Main Headline -->
+  <text x="64" y="200" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="64" font-weight="800" letter-spacing="-1.5" fill="#faf9f5">Reyhan Akhtar Afriansyah</text>
+
+  <!-- Subtitle -->
+  <text x="64" y="260" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="#cc785c">Hanz // Systems &amp; Software Engineer</text>
+
+  <!-- Paragraph Lead -->
+  <text x="64" y="325" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20" font-weight="400" fill="#a09d96">
+    Creator of HydraScript (Native Rust Compiler) · Local Edge AI Distillation ·
+  </text>
+  <text x="64" y="360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20" font-weight="400" fill="#a09d96">
+    Physical Enterprise Homelab (HPE ProLiant DL360 Gen9 &amp; WireGuard CGNAT Bypass)
+  </text>
+
+  <!-- Bottom Badges / Tech Ledger -->
+  <g transform="translate(64, 470)">
+    <rect x="0" y="0" width="170" height="46" rx="8" fill="#1f1e1b" stroke="#2e2b26"/>
+    <text x="85" y="28" text-anchor="middle" font-family="monospace" font-size="15" font-weight="600" fill="#faf9f5">Rust Toolchain</text>
+
+    <rect x="185" y="0" width="170" height="46" rx="8" fill="#1f1e1b" stroke="#2e2b26"/>
+    <text x="270" y="28" text-anchor="middle" font-family="monospace" font-size="15" font-weight="600" fill="#faf9f5">HydraScript</text>
+
+    <rect x="370" y="0" width="190" height="46" rx="8" fill="#1f1e1b" stroke="#2e2b26"/>
+    <text x="465" y="28" text-anchor="middle" font-family="monospace" font-size="15" font-weight="600" fill="#faf9f5">Qwen3 LoRA GGUF</text>
+
+    <rect x="575" y="0" width="170" height="46" rx="8" fill="#1f1e1b" stroke="#2e2b26"/>
+    <text x="660" y="28" text-anchor="middle" font-family="monospace" font-size="15" font-weight="600" fill="#faf9f5">Proxmox VE</text>
+
+    <rect x="760" y="0" width="170" height="46" rx="8" fill="#1f1e1b" stroke="#2e2b26"/>
+    <text x="845" y="28" text-anchor="middle" font-family="monospace" font-size="15" font-weight="600" fill="#faf9f5">Void Linux</text>
+  </g>
+
+  <!-- URL Branding Bottom Right -->
+  <text x="1120" y="560" text-anchor="end" font-family="monospace" font-size="18" font-weight="600" fill="#cc785c">hanz.dev</text>
+</svg>
