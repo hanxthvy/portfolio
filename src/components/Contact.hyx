@@ -59,15 +59,27 @@ component Contact():
                         span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
 
                     a(
-                        href="https://wa.me/6281234567890",
+                        href="https://instagram.com/hanxthvy",
                         target="_blank",
                         rel="noreferrer",
                         className="py-4 flex items-center justify-between group transition-colors",
                     ):
                         div():
-                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "WhatsApp"
+                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Instagram"
                             span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
-                                "+62 812-3456-7890"
+                                "@hanxthvy"
+                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
+
+                    a(
+                        href="https://www.tiktok.com/@homexihanzu",
+                        target="_blank",
+                        rel="noreferrer",
+                        className="py-4 flex items-center justify-between group transition-colors",
+                    ):
+                        div():
+                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "TikTok"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
+                                "@homexihanzu"
                         span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
 
         footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
