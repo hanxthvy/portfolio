@@ -25,7 +25,7 @@ component TechStack():
     section(id="tech-stack", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
         # Header
         div(className="max-w-3xl mb-14"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72] mb-2"):
+            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#6c6a64] mb-2"):
                 "// TOOLS & KEAHLIAN"
             h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
                 "Teknologi yang Digunakan"
@@ -42,9 +42,9 @@ component TechStack():
                     # Category Column
                     div(className="lg:col-span-4 space-y-1.5"):
                         div(className="flex items-center gap-2.5"):
-                            span(className="text-xs font-mono text-[#cc785c] font-semibold select-none"):
+                            span(className="text-xs font-mono text-[#a9583e] font-semibold select-none"):
                                 cat["index"]
-                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
+                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
                                 cat["category"]
                         p(className="text-xs font-normal text-[#5a5852] leading-relaxed max-w-sm pt-0.5"):
                             cat["description"]
@@ -53,8 +53,8 @@ component TechStack():
                     div(className="lg:col-span-8"):
                         div(className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3"):
                             for item in cat["items"]:
-                                div(key=item, className="flex items-center gap-2.5 text-[14px] font-mono text-[#26251e] group/item hover:text-[#cc785c] transition-colors"):
-                                    span(className="text-[#cfcdc4] group-hover/item:text-[#cc785c] font-mono text-xs select-none transition-colors"):
+                                div(key=item, className="flex items-center gap-2.5 text-[14px] font-mono text-[#26251e] group/item hover:text-[#a9583e] transition-colors"):
+                                    span(className="text-[#8e8b82] group-hover/item:text-[#a9583e] font-mono text-xs select-none transition-colors", aria_hidden=True):
                                         "—"
                                     span(className="font-medium tracking-tight"):
                                         item

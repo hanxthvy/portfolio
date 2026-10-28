@@ -18,7 +18,7 @@ component App():
         Navbar()
         main(className="relative z-10 flex-1"):
             Hero()
-            div(className="w-full h-[100svh] pointer-events-none")
+            div(className="w-full h-[100lvh] pointer-events-none")
             div(className="relative z-20 bg-[#f7f7f4] shadow-[0_-15px_35px_-5px_rgba(38,37,30,0.06)]"):
                 About()
                 Projects()

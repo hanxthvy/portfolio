@@ -149,10 +149,10 @@ component Navbar():
                     a(
                         href="#",
                         onClick=lambda e: scroll_to_target(e, "top"),
-                        className="text-[17px] sm:text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#cc785c] transition-colors cursor-pointer",
+                        className="text-[17px] sm:text-[18px] font-semibold tracking-tight text-[#26251e] hover:text-[#a9583e] transition-colors cursor-pointer",
                     ):
                         "Reyhan Akhtar"
-                    span(className="hidden md:inline-block text-xs font-mono text-[#807d72]"):
+                    span(className="hidden md:inline-block text-xs font-mono text-[#6c6a64]"):
                         "// DEVELOPER"
 
                 div(className="flex items-center gap-3 sm:gap-6"):
@@ -190,7 +190,7 @@ component Navbar():
 
                     button(
                         onClick=toggle_theme,
-                        className="w-8 h-8 rounded-full border border-[#cfcdc4] flex items-center justify-center text-[#5a5852] hover:text-[#cc785c] hover:border-[#cc785c] transition-colors cursor-pointer bg-transparent",
+                        className="w-8 h-8 rounded-full border border-[#cfcdc4] flex items-center justify-center text-[#5a5852] hover:text-[#a9583e] hover:border-[#cc785c] transition-colors cursor-pointer bg-transparent",
                         title="Ganti Mode Gelap / Terang",
                         aria_label="Toggle theme",
                     ):
@@ -242,17 +242,17 @@ component Navbar():
             aria_hidden=not is_open,
         ):
             div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):
-                span(className="text-xs font-mono text-[#807d72] tracking-[0.88px] uppercase"):
+                span(className="text-xs font-mono text-[#6c6a64] tracking-[0.88px] uppercase"):
                     "// MENU NAVIGASI"
                 div(className="flex items-center gap-4"):
                     button(
                         onClick=toggle_theme,
-                        className="text-xs font-mono text-[#807d72] hover:text-[#cc785c] transition-colors cursor-pointer",
+                        className="text-xs font-mono text-[#6c6a64] hover:text-[#a9583e] transition-colors cursor-pointer",
                     ):
                         "[MODE TERANG]" if is_dark else "[MODE GELAP]"
                     button(
                         onClick=close_menu,
-                        className="text-xs font-mono text-[#807d72] hover:text-[#cc785c] transition-colors cursor-pointer",
+                        className="text-xs font-mono text-[#6c6a64] hover:text-[#a9583e] transition-colors cursor-pointer",
                     ):
                         "[TUTUP]"
 
@@ -262,15 +262,15 @@ component Navbar():
                         a(
                             href=it["link"],
                             onClick=lambda e, lid=it["link"]: scroll_to_target(e, lid),
-                            className="group flex items-baseline justify-between text-3xl sm:text-4xl font-normal text-[#26251e] hover:text-[#cc785c] transition-colors tracking-tight cursor-pointer",
+                            className="group flex items-baseline justify-between text-3xl sm:text-4xl font-normal text-[#26251e] hover:text-[#a9583e] transition-colors tracking-tight cursor-pointer",
                         ):
                             span(className="sm-panel-itemLabel inline-block"):
                                 it["label"]
-                            span(className="sm-panel-num text-xs font-mono text-[#cc785c] opacity-0 transition-opacity"):
+                            span(className="sm-panel-num text-xs font-mono text-[#a9583e] opacity-0 transition-opacity"):
                                 it["num"]
 
             div(className="pt-8 border-t border-[#e6e5e0] space-y-3"):
-                p(className="text-[11px] font-mono uppercase tracking-[0.88px] text-[#807d72]"):
+                p(className="text-[11px] font-mono uppercase tracking-[0.88px] text-[#6c6a64]"):
                     "// KONTAK & TAUTAN"
                 div(className="flex flex-wrap gap-4"):
                     for s in default_socials:
@@ -279,7 +279,7 @@ component Navbar():
                             href=s["link"],
                             target="_blank",
                             rel="noreferrer",
-                            className="sm-socials-link text-xs font-mono text-[#26251e] hover:text-[#cc785c] transition-colors inline-flex items-center gap-1",
+                            className="sm-socials-link text-xs font-mono text-[#26251e] hover:text-[#a9583e] transition-colors inline-flex items-center gap-1",
                         ):
                             span(): s["label"]
-                            span(className="text-[#cc785c] text-[10px]"): "↗"
+                            span(className="text-[#a9583e] text-[10px]"): "↗"

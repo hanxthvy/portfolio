@@ -2,7 +2,7 @@
 from "../utils/date" import get_age
 
 current_age = get_age("2009-04-10")
-export hero_subtitle = "Siswa SMK Ma'arif 1 Kroya berusia 17 tahun yang aktif mengeksplorasi web development, server Linux, toolchain compiler, dan perakitan hardware."
+export hero_subtitle = "Siswa SMK Ma'arif 1 Kroya jurusan Teknik Audio Video (TAV), 17 tahun, aktif mengeksplorasi web development, server Linux, toolchain compiler, dan perakitan hardware."
 lead_text = "Saya suka mengulik teknologi dari level perakitan hardware, pengelolaan server Linux, hingga pembuatan website."
 
 export profile = {

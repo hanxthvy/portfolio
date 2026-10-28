@@ -28,7 +28,7 @@ export def is_box_equal(b1, b2):
     dh = Math.abs(b1["height"] - b2["height"])
     return dx < 0.5 and dy < 0.5 and dw < 0.5 and dh < 0.5
 
-export def animate_stroke(root, wipe_rect, box_width, dash, draw_duration, fill_delay, stagger, ease, fill_mode):
+export def animate_stroke(root, wipe_rect, box_width, dash, draw_duration, fill_delay, stagger, ease, fill_mode, char_count):
     try:
         strokes = gsap.utils.toArray(root.querySelectorAll("[data-stroke-char]"))
         fills = gsap.utils.toArray(root.querySelectorAll("[data-fill-char]"))
@@ -43,11 +43,14 @@ export def animate_stroke(root, wipe_rect, box_width, dash, draw_duration, fill_
         tl = gsap.timeline({"defaults": {"overwrite": "auto"}})
         tl.to(strokes, {"strokeDashoffset": 0, "duration": draw_duration, "ease": ease, "stagger": stagger}, 0)
 
-        fill_duration = Math.max(0.4, draw_duration * 0.5)
+        # Overlap stroke and fill so the wipe starts shortly after the first
+        # characters complete on the left, without a dead pause.
+        fill_start = Math.max(0.4, draw_duration * 0.82 + fill_delay)
+        fill_duration = Math.max(0.45, draw_duration * 0.55)
         if fill_mode == "wipe" and wipe_rect:
-            tl.to(wipe_rect, {"attr": {"width": box_width}, "duration": fill_duration, "ease": "power2.inOut"}, draw_duration + fill_delay)
+            tl.to(wipe_rect, {"attr": {"width": box_width}, "duration": fill_duration, "ease": "power2.inOut"}, fill_start)
         elif fill_mode != "none":
-            tl.to(fills, {"opacity": 1, "duration": fill_duration, "ease": "power2.out", "stagger": stagger}, draw_duration + fill_delay)
+            tl.to(fills, {"opacity": 1, "duration": fill_duration, "ease": "power2.out", "stagger": stagger}, fill_start)
 
         return tl
     except:

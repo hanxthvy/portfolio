@@ -12,9 +12,9 @@ component Contact():
     section(id="contact", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
         div(className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mb-20"):
             div(className="lg:col-span-6 space-y-6"):
-                p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#807d72]"):
+                p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#6c6a64]"):
                     "// KONTAK"
-                h2(className="text-3xl sm:text-4xl lg:text-[44px] font-normal leading-[1.12] tracking-[-1px] text-[#26251e]"):
+                h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e]"):
                     "Mari terhubung."
                 p(className="text-base sm:text-lg font-normal leading-[1.6] text-[#5a5852] max-w-lg"):
                     "Terbuka untuk kesempatan magang, proyek pembuatan website, atau diskusi seputar server Linux dan pemrograman."
@@ -22,7 +22,7 @@ component Contact():
                 div(className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-sm sm:max-w-none"):
                     a(
                         href="mailto:contact@hanz.dev",
-                        className="h-11 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#26251e] text-[#f7f7f4] text-sm font-medium hover:bg-[#cc785c] transition-colors shadow-sm",
+                        className="h-11 px-6 inline-flex items-center justify-center rounded-[8px] bg-[#26251e] text-[#f7f7f4] text-sm font-medium hover:bg-[#a9583e] transition-colors shadow-sm",
                     ):
                         span(): "Kirim Email"
                         span(className="ml-2 font-mono text-xs"): "↗"
@@ -37,12 +37,12 @@ component Contact():
                 div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
                     div(className="py-4 flex items-center justify-between group"):
                         div():
-                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Email"
-                            a(href="mailto:contact@hanz.dev", className="text-[15px] font-mono font-medium text-[#26251e] hover:text-[#cc785c] transition-colors"):
+                            span(className="text-xs font-mono text-[#6c6a64] block mb-0.5"): "Email"
+                            a(href="mailto:contact@hanz.dev", className="text-[15px] font-mono font-medium text-[#26251e] hover:text-[#a9583e] transition-colors"):
                                 "contact@hanz.dev"
                         button(
                             onClick=copy_email,
-                            className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors cursor-pointer",
+                            className="text-xs font-mono text-[#6c6a64] group-hover:text-[#a9583e] transition-colors cursor-pointer",
                         ):
                             "[TERSALIN]" if copied else "[SALIN]"
 
@@ -53,10 +53,10 @@ component Contact():
                         className="py-4 flex items-center justify-between group transition-colors",
                     ):
                         div():
-                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "GitHub"
-                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
+                            span(className="text-xs font-mono text-[#6c6a64] block mb-0.5"): "GitHub"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
                                 "github.com/hanxthvy"
-                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
+                        span(className="text-xs font-mono text-[#6c6a64] group-hover:text-[#a9583e] transition-colors"): "↗"
 
                     a(
                         href="https://instagram.com/hanxthvy",
@@ -65,10 +65,10 @@ component Contact():
                         className="py-4 flex items-center justify-between group transition-colors",
                     ):
                         div():
-                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "Instagram"
-                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
+                            span(className="text-xs font-mono text-[#6c6a64] block mb-0.5"): "Instagram"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
                                 "@hanxthvy"
-                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
+                        span(className="text-xs font-mono text-[#6c6a64] group-hover:text-[#a9583e] transition-colors"): "↗"
 
                     a(
                         href="https://www.tiktok.com/@homexihanzu",
@@ -77,12 +77,12 @@ component Contact():
                         className="py-4 flex items-center justify-between group transition-colors",
                     ):
                         div():
-                            span(className="text-xs font-mono text-[#807d72] block mb-0.5"): "TikTok"
-                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#cc785c] transition-colors"):
+                            span(className="text-xs font-mono text-[#6c6a64] block mb-0.5"): "TikTok"
+                            span(className="text-[15px] font-mono font-medium text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
                                 "@homexihanzu"
-                        span(className="text-xs font-mono text-[#807d72] group-hover:text-[#cc785c] transition-colors"): "↗"
+                        span(className="text-xs font-mono text-[#6c6a64] group-hover:text-[#a9583e] transition-colors"): "↗"
 
-        footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#807d72] gap-4 text-center sm:text-left"):
+        footer(className="pt-12 border-t border-[#e6e5e0] flex flex-col sm:flex-row items-center justify-between text-[13px] font-mono text-[#6c6a64] gap-4 text-center sm:text-left"):
             p(): "REYHAN AKHTAR AFRIANSYAH // PORTFOLIO"
             p(): "Dibuat dengan HydraScript (.hyx/.hys)"
             p(): "© 2026 Reyhan Akhtar. Hak cipta dilindungi."

@@ -198,10 +198,16 @@
 }
 
 /* Global Dark Mode Palette Mappings */
-html.dark .bg-\[\#f7f7f4\],
-html.dark .bg-\[\#f7f7f4\]\/95,
-html.dark .bg-\[\#f7f7f4\]\/80 {
+html.dark .bg-\[\#f7f7f4\] {
+  background-color: var(--color-canvas, #141413) !important;
+}
+
+html.dark .bg-\[\#f7f7f4\]\/95 {
   background-color: rgba(20, 20, 19, 0.95) !important;
+}
+
+html.dark .bg-\[\#f7f7f4\]\/80 {
+  background-color: rgba(20, 20, 19, 0.8) !important;
 }
 
 html.dark .bg-white {
@@ -222,8 +228,20 @@ html.dark .text-\[\#26251e\] {
 
 html.dark .text-\[\#5a5852\],
 html.dark .text-\[\#807d72\],
+html.dark .text-\[\#6c6a64\],
 html.dark .text-\[\#3d3d3a\] {
   color: var(--color-body) !important;
+}
+
+/* Aksen sebagai teks: versi gelap butuh aksen yang lebih terang,
+   karena #a9583e hanya 3.65:1 di atas canvas gelap. */
+html.dark .text-\[\#a9583e\] {
+  color: var(--color-primary) !important;
+}
+
+html.dark .group:hover .group-hover\:text-\[\#a9583e\],
+html.dark .group-hover\:text-\[\#a9583e\] {
+  color: var(--color-primary) !important;
 }
 
 html.dark .border-\[\#e6e5e0\],
