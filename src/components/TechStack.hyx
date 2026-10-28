@@ -1,4 +1,5 @@
 # [xihanzu-NR]
+from "./SectionHeading.hyx" import SectionHeading
 
 tech_categories = [
     {
@@ -23,14 +24,14 @@ tech_categories = [
 
 component TechStack():
     section(id="tech-stack", className="py-24 px-6 max-w-[1200px] mx-auto text-left border-t border-[#e6e5e0]"):
-        # Header
-        div(className="max-w-3xl mb-14"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#6c6a64] mb-2"):
-                "// TOOLS & KEAHLIAN"
-            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
-                "Teknologi yang Digunakan"
-            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
-                "Bahasa pemrograman, runtime, dan tools yang aktif saya gunakan dalam pengerjaan proyek web dan server."
+        SectionHeading(
+            kicker="// TOOLS & KEAHLIAN",
+            title="Teknologi yang Digunakan",
+            lede="Bahasa pemrograman, runtime, dan tools yang aktif saya gunakan dalam pengerjaan proyek web dan server.",
+            align="left",
+            title_font_size=33,
+            title_stroke_width=1.0,
+        )
 
         # Cardless Architectural Spec Ledger
         div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
@@ -38,6 +39,7 @@ component TechStack():
                 div(
                     key=cat["category"],
                     className="py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start group",
+                    data_reveal="fade",
                 ):
                     # Category Column
                     div(className="lg:col-span-4 space-y-1.5"):

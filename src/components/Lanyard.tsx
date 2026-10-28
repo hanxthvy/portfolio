@@ -4,6 +4,7 @@
 import { useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import * as THREE from 'three';
+import { on_scroll } from '../utils/scrollEngine';
 
 type Orientation = 'portrait' | 'landscape';
 type Finish = 'glossy' | 'matte' | 'holographic' | 'metallic';
@@ -40,6 +41,12 @@ export interface LanyardProps {
   breeze?: number;
   interactive?: boolean;
   intro?: boolean;
+  /**
+   * Titipan kecepatan scroll (piksel/ms) dari scrollEngine. Dipakai sebagai
+   * hembusan angin supaya kartu berayun mengikuti cara halaman digulir.
+   * Sengaja lewat ref, bukan prop bernilai: tidak boleh memicu render React.
+   */
+  windRef?: { current: number };
   className?: string;
   style?: CSSProperties;
 }
@@ -65,6 +72,7 @@ interface Settings {
   breeze: number;
   interactive: boolean;
   intro: boolean;
+  windRef?: { current: number };
 }
 
 interface Images {
@@ -145,6 +153,7 @@ interface Physics {
   grip: number;
   gripDamping: number;
   breeze: number;
+  gust: number;
 }
 
 interface Applied {
@@ -815,8 +824,13 @@ const stepSimulation = (sim: Simulation, dt: number, physics: Physics, time: num
   const steps = Math.max(1, Math.ceil(dt / MAX_STEP - 1e-6));
   const h = dt / steps;
   const { nodes, previous, velocities, body } = sim;
-  const windX = physics.breeze * (Math.sin(time * 0.53) * 0.7 + Math.sin(time * 1.31 + 1.7) * 0.3) * 3;
-  const windZ = physics.breeze * Math.sin(time * 0.37 + 0.6) * 2;
+  const ambientX = physics.breeze * (Math.sin(time * 0.53) * 0.7 + Math.sin(time * 1.31 + 1.7) * 0.3) * 3;
+  const ambientZ = physics.breeze * Math.sin(time * 0.37 + 0.6) * 2;
+  // Hembusan dari kecepatan scroll: digulir turun lalu kartu terangkat ke atas
+  // (gerak semu), jadi tandanya dibalik. Di-clamp supaya tidak pernah liar.
+  const puff = clamp(physics.gust, -14, 14);
+  const windX = ambientX + puff;
+  const windZ = ambientZ + puff * 0.25;
   const grab = sim.grab;
   const pin = scratch.pin;
   const nodeDrag = Math.exp(-physics.nodeDrag * h);
@@ -923,6 +937,7 @@ const Lanyard = ({
   breeze = 0.5,
   interactive = true,
   intro = true,
+  windRef,
   className = '',
   style
 }: LanyardProps) => {
@@ -950,7 +965,8 @@ const Lanyard = ({
     elasticity,
     breeze,
     interactive,
-    intro
+    intro,
+    windRef
   };
 
   useEffect(() => {
@@ -1329,6 +1345,11 @@ const Lanyard = ({
       const weight = Math.max(gravity, 20);
       const springy = clamp(s.elasticity, 0, 1);
       const settle = clamp(s.damping, 0, 1);
+      // Kartu diam saat halaman tidak digulir; makin kencang gulirnya makin kuat
+      // hembusannya. Dua arah: gulir naik dan turun sama-sama menghembus,
+      // hanya arah ayunannya yang berlawanan. (Kalau di-clamp ke satu arah
+      // saja, separuh waktu hembusannya jadi nol.)
+      const gust = s.windRef ? clamp(-s.windRef.current * 13, -13, 13) : 0;
       return {
         gravity,
         hold: weight * mix(2.2, 5.5, springy),
@@ -1346,8 +1367,9 @@ const Lanyard = ({
         twistDamping: 3,
         grip: 40,
         gripDamping: 6,
-        breeze: reducedMotion ? 0 : clamp(s.breeze, 0, 1)
-      };
+        breeze: reducedMotion ? 0 : clamp(s.breeze, 0, 1),
+        gust: reducedMotion ? 0 : gust
+        };
     };
 
     const tick = (now: number) => {
@@ -1364,7 +1386,10 @@ const Lanyard = ({
         placeHanging(sim, layout, false);
       }
       render();
-      const resting = sim.calm > 1.2 && !sim.grab && current.breeze === 0;
+      // Kartu yang sedang berayun karena hembusan scroll tidak boleh dianggap
+      // "diam" — kalau dianggap diam, animasinya berhenti di tengah ayunan.
+      const gusting = Math.abs(current.gust) > 0.05;
+      const resting = sim.calm > 1.2 && !sim.grab && current.breeze === 0 && !gusting;
       if (visible && !resting) raf = requestAnimationFrame(tick);
     };
 
@@ -1523,10 +1548,17 @@ const Lanyard = ({
     };
     document.addEventListener('visibilitychange', onVisibility);
 
+    // Bangunkan loop saat halaman digulir, supaya hembusan angin benar-benar
+    // dihitung. on_scroll sendiri tidak memicu render React.
+    const stopScroll = on_scroll(frame => {
+      if (Math.abs(frame.velocity) > 0.05) start();
+    });
+
     applyRef.current = apply;
     resize();
 
     return () => {
+      stopScroll();
       alive = false;
       cancelAnimationFrame(raf);
       applyRef.current = null;

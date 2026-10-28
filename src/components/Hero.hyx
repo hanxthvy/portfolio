@@ -1,21 +1,61 @@
 # [xihanzu-NR]
-from "react" import useState, useEffect
+from "react" import useState, useEffect, useRef
 from "./StrokeText.hyx" import StrokeText
 from "./PatternWaves.tsx" import PatternWaves
 from "./Lanyard.tsx" import Lanyard
+from "../utils/scrollEngine" import on_scroll, prefers_reduced_motion
 
 component Hero(className=""):
+    # Catatan arsitektur:
+    # Sebelumnya komponen ini memanggil setState di setiap event `scroll`, jadi
+    # React merender ulang tiap kali roda mouse bergerak. Sekarang nilai scroll
+    # ditulis langsung ke style elemen lewat satu driver terpusat (scrollEngine),
+    # jadi nol render ulang dan animasinya jalan di compositor.
     is_covered, set_is_covered = useState(False)
+    text_ref = useRef(None)
+    eyebrow_ref = useRef(None)
+    # Angin dari kecepatan scroll dititipkan lewat ref supaya tidak memicu render.
+    wind_ref = useRef(0.0)
 
-    def handle_scroll():
-        vh = window.innerHeight
-        set_is_covered(window.scrollY >= vh)
+    def scroll_effect():
+        if prefers_reduced_motion():
+            return lambda: None
 
-    useEffect(lambda: (
-        window.addEventListener("scroll", handle_scroll, {"passive": True}),
-        handle_scroll(),
-        lambda: window.removeEventListener("scroll", handle_scroll)
-    )[-1], [])
+        def handle(frame):
+            # frame.hero: 0 di atas, 1 tepat saat section berikutnya mulai masuk.
+            p = frame.hero
+            set_is_covered(p >= 0.999)
+
+            # Kecepatan scroll dipakai sebagai "angin" supaya kartu lanyard
+            # ikut berayun saat halaman digulir kencang.
+            Object.assign(wind_ref, {"current": frame.velocity})
+
+
+            if text_ref.current:
+                # Parallax berlapis: teks naik lebih cepat daripada kartu.
+                lift = p * -14
+                fade = 1 - Math.min(1, p / 0.72)
+                Object.assign(text_ref.current.style, {
+                    "transform": f"translate3d(0, {lift:.3f}vh, 0)",
+                    "opacity": f"{fade:.3f}",
+                })
+
+            if eyebrow_ref.current:
+                Object.assign(eyebrow_ref.current.style, {
+                    "opacity": f"{Math.max(0.0, 1 - p / 0.34):.3f}",
+                    "transform": f"translate3d(0, {p * -26:.2f}px, 0)",
+                })
+
+            # Catatan penting: pembungkus kartu TIDAK boleh diberi transform.
+            # Canvas Lanyard memakai position: fixed, dan transform pada ancestor
+            # mengubah containing block-nya sehingga koordinat kartu meleset jauh
+            # (pernah kejadian: kartu hilang sepenuhnya).
+            # Gerak kartu terhadap scroll ditangani dari dalam canvas lewat
+            # hembusan angin (windRef), yang tidak menyentuh tata letak.
+
+        return on_scroll(handle)
+
+    useEffect(scroll_effect, [])
 
     def scroll_to(e, target):
         if e and e.preventDefault:
@@ -25,14 +65,14 @@ component Hero(className=""):
             el.scrollIntoView({"behavior": "smooth"})
 
     div(
-        className=f"fixed top-0 left-0 right-0 flex justify-center items-center px-5 sm:px-8 max-w-[1300px] mx-auto z-0 {'pointer-events-none' if is_covered else ''} {className}",
+        className=f"fixed top-0 left-0 right-0 flex justify-center items-center px-5 sm:px-8 max-w-[1300px] mx-auto z-0 {className}",
         style={
             "height": "100svh",
             "width": "100%",
             "visibility": "hidden" if is_covered else "visible",
         }
     ):
-        div(className="absolute inset-0 w-full h-full -z-10 pointer-events-auto overflow-hidden", aria_hidden=True):
+        div(className="absolute inset-0 w-full h-full -z-10 pointer-events-none overflow-hidden", aria_hidden=True):
             PatternWaves(
                 preset="silk",
                 color="#cc785c",
@@ -49,8 +89,14 @@ component Hero(className=""):
         # Mobile: content centered vertically; desktop: two-column layout
         div(className="w-full h-full flex flex-col justify-center items-center lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-5 lg:gap-8 relative z-10 pointer-events-none"):
             # Text and buttons
-            div(className="w-full lg:max-w-2xl flex flex-col justify-center items-center text-center lg:items-start lg:text-left pointer-events-auto shrink-0 relative z-40"):
-                p(className="text-[10px] sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2 sm:mb-2.5 lg:mb-3"):
+            div(
+                ref=text_ref,
+                className="w-full lg:max-w-2xl flex flex-col justify-center items-center text-center lg:items-start lg:text-left pointer-events-auto shrink-0 relative z-40 will-change-transform",
+            ):
+                p(
+                    ref=eyebrow_ref,
+                    className="text-[10px] sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2 sm:mb-2.5 lg:mb-3 will-change-transform",
+                ):
                     "// DEVELOPER & SYSTEMS ENTHUSIAST"
 
                 h1(className="mb-2.5 sm:mb-3 lg:mb-4 w-full relative flex justify-center lg:justify-start"):
@@ -88,7 +134,9 @@ component Hero(className=""):
                         span(className="ml-2 text-xs"): "→"
 
             # Mobile lanyard; desktop lanyard stays on the right
-            div(className="flex lg:hidden w-full h-[34svh] min-h-[190px] max-h-[300px] items-center justify-center pointer-events-auto touch-pan-y relative z-30"):
+            div(
+                className="flex lg:hidden w-full h-[34svh] min-h-[190px] max-h-[300px] items-center justify-center pointer-events-auto touch-pan-y relative z-30",
+            ):
                 Lanyard(
                     frontImage="/images/lanyard_front.jpg",
                     cardColor="#faf9f5",
@@ -98,9 +146,12 @@ component Hero(className=""):
                     size=0.18,
                     strapLength=0.5,
                     interactive=True,
+                    windRef=wind_ref,
                 )
 
-            div(className="hidden lg:flex w-full flex-1 h-[560px] lg:w-[460px] xl:w-[500px] lg:flex-initial shrink-0 pointer-events-auto items-center justify-center relative z-30"):
+            div(
+                className="hidden lg:flex w-full flex-1 h-[560px] lg:w-[460px] xl:w-[500px] lg:flex-initial shrink-0 pointer-events-auto items-center justify-center relative z-30",
+            ):
                 Lanyard(
                     frontImage="/images/lanyard_front.jpg",
                     cardColor="#faf9f5",
@@ -110,4 +161,5 @@ component Hero(className=""):
                     size=0.11,
                     strapLength=0.5,
                     interactive=True,
+                    windRef=wind_ref,
                 )

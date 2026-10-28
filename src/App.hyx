@@ -1,4 +1,5 @@
 # [xihanzu-NR]
+from "react" import useEffect
 from "./components/SplashScreen.hyx" import SplashScreen
 from "./components/ClickSpark.hyx" import ClickSpark
 from "./components/BackgroundGrid3D.hyx" import BackgroundGrid3D
@@ -10,14 +11,24 @@ from "./components/Experience.hyx" import Experience
 from "./components/Evidence.hyx" import Evidence
 from "./components/TechStack.hyx" import TechStack
 from "./components/Contact.hyx" import Contact
+from "./utils/revealEngine" import init_reveal
 
 component App():
+    # Reveal dipasang sekali di akar halaman: satu IntersectionObserver untuk
+    # semua elemen ber-atribut data_reveal, bukan satu observer per komponen.
+    def reveal_effect():
+        return init_reveal()
+
+    useEffect(reveal_effect, [])
+
     ClickSpark(sparkColor="#cc785c", className="w-full min-h-screen bg-[#f7f7f4] text-[#26251e] font-sans selection:bg-[#26251e] selection:text-[#f7f7f4] relative"):
         SplashScreen()
         BackgroundGrid3D()
         Navbar()
         main(className="relative z-10 flex-1"):
             Hero()
+            # Hero bersifat position: fixed, jadi div ini yang menyediakan tinggi
+            # gulir satu layar penuh; bukan spacer hiasan.
             div(className="w-full h-[100lvh] pointer-events-none")
             div(className="relative z-20 bg-[#f7f7f4] shadow-[0_-15px_35px_-5px_rgba(38,37,30,0.06)]"):
                 About()

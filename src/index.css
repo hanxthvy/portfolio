@@ -317,3 +317,55 @@ html.dark .fill-ink {
     animation: pulse-subtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
+
+/* ========================================================
+   REVEAL ON ENTER VIEWPORT
+   Hanya transform + opacity, jadi dikerjakan compositor dan
+   nol biaya JS per frame. IntersectionObserver hanya menambah
+   satu kelas lalu berhenti mengamati elemen itu.
+   ======================================================== */
+/* Kelas .reveal-pending dipasang oleh revealEngine HANYA pada elemen yang
+   benar-benar sudah masuk daftar pantau. Elemen yang tidak terpantau tetap
+   terlihat, jadi tidak mungkin ada konten tersembunyi permanen. */
+.reveal-pending {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-pending[data-reveal="fade"] {
+  transform: none;
+}
+
+.reveal-pending[data-reveal="left"] {
+  transform: translate3d(-26px, 0, 0);
+}
+
+.reveal-pending[data-reveal="scale"] {
+  transform: translate3d(0, 14px, 0) scale(0.985);
+}
+
+.reveal-pending.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Jeda bertingkat untuk kartu yang tampil berderet: murni CSS, tanpa JS,
+   jadi kartu-kartunya muncul berurutan dan bukan serentak. */
+.reveal-pending[data-reveal="scale"]:nth-child(2) { transition-delay: 70ms; }
+.reveal-pending[data-reveal="scale"]:nth-child(3) { transition-delay: 140ms; }
+.reveal-pending[data-reveal="scale"]:nth-child(4) { transition-delay: 210ms; }
+.reveal-pending[data-reveal="scale"]:nth-child(5) { transition-delay: 280ms; }
+.reveal-pending[data-reveal="scale"]:nth-child(6) { transition-delay: 350ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-pending {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+

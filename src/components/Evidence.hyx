@@ -1,5 +1,6 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect
+from "./SectionHeading.hyx" import SectionHeading
 
 artifacts_data = [
     {
@@ -64,14 +65,15 @@ component Evidence():
             set_selected(item)
 
     section(id="evidence", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
-        # Header
-        div(className="max-w-3xl mb-12"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#6c6a64] mb-2"):
-                "// ARSIP & KREDENSIAL"
-            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
-                "Dokumentasi & Sertifikasi"
-            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
-                "Kredensial resmi, homelab, dan hasil oprek perangkat yang pernah saya kerjakan."
+        # Header — sengaja terpusat, beda dari section lain, supaya ritme
+        # halaman tidak terasa mengulang resep yang sama terus.
+        SectionHeading(
+            kicker="// ARSIP & KREDENSIAL",
+            title="Dokumentasi & Sertifikasi",
+            lede="Kredensial resmi, homelab, dan hasil oprek perangkat yang pernah saya kerjakan.",
+            align="center",
+            title_font_size=32,
+        )
 
         # Evidence Cards
         div(className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16"):
@@ -82,6 +84,7 @@ component Evidence():
                     onKeyDown=lambda e, it=item: open_modal(it) if (e.key == "Enter" or e.key == " ") else None,
                     role="button" if item["image"] else None,
                     tabIndex=0 if item["image"] else None,
+                    data_reveal="rise",
                     aria_label=f"Lihat foto {item['title']}" if item["image"] else None,
                     className=f"p-6 sm:p-7 rounded-[12px] border border-[#e6e5e0] bg-white flex flex-col justify-between h-full hover:border-[#26251e] shadow-sm hover:shadow-lg transition-all duration-200 group select-none {'cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#cc785c]' if item['image'] else 'cursor-default'}",
                 ):

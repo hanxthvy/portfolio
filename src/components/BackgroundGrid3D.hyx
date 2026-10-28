@@ -1,27 +1,39 @@
 # [xihanzu-NR]
-from "react" import useState, useEffect
+from "react" import useEffect, useRef
 
 component BackgroundGrid3D():
-    sway, set_sway = useState({"rx": 58, "ry": 0})
+    # Sebelumnya posisi kursor disimpan sebagai state, jadi React merender ulang
+    # di setiap event mousemove (ratusan kali per detik). Sekarang nilai kursor
+    # ditulis langsung ke style elemen, jadi nol render ulang.
+    grid_ref = useRef(None)
 
-    def handle_mouse(e):
-        nx = (e.clientX / window.innerWidth) * 2 - 1
-        ny = (e.clientY / window.innerHeight) * 2 - 1
-        rx = 58 - ny * 3
-        ry = nx * 3
-        set_sway({"rx": rx, "ry": ry})
+    def mouse_effect():
+        def handle_mouse(e):
+            node = grid_ref.current
+            if not node:
+                return None
+            nx = (e.clientX / window.innerWidth) * 2 - 1
+            ny = (e.clientY / window.innerHeight) * 2 - 1
+            rx = 58 - ny * 3
+            ry = nx * 3
+            # Catatan: assignment ke properti bertitik (x.y = v) salah diterjemahkan
+            # oleh compiler .hyx, jadi dipakai Object.assign seperti di komponen lain.
+            Object.assign(node.style, {
+                "transform": f"perspective(1000px) rotateX({rx:.3f}deg) rotateZ({ry:.3f}deg) translateY(-10%)"
+            })
 
-    useEffect(lambda: (
-        window.addEventListener("mousemove", handle_mouse, {"passive": True}),
-        lambda: window.removeEventListener("mousemove", handle_mouse)
-    )[-1], [])
+        window.addEventListener("mousemove", handle_mouse, {"passive": True})
+        return lambda: window.removeEventListener("mousemove", handle_mouse)
+
+    useEffect(mouse_effect, [])
 
     div(className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none", aria_hidden=True):
         div(className="absolute inset-0 w-full h-full flex items-center justify-center [perspective:1000px]"):
             div(
+                ref=grid_ref,
                 className="w-[180vw] h-[180vh] transition-transform duration-700 ease-out will-change-transform transform-gpu",
                 style={
-                    "transform": f"perspective(1000px) rotateX({sway['rx']}deg) rotateZ({sway['ry']}deg) translateY(-10%)",
+                    "transform": "perspective(1000px) rotateX(58deg) rotateZ(0deg) translateY(-10%)",
                     "transformOrigin": "center 30%",
                     "backgroundImage": "radial-gradient(circle at 1px 1px, var(--grid-dot, #cfcdc4) 1px, transparent 0)",
                     "backgroundSize": "48px 48px",

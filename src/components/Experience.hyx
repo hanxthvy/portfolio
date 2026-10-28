@@ -1,4 +1,5 @@
 # [xihanzu-NR]
+from "./SectionHeading.hyx" import SectionHeading
 
 experiences_data = [
     {
@@ -16,19 +17,21 @@ experiences_data = [
 
 component Experience():
     section(id="experience", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
-        div(className="max-w-3xl mb-14"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#6c6a64] mb-2"):
-                "// RIWAYAT & PENGALAMAN KERJA"
-            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
-                "Pengalaman Industri"
-            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
-                "Riwayat pengalaman magang di dunia industri manufaktur manufaktur elektronik profesional."
+        SectionHeading(
+            kicker="// RIWAYAT & PENGALAMAN KERJA",
+            title="Pengalaman Industri",
+            lede="Riwayat pengalaman magang di dunia industri manufaktur elektronik profesional.",
+            align="left",
+            title_font_size=36,
+            title_draw_duration=1.3,
+        )
 
         div(className="border-t border-[#e6e5e0] divide-y divide-[#e6e5e0]"):
             for exp in experiences_data:
                 div(
                     key=exp["role"],
                     className="py-8 sm:py-10 text-left transition-colors",
+                    data_reveal="rise",
                 ):
                     div(className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-2"):
                         h3(className="text-[20px] sm:text-[22px] font-semibold leading-[1.3] text-[#26251e]"):

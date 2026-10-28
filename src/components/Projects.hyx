@@ -1,4 +1,5 @@
 # [xihanzu-NR]
+from "./SectionHeading.hyx" import SectionHeading
 
 projects_data = [
     {
@@ -41,13 +42,12 @@ projects_data = [
 
 component Projects():
     section(id="projects", className="py-24 px-6 max-w-[1200px] mx-auto border-t border-[#e6e5e0] text-left"):
-        div(className="max-w-3xl mb-14"):
-            p(className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#a9583e] mb-2"):
-                "// REPOSITORI & KARYA"
-            h2(className="text-3xl sm:text-[36px] font-normal leading-[1.2] tracking-[-0.72px] text-[#26251e] mb-4"):
-                "Proyek & Karya"
-            p(className="text-base font-normal leading-[1.5] text-[#5a5852]"):
-                "Ekosistem HydraScript yang saya rancang dan kembangkan, ditambah platform produksi yang berjalan untuk pengguna nyata."
+        SectionHeading(
+            kicker="// REPOSITORI & KARYA",
+            title="Proyek & Karya",
+            lede="Ekosistem HydraScript yang saya rancang dan kembangkan, ditambah platform produksi yang berjalan untuk pengguna nyata.",
+            align="left",
+        )
 
         div(className="grid grid-cols-1 md:grid-cols-2 gap-6"):
             for prj in projects_data:
@@ -56,6 +56,7 @@ component Projects():
                     href=prj["url"],
                     target="_blank",
                     rel="noreferrer",
+                    data_reveal="scale",
                     className="group flex flex-col p-7 sm:p-8 rounded-[12px] bg-white border border-[#e6e5e0] hover:border-[#26251e] shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden",
                 ):
                     div(className="absolute top-0 left-0 right-0 h-[2px] bg-transparent group-hover:bg-[#cc785c] transition-colors duration-300"): ""

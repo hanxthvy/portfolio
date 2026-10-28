@@ -1,0 +1,49 @@
+# [xihanzu-NR]
+from "react" import useEffect, useRef
+from "./StrokeText.hyx" import StrokeText
+
+component SectionHeading(kicker="", title="", lede="", align="left", title_font_size=34, title_stroke_width=1.1, title_draw_duration=1.1):
+    # Header section dengan judul yang menggambar dirinya saat masuk viewport.
+    # Dipakai supaya keenam section tidak lagi memakai resep yang persis sama:
+    # perataan dan gaya judul bisa dibolak-balik per section, jadi ritmenya
+    # tidak monoton. Animasi coretannya dikerjakan StrokeText (GSAP) dan hanya
+    # jalan sekali; sisa reveal-nya IntersectionObserver + CSS (lihat data_reveal).
+    align_cls = "items-center text-center" if align == "center" else "items-start text-left"
+    lede_align = "mx-auto text-center" if align == "center" else "text-left"
+    heading_justify = "justify-center" if align == "center" else "justify-start"
+    max_w = "max-w-3xl" if align == "left" else "max-w-4xl"
+
+    div(className=f"{max_w} mb-12 sm:mb-14 flex flex-col {align_cls}"):
+        if kicker:
+            p(
+                className="text-[11px] font-semibold font-mono tracking-[0.88px] uppercase text-[#a9583e] mb-3",
+                data_reveal="fade",
+            ):
+                kicker
+
+        if title:
+            # data_reveal="none": judul tidak ikut translasi reveal, karena
+            # elemennya harus sudah diam di posisi akhir saat coretan GSAP
+            # memulai. Kalau ikut bergerak, koordinat SVG-nya jadi meleset.
+            div(className=f"w-full flex {heading_justify} mb-4"):
+                StrokeText(
+                    text=title,
+                    strokeColor="#cc785c",
+                    fillColor="var(--color-ink, #26251e)",
+                    strokeWidth=title_stroke_width,
+                    drawDuration=title_draw_duration,
+                    fillDelay=0.1,
+                    stagger=0.02,
+                    fontSize=title_font_size,
+                    fontWeight=500,
+                    letterSpacing=-0.7,
+                    animate_on_enter=True,
+                )
+
+        if lede:
+            p(
+                className=f"text-base font-normal leading-[1.6] text-[#5a5852] {lede_align}",
+                data_reveal="fade",
+                data_reveal_delay="80",
+            ):
+                lede

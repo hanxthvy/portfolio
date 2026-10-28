@@ -28,6 +28,22 @@ export def is_box_equal(b1, b2):
     dh = Math.abs(b1["height"] - b2["height"])
     return dx < 0.5 and dy < 0.5 and dw < 0.5 and dh < 0.5
 
+export def prime_stroke(root, wipe_rect, dash, fill_mode):
+    # Menyiapkan keadaan "belum digambar" tanpa menjalankan animasi.
+    # Dipakai supaya judul tidak sempat tampil penuh sebelum coretannya jalan.
+    try:
+        strokes = gsap.utils.toArray(root.querySelectorAll("[data-stroke-char]"))
+        fills = gsap.utils.toArray(root.querySelectorAll("[data-fill-char]"))
+        if not strokes or len(strokes) == 0:
+            return None
+        gsap.set(strokes, {"strokeDasharray": dash, "strokeDashoffset": dash})
+        gsap.set(fills, {"opacity": 1 if fill_mode == "wipe" else 0})
+        if wipe_rect:
+            gsap.set(wipe_rect, {"attr": {"width": 0}})
+        return True
+    except:
+        return None
+
 export def animate_stroke(root, wipe_rect, box_width, dash, draw_duration, fill_delay, stagger, ease, fill_mode, char_count):
     try:
         strokes = gsap.utils.toArray(root.querySelectorAll("[data-stroke-char]"))
