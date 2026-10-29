@@ -5,3 +5,22 @@ dist/
 *.local
 *.log
 .claude/
+# `hydra watch` menulis hasil transpile di sebelah sumbernya. 23 sumber .hyx/.hys
+# di sini, jadi 23 pasang .tsx/.mjs (+ .map) bisa muncul dan tidak satu pun
+# boleh masuk repo — sumbernya yang asli. Dua .tsx di src/components yang tidak
+# punya pasangan .hyx/.hys adalah sumber tulisan tangan; pola di bawah tidak
+# menyentuhnya.
+src/*.tsx
+src/*.tsx.map
+src/*.mjs
+src/*.mjs.map
+src/components/*.tsx
+src/components/*.tsx.map
+src/components/*.mjs
+src/components/*.mjs.map
+src/data/*.mjs
+src/data/*.mjs.map
+src/utils/*.mjs
+src/utils/*.mjs.map
+!src/components/Lanyard.tsx
+!src/components/PatternWaves.tsx
