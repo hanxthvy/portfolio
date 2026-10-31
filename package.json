@@ -16,6 +16,6 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "hydrascript": "github:hanxthvy/hydrascript"
+    "hydrascript": "^0.3.5"
   }
 }

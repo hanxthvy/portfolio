@@ -6,7 +6,7 @@
   "outputDir": "./dist",
   "server": {
     "port": 5173,
-    "host": "0.0.0.0"
+    "host": "127.0.0.1"
   },
   "compiler": {
     "target": "react-18",
@@ -56,24 +56,133 @@
           }
         },
         "fontFamily": {
-          "sans": ["Inter", "system-ui", "-apple-system", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
-          "mono": ["JetBrains Mono", "monospace"]
+          "sans": [
+            "Inter",
+            "system-ui",
+            "-apple-system",
+            "Helvetica Neue",
+            "Helvetica",
+            "Arial",
+            "sans-serif"
+          ],
+          "mono": [
+            "JetBrains Mono",
+            "monospace"
+          ]
         },
         "fontSize": {
-          "display-mega": ["72px", { "lineHeight": "1.1", "letterSpacing": "-2.16px", "fontWeight": "400" }],
-          "display-lg": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.72px", "fontWeight": "400" }],
-          "display-md": ["26px", { "lineHeight": "1.25", "letterSpacing": "-0.325px", "fontWeight": "400" }],
-          "display-sm": ["22px", { "lineHeight": "1.3", "letterSpacing": "-0.11px", "fontWeight": "400" }],
-          "title-md": ["18px", { "lineHeight": "1.4", "letterSpacing": "0px", "fontWeight": "600" }],
-          "title-sm": ["16px", { "lineHeight": "1.4", "letterSpacing": "0px", "fontWeight": "600" }],
-          "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0px", "fontWeight": "400" }],
-          "body-tracked": ["16px", { "lineHeight": "1.5", "letterSpacing": "0.08px", "fontWeight": "400" }],
-          "body-sm": ["14px", { "lineHeight": "1.5", "letterSpacing": "0px", "fontWeight": "400" }],
-          "caption": ["13px", { "lineHeight": "1.4", "letterSpacing": "0px", "fontWeight": "400" }],
-          "caption-uppercase": ["11px", { "lineHeight": "1.4", "letterSpacing": "0.88px", "fontWeight": "600" }],
-          "code": ["13px", { "lineHeight": "1.5", "letterSpacing": "0px", "fontWeight": "400" }],
-          "button": ["14px", { "lineHeight": "1.0", "letterSpacing": "0px", "fontWeight": "500" }],
-          "nav-link": ["14px", { "lineHeight": "1.4", "letterSpacing": "0px", "fontWeight": "500" }]
+          "display-mega": [
+            "72px",
+            {
+              "lineHeight": "1.1",
+              "letterSpacing": "-2.16px",
+              "fontWeight": "400"
+            }
+          ],
+          "display-lg": [
+            "36px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.72px",
+              "fontWeight": "400"
+            }
+          ],
+          "display-md": [
+            "26px",
+            {
+              "lineHeight": "1.25",
+              "letterSpacing": "-0.325px",
+              "fontWeight": "400"
+            }
+          ],
+          "display-sm": [
+            "22px",
+            {
+              "lineHeight": "1.3",
+              "letterSpacing": "-0.11px",
+              "fontWeight": "400"
+            }
+          ],
+          "title-md": [
+            "18px",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0px",
+              "fontWeight": "600"
+            }
+          ],
+          "title-sm": [
+            "16px",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0px",
+              "fontWeight": "600"
+            }
+          ],
+          "body-md": [
+            "16px",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-tracked": [
+            "16px",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0.08px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-sm": [
+            "14px",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0px",
+              "fontWeight": "400"
+            }
+          ],
+          "caption": [
+            "13px",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0px",
+              "fontWeight": "400"
+            }
+          ],
+          "caption-uppercase": [
+            "11px",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0.88px",
+              "fontWeight": "600"
+            }
+          ],
+          "code": [
+            "13px",
+            {
+              "lineHeight": "1.5",
+              "letterSpacing": "0px",
+              "fontWeight": "400"
+            }
+          ],
+          "button": [
+            "14px",
+            {
+              "lineHeight": "1.0",
+              "letterSpacing": "0px",
+              "fontWeight": "500"
+            }
+          ],
+          "nav-link": [
+            "14px",
+            {
+              "lineHeight": "1.4",
+              "letterSpacing": "0px",
+              "fontWeight": "500"
+            }
+          ]
         },
         "borderRadius": {
           "none": "0px",
