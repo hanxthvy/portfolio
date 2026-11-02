@@ -1,6 +1,10 @@
 # [xihanzu-NR]
 node_modules/
 dist/
+# Tabel route yang dihasilkan `hydra build`/`hydra routes` dari src/pages. Sama
+# seperti *.hyx.d.ts: mencommit hasil generate berarti boleh berbeda dari
+# sumbernya, dan itu justru yang dicegah dengan menghasilkannya.
+.hydra/
 .DS_Store
 *.local
 *.log
