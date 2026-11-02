@@ -16,6 +16,6 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "hydrascript": "^0.6.2"
+    "hydrascript": "^0.7.2"
   }
 }
