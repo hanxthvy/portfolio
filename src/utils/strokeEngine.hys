@@ -9,7 +9,17 @@ export def measure_bbox(node, stroke_width, font_size):
         bbox = node.getBBox()
         if not bbox or not bbox.width:
             return None
-        pad = Math.max(stroke_width, font_size * 0.1)
+        # Headroom for a font that has not loaded yet.
+        #
+        # `getBBox()` on the first paint measures the FALLBACK font. Inter is
+        # wider, so when it swaps in the glyphs grow — measured here at 7.3 px of
+        # margin on a 863 px box, which is under one glyph's side bearing. On a
+        # narrower viewport that is exactly enough to clip the last two letters
+        # of a name, which is the bug this fixes.
+        #
+        # 0.22 of the font size, floored at stroke width: even if the measure
+        # happened against the wrong font, the box has room for the real one.
+        pad = Math.max(stroke_width * 2, font_size * 0.22)
         return {
             "x": bbox.x - pad,
             "y": bbox.y - pad,

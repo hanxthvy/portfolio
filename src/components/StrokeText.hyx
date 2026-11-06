@@ -13,6 +13,7 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
     raw_id = useId()
     clean_id = raw_id.replace(":", "").replace("-", "")
     wipe_id = f"stroke-wipe-{clean_id}"
+    fonts_ready, set_fonts_ready = useState(False)
     characters = split_indexed_chars(text)
     dash = 500
 
@@ -26,8 +27,26 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
 
         do_measure()
 
+        # `document.fonts.ready` resolves once the fonts the page USES are
+        # loaded. On a cold cache the first measure above runs against the
+        # fallback font, so the width is wrong by exactly as much as the metrics
+        # differ — which is why the last two letters of a name were clipped: the
+        # viewBox was sized for the fallback. The flag tells the animation not to
+        # start until a real measurement has happened.
+        # `fonts.ready` NEVER settles when a font cannot be fetched — on a
+        # blocked or offline network `document.fonts.status` stays "loading"
+        # forever. Waiting on it without a ceiling is how the animation stopped
+        # starting at all, which is a worse bug than the metric drift it was
+        # meant to fix. The flag is a reason to wait a little, not a gate.
+        def ready_now():
+            do_measure()
+            set_fonts_ready(True)
+
         if document.fonts and document.fonts.ready:
-            document.fonts.ready.then(do_measure)
+            document.fonts.ready.then(lambda _: ready_now())
+            _t = setTimeout(ready_now, 900)
+        else:
+            ready_now()
 
         if document.fonts:
             document.fonts.addEventListener("loadingdone", do_measure)
@@ -61,6 +80,12 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
         if not root or not box:
             return lambda: None
 
+        # A stroke drawn against the fallback's metrics is redrawn against the
+        # real ones when the font swaps, which reads as a stutter. The splash
+        # also ends on a timer, so this is the only sync point the two have.
+        if not fonts_ready:
+            return lambda: None
+
         # Animasi dijalankan SEKALI saja; tidak pernah diulang saat scroll,
         # resize, maupun render ulang.
         if has_animated_ref.current:
@@ -90,7 +115,7 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
         # memanggil konstruktor DOM tanpa `new`.
         return on_visible_once(root, lambda: run_once(root), 0.2, 200)
 
-    useEffect(anim_effect, [box])
+    useEffect(anim_effect, [box, fonts_ready])
 
     # Safe fallback width: 24 chars at fontSize 72 in Inter is ~907px. 960 gives safe headroom so 'h' never overflows.
     safe_fallback_w = Math.max(960, fontSize * len(characters) * 0.58)

@@ -82,7 +82,25 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!--
+      `media="print"` + `onload` is the standard way to load a stylesheet without
+      blocking the first paint. A plain <link rel="stylesheet"> to a third-party
+      origin means the browser waits for fonts.googleapis.com before it paints
+      anything — on a slow or filtered connection that is a blank page, and the
+      page's own CSS is already enough to lay out the splash.
+    -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <script>
       (function() {
         try {

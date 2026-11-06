@@ -13,16 +13,46 @@ component SplashScreen():
         except:
             pass
 
+        # A flat 20 ms starts the panels before the page underneath has painted,
+        # so on a cold cache the splash slides away over a half-empty screen and
+        # the visitor sees the stroke animation mid-flight. Waiting for the first
+        # frame is the fix; the ceiling is what keeps a font that never loads from
+        # holding the page hostage — `document.fonts.ready` does NOT settle on a
+        # blocked network, which is a hang, not a delay.
+        started = {"done": False}
+
         def start_anim():
+            if started["done"]:
+                return None
+            started["done"] = True
             set_is_animating(True)
-        t1 = setTimeout(start_anim, 20)
+
+        t_ceiling = setTimeout(start_anim, 900)
+
+        def begin_after_paint():
+            raf = window.requestAnimationFrame
+            if raf:
+                raf(lambda _: raf(lambda _: setTimeout(start_anim, 60)))
+            else:
+                setTimeout(start_anim, 60)
+
+        def on_fonts():
+            begin_after_paint()
+
+        try:
+            if document.fonts and document.fonts.ready:
+                document.fonts.ready.then(lambda _: on_fonts())
+            else:
+                begin_after_paint()
+        except:
+            begin_after_paint()
 
         def finish():
             set_is_mounted(False)
-        t2 = setTimeout(finish, 2100)
+        t2 = setTimeout(finish, 2600)
 
         def cleanup():
-            clearTimeout(t1)
+            clearTimeout(t_ceiling)
             clearTimeout(t2)
         return cleanup
 

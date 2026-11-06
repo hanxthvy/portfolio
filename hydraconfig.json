@@ -15,9 +15,6 @@
   "rendering": {
     "ssg": true
   },
-  "styling": {
-    "tailwind": true
-  },
   "tailwind": {
     "content": [
       "./index.html",
