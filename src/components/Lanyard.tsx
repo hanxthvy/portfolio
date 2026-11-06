@@ -1493,15 +1493,23 @@ const Lanyard = ({
       const baseWidth = Math.max(1, rect.width);
       const baseHeight = Math.max(1, rect.height);
 
-      // Canvas diperbesar 5x dan titik tengahnya tetap sejajar
-      // dengan titik tengah wrapper Lanyard.
-      // Perbesaran dinaikkan dari 3x -> 5x supaya kartu bisa ditarik lebih
-      // jauh ke seluruh area hero tanpa keluar dari buffer raycast.
-      view.width = baseWidth * 5;
-      view.height = baseHeight * 5;
+      // Canvas diperbesar supaya kartu bisa ditarik lebih jauh ke seluruh area
+      // hero tanpa keluar dari buffer raycast.
+      //
+      // Perbesarannya tidak boleh seragam 5x. Di ponsel, wrapper-nya selebar
+      // ~390 px dan setinggi ~34svh, jadi 5x menghasilkan buffer ~1950x1430 CSS
+      // px — dan pada dpr 2 itu ~3900x2860 device px, yaitu ~11 juta piksel per
+      // frame. Itu yang memblokir main thread belasan detik: splash tidak sempat
+      // beranimasi dan coretan nama tidak pernah mulai.
+      //
+      // Di layar kecil 2.5x sudah lebih dari cukup untuk jarak tarik kartu,
+      // karena kartunya juga jauh lebih kecil di sana (size 0.18 vs 0.11).
+      const overscan = baseWidth < 768 ? 2.5 : 5;
+      view.width = baseWidth * overscan;
+      view.height = baseHeight * overscan;
 
-      canvas.style.left = `${rect.left - baseWidth * 2}px`;
-      canvas.style.top = `${rect.top - baseHeight * 2}px`;
+      canvas.style.left = `${rect.left - baseWidth * (overscan - 1) / 2}px`;
+      canvas.style.top = `${rect.top - baseHeight * (overscan - 1) / 2}px`;
       canvas.style.width = `${view.width}px`;
       canvas.style.height = `${view.height}px`;
 
@@ -1510,7 +1518,11 @@ const Lanyard = ({
 
       canvas.style.visibility = ancestorVisible ? 'visible' : 'hidden';
 
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Dpr ditahan lebih rendah di layar kecil: beda 1 -> 2 menggandakan
+      // jumlah piksel empat kali lipat, dan itu terasa langsung sebagai frame
+      // drop pada GPU ponsel kelas menengah.
+      const maxDpr = baseWidth < 768 ? 1.25 : 2;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
       renderer.setSize(view.width, view.height, false);
 
       apply();

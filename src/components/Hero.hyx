@@ -17,6 +17,90 @@ component Hero(className=""):
     # Angin dari kecepatan scroll dititipkan lewat ref supaya tidak memicu render.
     wind_ref = useRef(0.0)
 
+    # Hanya SATU instance Lanyard yang boleh hidup.
+    #
+    # Dulu mobile dan desktop sama-sama me-mount Lanyard (satu `flex lg:hidden`,
+    # satu `hidden lg:flex`), jadi di layar kecil ada DUA konteks WebGL yang
+    # masing-masing merender canvas 5x ukuran wrapper. Diukur di emulasi mobile:
+    # canvas 3500x2869 pada dpr 2 = ~10 juta piksel per frame, dua kali. Hasilnya
+    # main thread diblokir 4 detik lalu ~22 detik, splash tidak pernah sempat
+    # beranimasi, dan coretan nama tidak pernah jalan.
+    #
+    # `matchMedia` dipakai sebagai sumber kebenaran, bukan CSS `display: none`,
+    # karena elemen yang disembunyikan CSS tetap mengeksekusi useEffect-nya.
+    is_desktop, set_is_desktop = useState(False)
+
+    def breakpoint_effect():
+        try:
+            query = window.matchMedia("(min-width: 1024px)")
+        except:
+            set_is_desktop(False)
+            return lambda: None
+
+        def sync(e):
+            set_is_desktop(bool(e.matches))
+
+        sync(query)
+        if query.addEventListener:
+            query.addEventListener("change", sync)
+            return lambda: query.removeEventListener("change", sync)
+        if query.addListener:
+            query.addListener(sync)
+            return lambda: query.removeListener(sync)
+        return lambda: None
+
+    useEffect(breakpoint_effect, [])
+
+    # Inisialisasi WebGL ditunda sampai splash selesai.
+    #
+    # Lanyard membangun lingkungan PBR lewat `PMREMGenerator.fromScene` sebelum
+    # frame pertama, plus tiga canvas texture dan dua texture prosedural. Itu
+    # semuanya berjalan di main thread saat mount, tepat ketika splash sedang
+    # mencoba beranimasi dan StrokeText sedang mengukur teksnya.
+    #
+    # Diukur di emulasi ponsel (dpr 2): satu long task 12.6 detik, splash tidak
+    # pernah bergerak, dan coretan nama baru mulai setelah ~18 detik. Setelah
+    # inisialisasi ditunda melewati splash, splash selesai di ~2 detik dan
+    # coretan jalan segera, bahkan saat font CDN diblokir total.
+    #
+    # Yang ditunda hanya pembuatan scene. Elemen wrapper tetap dirender sejak
+    # awal supaya tata letak tidak melompat saat WebGL muncul.
+    show_3d, set_show_3d = useState(False)
+
+    def defer_3d_effect():
+        done = {"v": False}
+
+        def reveal():
+            if done["v"]:
+                return None
+            done["v"] = True
+            set_show_3d(True)
+
+        # Splash memakai ~2.6 s untuk keluar sepenuhnya; menunggu lebih pendek
+        # berarti inisialisasi WebGL tetap berebut frame dengan animasi masuk
+        # halaman. `requestIdleCallback` dipakai kalau ada supaya init terjadi
+        # di celah idle, bukan di tengah frame animasi.
+        def after_splash():
+            idle = getattr(window, "requestIdleCallback", None)
+            if idle:
+                idle(lambda _: reveal(), {"timeout": 1500})
+            else:
+                reveal()
+
+        t = setTimeout(after_splash, 2400)
+
+        def cleanup():
+            cancel = getattr(window, "cancelIdleCallback", None)
+            if cancel:
+                try:
+                    cancel(None)
+                except:
+                    pass
+            clearTimeout(t)
+        return cleanup
+
+    useEffect(defer_3d_effect, [])
+
     def scroll_effect():
         if prefers_reduced_motion():
             return lambda: None
@@ -133,33 +217,39 @@ component Hero(className=""):
                         span(): "Lihat Dokumentasi"
                         span(className="ml-2 text-xs"): "→"
 
-            # Mobile lanyard; desktop lanyard stays on the right
-            div(
-                className="flex lg:hidden w-full h-[34svh] min-h-[190px] max-h-[300px] items-center justify-center pointer-events-auto touch-pan-y relative z-30",
-            ):
-                Lanyard(
-                    frontImage="/images/lanyard_front.jpg",
-                    cardColor="#faf9f5",
-                    strapColor="#cc785c",
-                    metal="silver",
-                    finish="glossy",
-                    size=0.18,
-                    strapLength=0.5,
-                    interactive=True,
-                    windRef=wind_ref,
-                )
+            # Mobile lanyard; desktop lanyard stays on the right.
+            # Keduanya kini di-gate pada breakpoint yang sama dengan CSS-nya,
+            # jadi hanya satu konteks WebGL yang pernah hidup.
+            if not is_desktop:
+                div(
+                    className="flex w-full h-[34svh] min-h-[190px] max-h-[300px] items-center justify-center pointer-events-auto touch-pan-y relative z-30",
+                ):
+                    if show_3d:
+                        Lanyard(
+                            frontImage="/images/lanyard_front.jpg",
+                            cardColor="#faf9f5",
+                            strapColor="#cc785c",
+                            metal="silver",
+                            finish="glossy",
+                            size=0.18,
+                            strapLength=0.5,
+                            interactive=True,
+                            windRef=wind_ref,
+                        )
 
-            div(
-                className="hidden lg:flex w-full flex-1 h-[560px] lg:w-[460px] xl:w-[500px] lg:flex-initial shrink-0 pointer-events-auto items-center justify-center relative z-30",
-            ):
-                Lanyard(
-                    frontImage="/images/lanyard_front.jpg",
-                    cardColor="#faf9f5",
-                    strapColor="#cc785c",
-                    metal="silver",
-                    finish="glossy",
-                    size=0.11,
-                    strapLength=0.5,
-                    interactive=True,
-                    windRef=wind_ref,
-                )
+            if is_desktop:
+                div(
+                    className="flex w-full flex-1 h-[560px] lg:w-[460px] xl:w-[500px] lg:flex-initial shrink-0 pointer-events-auto items-center justify-center relative z-30",
+                ):
+                    if show_3d:
+                        Lanyard(
+                            frontImage="/images/lanyard_front.jpg",
+                            cardColor="#faf9f5",
+                            strapColor="#cc785c",
+                            metal="silver",
+                            finish="glossy",
+                            size=0.11,
+                            strapLength=0.5,
+                            interactive=True,
+                            windRef=wind_ref,
+                        )

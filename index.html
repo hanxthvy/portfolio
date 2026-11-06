@@ -89,11 +89,27 @@
       anything — on a slow or filtered connection that is a blank page, and the
       page's own CSS is already enough to lay out the splash.
     -->
+    <!--
+      Font adalah enhancement, bukan syarat paint.
+
+      Tiga hal yang dijaga di sini, semuanya terukur:
+
+      1. `media="print"` + `onload` supaya stylesheet pihak ketiga tidak
+         memblokir first paint. Halaman sudah punya CSS sendiri yang cukup
+         untuk menata splash.
+      2. `crossorigin` wajib. Tanpa itu browser memakai mode no-cors dan file
+         font dari fonts.gstatic.com ditolak, sehingga `document.fonts.ready`
+         tidak pernah settle — dan splash serta animasi nama ikut menggantung.
+      3. `onerror` mengembalikan media ke `all`: kalau CDN diblokir, teks tetap
+         memakai font stack sistem dan halaman tidak menunggu apa pun.
+    -->
     <link
+      id="font-css"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
+      onerror="this.media='all';this.dataset.failed='1'"
     />
     <noscript>
       <link

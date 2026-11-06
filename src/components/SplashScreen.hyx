@@ -13,12 +13,22 @@ component SplashScreen():
         except:
             pass
 
-        # A flat 20 ms starts the panels before the page underneath has painted,
-        # so on a cold cache the splash slides away over a half-empty screen and
-        # the visitor sees the stroke animation mid-flight. Waiting for the first
-        # frame is the fix; the ceiling is what keeps a font that never loads from
-        # holding the page hostage — `document.fonts.ready` does NOT settle on a
-        # blocked network, which is a hang, not a delay.
+        # Splash TIDAK boleh menunggu font.
+        #
+        # Dulu panel baru bergerak setelah `document.fonts.ready` selesai, dengan
+        # plafon 900 ms sebagai jaring pengaman. Dua masalah nyata:
+        #
+        #   1. `fonts.ready` tidak pernah settle kalau satu request font gagal
+        #      (offline, DNS diblokir, CDN diblokir). Diukur di mesin ini:
+        #      fonts.gstatic.com mengembalikan net::ERR_FAILED, promise tidak
+        #      resolve, jadi hanya plafon yang menyelamatkan.
+        #   2. Plafon itu dijalankan SETELAH menunggu `fonts.ready`, sehingga
+        #      efeknya bukan 900 ms melainkan "selama font masih loading".
+        #
+        # Splash adalah lapisan kosmetik di atas halaman yang sudah ter-render
+        # (SSG). Tidak ada satu pun isinya yang butuh font. Jadi panel bergerak
+        # tepat setelah frame pertama dicat, dan font hanya dipakai sebagai
+        # percepatan kalau memang sudah siap — bukan sebagai gerbang.
         started = {"done": False}
 
         def start_anim():
@@ -27,25 +37,27 @@ component SplashScreen():
             started["done"] = True
             set_is_animating(True)
 
-        t_ceiling = setTimeout(start_anim, 900)
+        # Jaring pengaman keras: apa pun yang terjadi, panel bergerak.
+        t_ceiling = setTimeout(start_anim, 700)
 
         def begin_after_paint():
             raf = window.requestAnimationFrame
             if raf:
-                raf(lambda _: raf(lambda _: setTimeout(start_anim, 60)))
+                raf(lambda _: raf(lambda _: setTimeout(start_anim, 40)))
             else:
-                setTimeout(start_anim, 60)
+                setTimeout(start_anim, 40)
 
-        def on_fonts():
-            begin_after_paint()
-
+        # Font yang sudah siap hanya mempercepat; tidak pernah menahan.
         try:
             if document.fonts and document.fonts.ready:
-                document.fonts.ready.then(lambda _: on_fonts())
+                document.fonts.ready.then(lambda _: begin_after_paint())
             else:
                 begin_after_paint()
         except:
             begin_after_paint()
+
+        # `begin_after_paint` juga dijadwalkan langsung, tidak menunggu font.
+        begin_after_paint_timer = setTimeout(begin_after_paint, 0)
 
         def finish():
             set_is_mounted(False)
@@ -54,6 +66,7 @@ component SplashScreen():
         def cleanup():
             clearTimeout(t_ceiling)
             clearTimeout(t2)
+            clearTimeout(begin_after_paint_timer)
         return cleanup
 
     useEffect(on_mount, [])

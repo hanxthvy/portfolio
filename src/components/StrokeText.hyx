@@ -31,20 +31,26 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
         # loaded. On a cold cache the first measure above runs against the
         # fallback font, so the width is wrong by exactly as much as the metrics
         # differ — which is why the last two letters of a name were clipped: the
-        # viewBox was sized for the fallback. The flag tells the animation not to
-        # start until a real measurement has happened.
-        # `fonts.ready` NEVER settles when a font cannot be fetched — on a
-        # blocked or offline network `document.fonts.status` stays "loading"
-        # forever. Waiting on it without a ceiling is how the animation stopped
-        # starting at all, which is a worse bug than the metric drift it was
-        # meant to fix. The flag is a reason to wait a little, not a gate.
+        # viewBox was sized for the fallback.
+        #
+        # Tapi `fonts.ready` TIDAK PERNAH settle kalau satu request font gagal.
+        # Diukur di mesin ini: fonts.gstatic.com mengembalikan net::ERR_FAILED,
+        # promise tetap pending, `fonts_ready` tidak pernah True, dan akibatnya
+        # `anim_effect` tidak pernah menjalankan animasi sama sekali — nama
+        # tertinggal dalam keadaan "belum digambar" sampai halaman di-refresh.
+        # Itu bug yang lebih parah daripada selisih metrik yang mau diperbaiki.
+        #
+        # Jadi font hanya alasan untuk mengukur ulang, bukan gerbang animasi.
+        # `fonts_ready` di-set lewat dua jalur: saat font benar-benar siap, dan
+        # lewat plafon keras yang tidak bergantung pada jaringan.
         def ready_now():
             do_measure()
             set_fonts_ready(True)
 
+        _t = None
         if document.fonts and document.fonts.ready:
             document.fonts.ready.then(lambda _: ready_now())
-            _t = setTimeout(ready_now, 900)
+            _t = setTimeout(ready_now, 600)
         else:
             ready_now()
 
@@ -52,6 +58,7 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
             document.fonts.addEventListener("loadingdone", do_measure)
 
         def cleanup():
+            clearTimeout(_t)
             if document.fonts:
                 document.fonts.removeEventListener("loadingdone", do_measure)
 
