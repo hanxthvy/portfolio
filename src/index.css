@@ -436,3 +436,24 @@ html.dark .hero-dots {
     transition: none;
   }
 }
+
+/* ========================================================
+   TIRAI MENU (tiga lapis warna)
+   Posisi awal HARUS dari CSS, sama alasannya dengan .nav-panel:
+   GSAP baru menyentuhnya setelah JS hidup. Dulu tirai-tirai ini
+   tanpa transform awal, jadi sebelum animasi jalan ketiganya
+   menumpuk rapi di tempat yang sama -- dan karena z-nya di atas
+   panel, yang terlihat cuma lapisan paling atas, bukan menu.
+
+   Dengan `translate3d(100%,0,0)` tiap lapisan parkir di kanan
+   layar sejak HTML pertama, lalu GSAP menariknya masuk satu per
+   satu dengan jeda 70 ms sehingga warnanya muncul berurutan.
+   ======================================================== */
+.nav-curtain {
+  transform: translate3d(100%, 0, 0);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-curtain { will-change: auto; }
+}

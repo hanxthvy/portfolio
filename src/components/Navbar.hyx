@@ -261,7 +261,7 @@ component Navbar():
             for c in prelayer_colors:
                 div(
                     key=c,
-                    className="absolute top-0 right-0 h-full w-full",
+                    className="nav-curtain absolute top-0 right-0 h-full w-full",
                     style={"backgroundColor": c},
                 )
 
