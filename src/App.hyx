@@ -14,6 +14,33 @@ from "./components/TechStack.hyx" import TechStack
 from "./components/Contact.hyx" import Contact
 from "./utils/revealEngine" import init_reveal
 
+def block_context_menu():
+    # Klik kanan dimatikan di seluruh halaman.
+    #
+    # Bukan proteksi -- isi halaman tetap bisa diambil lewat DevTools atau
+    # view-source, dan itu bukan tujuannya. Yang dihilangkan adalah menu
+    # bawaan browser (Simpan gambar, Inspect, Cetak) yang tidak relevan untuk
+    # halaman ini dan merusak kesan "benda jadi".
+    #
+    # Pengecualian: kolom input dan area yang bisa diedit tetap mendapat menu
+    # bawaan, karena di sana menu itu berguna (tempel, periksa ejaan).
+    def on_context(e):
+        t = e.target
+        try:
+            tag = str(t.tagName).upper()
+            if tag in ("INPUT", "TEXTAREA") or (t.isContentEditable):
+                return
+        except:
+            pass
+        e.preventDefault()
+
+    document.addEventListener("contextmenu", on_context)
+
+    def cleanup():
+        document.removeEventListener("contextmenu", on_context)
+    return cleanup
+
+
 component App():
     # Reveal dipasang sekali di akar halaman: satu IntersectionObserver untuk
     # semua elemen ber-atribut data_reveal, bukan satu observer per komponen.
@@ -21,6 +48,11 @@ component App():
         return init_reveal()
 
     useEffect(reveal_effect, [])
+
+    def context_effect():
+        return block_context_menu()
+
+    useEffect(context_effect, [])
 
     ClickSpark(sparkColor="#cc785c", className="w-full min-h-screen bg-[#f7f7f4] text-[#26251e] font-sans selection:bg-[#26251e] selection:text-[#f7f7f4] relative"):
         SplashBoot()

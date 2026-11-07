@@ -65,6 +65,36 @@
     color: var(--color-ink);
   }
 
+  /* Teks tidak bisa diblokir atau disalin.
+     Situs ini portofolio personal: isinya bukan dokumentasi yang perlu dikutip,
+     dan seleksi yang menempel di mana-mana merusak tampilan saat orang
+     menggulir dengan drag. Input tetap bisa diseleksi supaya form tidak rusak. */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea,
+  [contenteditable],
+  pre,
+  code {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Gambar tidak bisa diseret keluar halaman. */
+  img,
+  video {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Penanda seleksi tetap ada supaya pemilihan teks lewat keyboard (mis. Ctrl+A
+     di kolom input) masih terlihat, bukan tidak kasatmata. */
+  ::selection {
+    background: rgba(204, 120, 92, 0.28);
+  }
+
   body, #root {
     min-height: 100vh;
     min-height: 100dvh;

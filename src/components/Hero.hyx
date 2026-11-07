@@ -56,63 +56,62 @@ component Hero(className=""):
         if el:
             el.scrollIntoView({"behavior": "smooth"})
 
+    # Kontainer FULL-BLEED, bukan max-w-[1300px].
+    #
+    # `max-w-[1300px]` + `px-8` dulu membatasi lebar kontainer ini. Untuk teks
+    # itu perlu, tapi latar di dalamnya ikut terbatas: di layar 1440px latarnya
+    # hanya 1300px, menyisakan 70px kosong di kiri dan kanan. Dengan latar
+    # berwarna itu tidak terlihat; dengan video, tepinya langsung kelihatan.
+    #
+    # Batas lebar untuk teks sudah ada di dalam (max-w-3xl), jadi kontainer ini
+    # tidak perlu membatasinya lagi.
     div(
-        className=f"fixed top-0 left-0 right-0 flex justify-center items-center px-5 sm:px-8 max-w-[1300px] mx-auto z-0 {className}",
+        className=f"fixed top-0 left-0 right-0 flex justify-center items-center z-0 {className}",
         style={
             "height": "100svh",
             "width": "100%",
             "visibility": "hidden" if is_covered else "visible",
         }
     ):
-        # Latar gelombang. Warna diambil dari token situs, bukan palet bawaan
-        # komponen (ungu #5227FF) -- supaya tetap menyatu dengan tema.
-        div(className="absolute inset-0 w-full h-full -z-10 pointer-events-none", aria_hidden=True):
-            # PALET: dari token situs, bukan palet bawaan komponen.
+        # Latar video.
+        #
+        # Video ini bukan media yang ditonton, tapi latar -- jadi tidak ada
+        # kontrol, tidak bisa diklik, dan tidak masuk pohon aksesibilitas.
+        #
+        # Cara mengisi layar tanpa meregangkan: `object-fit: cover`. Video
+        # diskalakan sampai sisi terpendeknya menutupi container, lalu bagian
+        # lebihnya dipotong. `contain` akan menyisakan ruang kosong, dan
+        # `fill` meregangkan (1382x576 -> layar ponsel akan gepeng parah).
+        #
+        # `object-position: center` menjaga bagian tengah video tetap terlihat
+        # saat terpotong, bukan potongan dari pojok kiri atas.
+        div(className="absolute inset-0 w-full h-full -z-10 pointer-events-none overflow-hidden", aria_hidden=True):
+            video(
+                className="absolute inset-0 w-full h-full object-cover",
+                src="/media/hero-bg.mp4",
+                autoPlay=True,
+                loop=True,
+                muted=True,
+                playsInline=True,
+                preload="auto",
+                tabIndex=-1,
+                aria_hidden=True,
+                style={"objectPosition": "center center"},
+            )
+            # Scrim: lapisan gelap merata di atas video, di bawah teks.
             #
-            # Komponen ini bawaannya ungu #5227FF + pink #FF9FFC. Di situs yang
-            # dark-only dengan aksen terracotta, ungu di atas hitam memang
-            # terbaca, tapi tidak menyatu dengan apa pun di halaman.
-            #
-            # Yang dipakai di sini semuanya warna yang sudah ada:
-            #   horizon #cc785c  --color-primary        (aksen terracotta)
-            #   wave    #a9583e  --color-primary-active (terracotta lebih tua)
-            #   crest   #141413  --color-canvas         (gelap, sama dengan latar)
-            #   latar   #141413  --color-canvas
-            #
-            # crest dibuat GELAP, bukan putih. Di versi terang, crest putih
-            # adalah highlight di atas gelombang berwarna. Di latar hitam,
-            # highlight putih justru jadi kabut yang membuat semuanya samar --
-            # dan itu yang bikin teks susah dibaca. Dengan crest gelap,
-            # gelombangnya oranye menyala sementara puncaknya tenggelam.
-            GradientWaves(
-                horizonColor="#cc785c",
-                waveColor="#a9583e",
-                crestColor="#141413",
-                backgroundColor="#141413",
-                lightMode=False,
-                speed=0.4,
-                amplitude=2.5,
-                relief=1,
-                lightAngle=120,
-                mouseInteraction=True,
-                swellOnClick=True,
-                waveScale=0.6,
-                waveRatio=1.02,
-                swell=35,
-                turbulence=20,
-                tilt=64,
-                zoom=1,
-                height=5.5,
-                fogDepth=18,
-                sheen=0.35,
-                brightness=1.25,
-                opacity=1,
-                grain=0.16,
-                quality="low",
-                intro=True,
-                parallaxStrength=0.5,
-                mouseStrength=0.6,
-                paused=False,
+            # Video ini ramai (siluet, asap, aksen merah) dan teksnya abu-abu
+            # #5a5852 -- di atas latar polos itu cukup, di atas video tidak.
+            # Yang dibutuhkan bukan kotak di belakang teks (itu terlihat seperti
+            # kartu dan merusak "clean"), tapi penurunan luminansi merata:
+            # gradasi vertikal tipis yang lebih kuat di tengah, tempat teks
+            # berada.
+            div(
+                className="absolute inset-0 pointer-events-none",
+                style={
+                    "background": "radial-gradient(ellipse 70% 55% at 50% 50%, rgba(20,20,19,0.55) 0%, rgba(20,20,19,0.34) 55%, rgba(20,20,19,0.12) 100%)",
+                },
+                aria_hidden=True,
             )
 
         div(className="w-full h-full flex flex-col justify-center items-center gap-3 sm:gap-5 relative z-10 pointer-events-none"):
