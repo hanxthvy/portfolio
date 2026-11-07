@@ -12,12 +12,11 @@
     "gsap": "^3.15.0",
     "ogl": "^1.0.11",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "three": "^0.186.1"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.6.2",
-    "hydrascript": "^0.13.2",
+    "hydrascript": "^0.13.3",
     "postcss": "^8.5.32",
     "tailwindcss": "^3.4.19"
   }

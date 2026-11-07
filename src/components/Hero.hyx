@@ -2,7 +2,6 @@
 from "react" import useState, useEffect, useRef
 from "./StrokeText.hyx" import StrokeText
 from "./PatternWaves.tsx" import PatternWaves
-from "./Lanyard.tsx" import Lanyard
 from "../utils/scrollEngine" import on_scroll, prefers_reduced_motion
 
 component Hero(className=""):
@@ -14,92 +13,17 @@ component Hero(className=""):
     is_covered, set_is_covered = useState(False)
     text_ref = useRef(None)
     eyebrow_ref = useRef(None)
-    # Angin dari kecepatan scroll dititipkan lewat ref supaya tidak memicu render.
-    wind_ref = useRef(0.0)
 
-    # Hanya SATU instance Lanyard yang boleh hidup.
+    # Lanyard (kartu 3D WebGL) dihapus dari hero.
     #
-    # Dulu mobile dan desktop sama-sama me-mount Lanyard (satu `flex lg:hidden`,
-    # satu `hidden lg:flex`), jadi di layar kecil ada DUA konteks WebGL yang
-    # masing-masing merender canvas 5x ukuran wrapper. Diukur di emulasi mobile:
-    # canvas 3500x2869 pada dpr 2 = ~10 juta piksel per frame, dua kali. Hasilnya
-    # main thread diblokir 4 detik lalu ~22 detik, splash tidak pernah sempat
-    # beranimasi, dan coretan nama tidak pernah jalan.
+    # Bukan cuma soal selera: komponen itu membangun environment PBR lewat
+    # PMREMGenerator.fromScene, tiga canvas texture, dan dua texture prosedural
+    # di main thread saat mount. Terukur di emulasi ponsel: satu long task 12,6
+    # detik, splash tidak pernah beranimasi, coretan nama baru mulai setelah ~18
+    # detik. Menghapusnya membuang beban terbesar di halaman pembuka sekaligus.
     #
-    # `matchMedia` dipakai sebagai sumber kebenaran, bukan CSS `display: none`,
-    # karena elemen yang disembunyikan CSS tetap mengeksekusi useEffect-nya.
-    is_desktop, set_is_desktop = useState(False)
-
-    def breakpoint_effect():
-        try:
-            query = window.matchMedia("(min-width: 1024px)")
-        except:
-            set_is_desktop(False)
-            return lambda: None
-
-        def sync(e):
-            set_is_desktop(bool(e.matches))
-
-        sync(query)
-        if query.addEventListener:
-            query.addEventListener("change", sync)
-            return lambda: query.removeEventListener("change", sync)
-        if query.addListener:
-            query.addListener(sync)
-            return lambda: query.removeListener(sync)
-        return lambda: None
-
-    useEffect(breakpoint_effect, [])
-
-    # Inisialisasi WebGL ditunda sampai splash selesai.
-    #
-    # Lanyard membangun lingkungan PBR lewat `PMREMGenerator.fromScene` sebelum
-    # frame pertama, plus tiga canvas texture dan dua texture prosedural. Itu
-    # semuanya berjalan di main thread saat mount, tepat ketika splash sedang
-    # mencoba beranimasi dan StrokeText sedang mengukur teksnya.
-    #
-    # Diukur di emulasi ponsel (dpr 2): satu long task 12.6 detik, splash tidak
-    # pernah bergerak, dan coretan nama baru mulai setelah ~18 detik. Setelah
-    # inisialisasi ditunda melewati splash, splash selesai di ~2 detik dan
-    # coretan jalan segera, bahkan saat font CDN diblokir total.
-    #
-    # Yang ditunda hanya pembuatan scene. Elemen wrapper tetap dirender sejak
-    # awal supaya tata letak tidak melompat saat WebGL muncul.
-    show_3d, set_show_3d = useState(False)
-
-    def defer_3d_effect():
-        done = {"v": False}
-
-        def reveal():
-            if done["v"]:
-                return None
-            done["v"] = True
-            set_show_3d(True)
-
-        # Splash memakai ~2.6 s untuk keluar sepenuhnya; menunggu lebih pendek
-        # berarti inisialisasi WebGL tetap berebut frame dengan animasi masuk
-        # halaman. `requestIdleCallback` dipakai kalau ada supaya init terjadi
-        # di celah idle, bukan di tengah frame animasi.
-        def after_splash():
-            idle = getattr(window, "requestIdleCallback", None)
-            if idle:
-                idle(lambda _: reveal(), {"timeout": 1500})
-            else:
-                reveal()
-
-        t = setTimeout(after_splash, 2400)
-
-        def cleanup():
-            cancel = getattr(window, "cancelIdleCallback", None)
-            if cancel:
-                try:
-                    cancel(None)
-                except:
-                    pass
-            clearTimeout(t)
-        return cleanup
-
-    useEffect(defer_3d_effect, [])
+    # Konsekuensinya hero sekarang satu kolom yang di tengah. Kalau nanti kartu
+    # 3D mau dikembalikan, jangan taruh di jalur kritis mount: muat setelah idle.
 
     def scroll_effect():
         if prefers_reduced_motion():
@@ -110,13 +34,8 @@ component Hero(className=""):
             p = frame.hero
             set_is_covered(p >= 0.999)
 
-            # Kecepatan scroll dipakai sebagai "angin" supaya kartu lanyard
-            # ikut berayun saat halaman digulir kencang.
-            Object.assign(wind_ref, {"current": frame.velocity})
-
-
             if text_ref.current:
-                # Parallax berlapis: teks naik lebih cepat daripada kartu.
+                # Parallax: teksnya naik dan memudar saat section berikut masuk.
                 lift = p * -14
                 fade = 1 - Math.min(1, p / 0.72)
                 Object.assign(text_ref.current.style, {
@@ -129,13 +48,6 @@ component Hero(className=""):
                     "opacity": f"{Math.max(0.0, 1 - p / 0.34):.3f}",
                     "transform": f"translate3d(0, {p * -26:.2f}px, 0)",
                 })
-
-            # Catatan penting: pembungkus kartu TIDAK boleh diberi transform.
-            # Canvas Lanyard memakai position: fixed, dan transform pada ancestor
-            # mengubah containing block-nya sehingga koordinat kartu meleset jauh
-            # (pernah kejadian: kartu hilang sepenuhnya).
-            # Gerak kartu terhadap scroll ditangani dari dalam canvas lewat
-            # hembusan angin (windRef), yang tidak menyentuh tata letak.
 
         return on_scroll(handle)
 
@@ -170,12 +82,11 @@ component Hero(className=""):
                 contrast=1.3,
             )
 
-        # Mobile: content centered vertically; desktop: two-column layout
-        div(className="w-full h-full flex flex-col justify-center items-center lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-5 lg:gap-8 relative z-10 pointer-events-none"):
-            # Text and buttons
+        # Satu kolom, semuanya di tengah, di semua ukuran layar.
+        div(className="w-full h-full flex flex-col justify-center items-center gap-3 sm:gap-5 relative z-10 pointer-events-none"):
             div(
                 ref=text_ref,
-                className="w-full lg:max-w-2xl flex flex-col justify-center items-center text-center lg:items-start lg:text-left pointer-events-auto shrink-0 relative z-40 will-change-transform",
+                className="w-full max-w-3xl flex flex-col justify-center items-center text-center pointer-events-auto relative z-40 will-change-transform",
             ):
                 p(
                     ref=eyebrow_ref,
@@ -183,7 +94,7 @@ component Hero(className=""):
                 ):
                     "// DEVELOPER & SYSTEMS ENTHUSIAST"
 
-                h1(className="mb-2.5 sm:mb-3 lg:mb-4 w-full relative flex justify-center lg:justify-start"):
+                h1(className="mb-2.5 sm:mb-3 lg:mb-4 w-full relative flex justify-center"):
                     span(className="sr-only"): "Reyhan Akhtar Afriansyah"
                     StrokeText(
                         text="Reyhan Akhtar Afriansyah",
@@ -197,10 +108,10 @@ component Hero(className=""):
                         letterSpacing=-2,
                     )
 
-                p(className="text-[13px] sm:text-[17px] lg:text-[19px] font-normal leading-[1.5] sm:leading-[1.6] text-[#5a5852] max-w-2xl mb-4 sm:mb-6 lg:mb-8 text-center lg:text-left mx-auto lg:mx-0"):
+                p(className="text-[13px] sm:text-[17px] lg:text-[19px] font-normal leading-[1.5] sm:leading-[1.6] text-[#5a5852] max-w-2xl mb-4 sm:mb-6 lg:mb-8 text-center mx-auto"):
                     "Pengembang yang fokus mendalami web development, pengelolaan server Linux, toolchain compiler, dan perakitan hardware elektronika."
 
-                div(className="flex flex-row flex-wrap items-center justify-center lg:justify-start gap-3 w-full sm:w-auto"):
+                div(className="flex flex-row flex-wrap items-center justify-center gap-3 w-full sm:w-auto"):
                     a(
                         href="#projects",
                         onClick=lambda e: scroll_to(e, "projects"),
@@ -216,40 +127,3 @@ component Hero(className=""):
                     ):
                         span(): "Lihat Dokumentasi"
                         span(className="ml-2 text-xs"): "→"
-
-            # Mobile lanyard; desktop lanyard stays on the right.
-            # Keduanya kini di-gate pada breakpoint yang sama dengan CSS-nya,
-            # jadi hanya satu konteks WebGL yang pernah hidup.
-            if not is_desktop:
-                div(
-                    className="flex w-full h-[34svh] min-h-[190px] max-h-[300px] items-center justify-center pointer-events-auto touch-pan-y relative z-30",
-                ):
-                    if show_3d:
-                        Lanyard(
-                            frontImage="/images/lanyard_front.jpg",
-                            cardColor="#faf9f5",
-                            strapColor="#cc785c",
-                            metal="silver",
-                            finish="glossy",
-                            size=0.18,
-                            strapLength=0.5,
-                            interactive=True,
-                            windRef=wind_ref,
-                        )
-
-            if is_desktop:
-                div(
-                    className="flex w-full flex-1 h-[560px] lg:w-[460px] xl:w-[500px] lg:flex-initial shrink-0 pointer-events-auto items-center justify-center relative z-30",
-                ):
-                    if show_3d:
-                        Lanyard(
-                            frontImage="/images/lanyard_front.jpg",
-                            cardColor="#faf9f5",
-                            strapColor="#cc785c",
-                            metal="silver",
-                            finish="glossy",
-                            size=0.11,
-                            strapLength=0.5,
-                            interactive=True,
-                            windRef=wind_ref,
-                        )
