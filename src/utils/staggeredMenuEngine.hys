@@ -60,6 +60,15 @@ export def play_open_menu(panel, pre_layers, on_complete=None):
         # di sini hanya isi panel, supaya dua sistem tidak berebut `transform`.
         tl.set(panel, {"opacity": 1}, panel_start)
 
+        # Tirai yang sudah masuk harus pergi lagi sebelum isi panel dibaca.
+        #
+        # Tanpa ini ketiga lapisan berhenti di x=0 dan menutupi seluruh menu
+        # selamanya: menu "terbuka" tapi yang terlihat hanya warna paling atas.
+        # Yang benar adalah urutan: tirai masuk berjeda, panel selesai bergeser,
+        # lalu tirai keluar ke kiri sambil isi panel muncul di belakangnya.
+        if len(layers) > 0:
+            tl.to(layers, {"xPercent": -100, "duration": 0.5, "ease": "power4.inOut", "stagger": 0.07}, panel_start)
+
         items_start = panel_start + 0.1
         if len(item_els) > 0:
             tl.to(item_els, {"yPercent": 0, "rotate": 0, "duration": 0.8, "ease": "power4.out", "stagger": 0.08}, items_start)

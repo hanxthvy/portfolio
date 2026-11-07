@@ -450,8 +450,19 @@ html.dark .hero-dots {
    satu dengan jeda 70 ms sehingga warnanya muncul berurutan.
    ======================================================== */
 .nav-curtain {
-  transform: translate3d(100%, 0, 0);
-  will-change: transform;
+  /* Tirai disembunyikan dengan OPACITY, bukan transform.
+   *
+   * Sebelumnya di sini ada `transform: translate3d(100%,0,0)` sebagai jaring
+   * pengaman untuk kondisi tanpa JS. Itu salah, dan gagalnya halus: GSAP
+   * membaca transform yang sudah ada sebagai 100%, lalu `xPercent: 100`
+   * menambah 100% lagi — jadi tirai beranimasi dari 200% ke 100%, yang
+   * seluruhnya di luar layar. Hasilnya menu terbuka tanpa satu pun pita warna
+   * terlihat: animasinya jalan, tapi di tempat yang tidak bisa dilihat.
+   *
+   * Opacity tidak disentuh sampai GSAP jalan, jadi tanpa JS tirai memang tidak
+   * tampil (benar: panelnya sendiri yang harus terlihat), dan saat JS hidup
+   * `gsap.set(layers, {xPercent: 100, opacity: 1})` mengambil alih dari nol. */
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
