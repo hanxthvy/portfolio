@@ -414,3 +414,75 @@ html.dark .hero-dots {
 .sm-prelayer {
   opacity: 0;
 }
+
+/* ========================================================
+   CIRCLE SWEEP — transisi antar section
+   Diadaptasi dari contoh Alight Motion. Geometri (radius, pusat)
+   dihitung di sweepEngine.hys; berkas ini hanya geraknya.
+
+   KURVA. Di contoh, posisi dan skala memakai easing yang berbeda, dan
+   justru perbedaan itulah yang membuat sapuannya terasa khas. Angka di
+   bawah diambil apa adanya dari file itu:
+
+     posisi  cubicBezier 1.0 0.0 1.0 0.0
+             kurva ekstrem: di 50% waktu progres baru ~0.9%. Pusat
+             lingkaran nyaris tidak bergerak hampir sepanjang fase,
+             lalu melesat di ujung. Ini yang memberi kesan "tahan lalu
+             sambar", bukan meluncur rata.
+
+     skala   cubicBezier 0.4536 0.0 0.2069 1.0   (mengembang)
+             cubicBezier 0.2814 0.0 0.1845 1.0   (menguncup)
+             keduanya ease-out: mengembang cepat lalu mengendap.
+
+   Kalau kurva posisi diganti jadi ease-out biasa, hasilnya lingkaran
+   yang menggelinding mulus dari sudut -- terlihat rapi tapi bukan
+   animasi ini lagi.
+   ======================================================== */
+.circle-sweep {
+  transform: scale(0);
+  opacity: 1;
+}
+
+/* Fase mengembang. `--sweep-shift` adalah jarak pusat yang sengaja dibuat
+   kecil: lingkaran tumbuh di tempat dulu, geseran besarnya baru terjadi
+   saat menutup layar. Durasinya 1s, sama dengan paruh pertama contoh. */
+.circle-sweep-grow {
+  animation:
+    sweep-grow-scale 1s cubic-bezier(0.4536, 0, 0.2069, 1) forwards,
+    sweep-grow-shift 1s cubic-bezier(1, 0, 1, 0) forwards;
+}
+
+/* Fase menguncup: 0.9s, menguncup sambil bergeser ke sudut seberang. */
+.circle-sweep-shrink {
+  animation:
+    sweep-shrink-scale 0.9s cubic-bezier(0.2814, 0, 0.1845, 1) forwards,
+    sweep-shrink-shift 0.9s cubic-bezier(1, 0, 1, 0) forwards;
+}
+
+@keyframes sweep-grow-scale {
+  0%   { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* Geseran pusat saat mengembang: dari sudut asal ke tengah layar.
+   Kurvanya "tahan lalu sambar", jadi nilainya tetap kecil di awal. */
+@keyframes sweep-grow-shift {
+  0%   { translate: 0 0; }
+  100% { translate: var(--sweep-dx, 0px) var(--sweep-dy, 0px); }
+}
+
+@keyframes sweep-shrink-scale {
+  0%   { transform: scale(1); }
+  100% { transform: scale(0); }
+}
+
+@keyframes sweep-shrink-shift {
+  0%   { translate: var(--sweep-dx, 0px) var(--sweep-dy, 0px); }
+  100% { translate: calc(var(--sweep-dx, 0px) * 2) calc(var(--sweep-dy, 0px) * 2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Tetap bisa pindah section tanpa animasi. */
+  .circle-sweep-grow { animation: none; transform: scale(1); }
+  .circle-sweep-shrink { animation: none; transform: scale(0); }
+}

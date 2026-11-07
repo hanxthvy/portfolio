@@ -1,0 +1,160 @@
+# [xihanzu-NR]
+from "react" import useState, useEffect, useRef
+from "../utils/sweepEngine.hys" import viewport_radius, corner_offset
+
+# Sapuan lingkaran diagonal, diadaptasi dari contoh Alight Motion.
+#
+# Tiga fase, sama seperti contohnya:
+#   1. mengembang dari skala 0 di satu sudut, posisi nyaris diam
+#   2. satu sambaran posisi tepat saat ukuran maksimal
+#   3. menguncup ke nol di sudut seberangnya
+#
+# Dua hal yang wajib disesuaikan dari file contohnya:
+#
+#   Ukuran. Contoh itu memakai diameter 2700 untuk frame 1080x2400. Itu bukan
+#   angka ajaib: sqrt(1080^2+2400^2) = 2632, yaitu diagonal frame-nya. Lingkaran
+#   berpusat di satu sudut baru menutupi layar kalau diameternya minimal
+#   sepanjang diagonal, karena titik terjauh dari sudut adalah sudut seberang.
+#   Jadi radius dihitung dari viewport, tidak diwarisi.
+#
+#   Posisi. Pusat ditaruh di sudut lalu digeser keluar sejauh radius, sehingga
+#   tepi luarnya menyentuh sudut. Di contoh pusatnya hardcoded -- itu hanya benar
+#   untuk satu ukuran layar.
+#
+# Animasi dijalankan CSS, bukan GSAP: dua keyframe transform per fase, jalan di
+# compositor, dan tidak menambah kerja main thread di tengah transisi.
+# Warna bawaan memakai variabel token situs, bukan nilai hex beku.
+#
+# Dengan `var(--color-primary)` sapuan otomatis ikut kalau tema berubah
+# (mode gelap tetap memakai aksen yang sama), dan tidak ada dua sumber
+# kebenaran warna: semuanya dari :root di index.css.
+component CircleSweep(color="var(--color-primary, #cc785c)", on_reveal=None):
+    phase, set_phase = useState("idle")
+    corner, set_corner = useState("bottom-right")
+    radius, set_radius = useState(0.0)
+    target_ref = useRef(None)
+    counter_ref = useRef(0)
+
+    def go(target, corner_name):
+        target_ref.current = target
+        set_corner(corner_name or "bottom-right")
+        set_radius(viewport_radius())
+        set_phase("grow")
+
+    def expose_bridge():
+        # Navbar memanggil ini tanpa perlu berbagi state React dengannya.
+        #
+        # Jembatan ini sengaja TIDAK dibersihkan lewat `cleanup`.
+        # Sebelumnya cleanup menyetelnya ke None, dan React memanggil cleanup
+        # pada setiap efek berikutnya -- jadi setelah render kedua fungsinya
+        # hilang dan navigasi jatuh ke jalur tanpa animasi.
+        window.__hydraSweep = lambda target, corner_name: go(target, corner_name)
+        return lambda: None
+
+    useEffect(expose_bridge, [])
+
+    def watch_resize():
+        def onresize(e):
+            if phase != "idle":
+                set_radius(viewport_radius())
+
+        window.addEventListener("resize", onresize)
+        window.addEventListener("orientationchange", onresize)
+
+        def cleanup():
+            window.removeEventListener("resize", onresize)
+            window.removeEventListener("orientationchange", onresize)
+        return cleanup
+
+    useEffect(watch_resize, [phase])
+
+    # Saat lingkaran penuh: lompat ke section, baru boleh membuka.
+    # Urutannya penting. Kalau melompat di tengah sapuan, orang melihat
+    # halaman lama berkedip di bawah lingkaran yang sedang menyusut.
+    def handle_grown():
+        t = target_ref.current
+        if t == "top" or not t:
+            window.scrollTo({"top": 0, "behavior": "auto"})
+        else:
+            el = document.getElementById(str(t).replace("#", ""))
+            if el:
+                el.scrollIntoView({"behavior": "auto"})
+
+        def shrink():
+            set_phase("shrink")
+        window.requestAnimationFrame(lambda _: window.requestAnimationFrame(lambda _: shrink()))
+
+    def handle_shrunk():
+        set_phase("idle")
+        counter_ref.current = counter_ref.current + 1
+        if on_reveal:
+            on_reveal()
+
+    # `onTransitionEnd` TIDAK dipakai: animasinya CSS `@keyframes`, dan
+    # keyframes memicu `animationend`, bukan `transitionend`. Sebelumnya
+    # handler itu dipasang dan tidak pernah menyala, sehingga fase berhenti
+    # di "grow" selamanya dan halaman tidak pernah pindah section.
+    #
+    # Timer dipakai alih-alih `onAnimationEnd` supaya tetap benar kalau
+    # browser mematikan animasi (prefers-reduced-motion), yang membuat
+    # event-nya tidak pernah datang.
+    def schedule_phase():
+        ms = 1000 if phase == "grow" else 900
+        t = setTimeout(lambda: (handle_grown() if phase == "grow" else handle_shrunk()), ms + 40)
+
+        def cleanup():
+            clearTimeout(t)
+        return cleanup
+
+    useEffect(schedule_phase, [phase])
+
+    if phase == "idle":
+        return None
+
+    cx, cy = corner_offset(corner, radius)
+
+    # Geseran pusat untuk kurva posisi.
+    #
+    # Kurva posisi di contoh memindahkan pusat dari sudut kanan-bawah ke
+    # kiri-atas, hampir satu diagonal. Di sini tujuannya bukan melintasi
+    # layar, melainkan memastikan tidak ada celah: pada skala 1 tepi
+    # lingkaran harus melewati keempat tepi viewport.
+    #
+    # Pusat awal ada di luar sudut sejauh radius, jadi rumusnya: sudut A
+    # ditaruh di (r, r) dari pusat, sudut B di (r-w, r-h). Geseran adalah
+    # selisihnya dibagi dua, karena yang perlu dipenuhi hanya sisa yang
+    # belum tertutup. Nilai ini dikirim sebagai variabel CSS karena
+    # keyframes tidak bisa membaca state React.
+    pad = radius * 0.10
+    if corner == "top-left":
+        dx, dy = pad, pad
+    elif corner == "top-right":
+        dx, dy = -pad, pad
+    elif corner == "bottom-left":
+        dx, dy = pad, -pad
+    else:
+        dx, dy = -pad, -pad
+
+    div(
+        className="fixed inset-0 pointer-events-none",
+        aria_hidden=True,
+        style={"zIndex": "9998"},
+    ):
+        div(
+            className=f"circle-sweep circle-sweep-{phase}",
+            style={
+                "position": "fixed",
+                "left": "0",
+                "top": "0",
+                "width": f"{radius * 2}px",
+                "height": f"{radius * 2}px",
+                "marginLeft": f"{cx - radius}px",
+                "marginTop": f"{cy - radius}px",
+                "borderRadius": "9999px",
+                "backgroundColor": color,
+                "willChange": "transform, translate",
+                "transformOrigin": "center center",
+                "--sweep-dx": f"{dx}px",
+                "--sweep-dy": f"{dy}px",
+            },
+        )
