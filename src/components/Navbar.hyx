@@ -125,6 +125,20 @@ component Navbar():
         animate_hamburger(bar1_ref.current, bar2_ref.current, bar3_ref.current, False)
         play_close_menu(panel, layers)
 
+    def sync_panel_class():
+        # Kelas `is-open` adalah satu-satunya sumber kebenaran posisi panel.
+        # GSAP hanya menganimasikan transisi antara dua keadaan itu, bukan
+        # menentukan di mana panel berada saat idle.
+        panel = panel_ref.current
+        if panel:
+            if is_open:
+                panel.classList.add("is-open")
+            else:
+                panel.classList.remove("is-open")
+        return lambda: None
+
+    useEffect(sync_panel_class, [is_open])
+
     def toggle_menu():
         if is_open:
             close_menu()
@@ -259,7 +273,7 @@ component Navbar():
 
         aside(
             ref=panel_ref,
-            className="md:hidden fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
+            className="nav-panel md:hidden fixed top-0 right-0 bottom-0 w-full sm:w-[420px] h-full bg-[#f7f7f4] border-l border-[#e6e5e0] flex flex-col justify-between p-8 sm:p-12 overflow-y-auto z-[65] shadow-2xl text-left",
             aria_hidden=not is_open,
         ):
             div(className="flex items-center justify-between pb-8 border-b border-[#e6e5e0]"):

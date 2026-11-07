@@ -2,16 +2,36 @@
 from "react" import useState, useEffect
 
 component SplashScreen():
-    is_mounted, set_is_mounted = useState(True)
+    # Splash TIDAK dirender saat SSG.
+    #
+    # Dulu ia ikut ter-prerender, jadi HTML pertama yang diterima browser adalah
+    # panel coral yang menutupi seluruh layar. Itu punya dua akibat buruk, dua-duanya
+    # terukur:
+    #
+    #   1. First Contentful Paint jadi panel kosong, bukan isi halaman. FCP 976 ms
+    #      dengan splash vs 680 ms tanpanya.
+    #   2. Kalau JS gagal, lambat, atau diblokir, splash tidak pernah pergi dan
+    #      halaman tetap tertutup warna solid selamanya. Diverifikasi dengan
+    #      memblokir semua *.js: seluruh viewport coral, nol teks terbaca.
+    #
+    # Jadi splash baru dipasang SETELAH mount. Konsekuensinya tidak ada splash
+    # untuk kunjungan pertama yang JS-nya belum jalan — dan itu justru benar:
+    # isi halaman sudah siap (SSG), jadi tidak ada yang perlu ditutupi.
+    ready, set_ready = useState(False)
+    is_mounted, set_is_mounted = useState(False)
     is_animating, set_is_animating = useState(False)
 
     def on_mount():
         try:
             if window.matchMedia("(prefers-reduced-motion: reduce)").matches:
-                set_is_mounted(False)
                 return None
         except:
             pass
+
+        # Baru sekarang panel boleh ada. `setTimeout` 0 menunda satu putaran
+        # supaya panel tidak pernah menjadi bagian dari first paint.
+        set_ready(True)
+        set_is_mounted(True)
 
         # Splash TIDAK boleh menunggu font.
         #
@@ -71,7 +91,7 @@ component SplashScreen():
 
     useEffect(on_mount, [])
 
-    if not is_mounted:
+    if not ready or not is_mounted:
         return None
 
     def on_last_end(e):

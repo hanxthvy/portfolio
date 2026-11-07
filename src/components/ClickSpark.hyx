@@ -68,9 +68,14 @@ component ClickSpark(children=None, sparkColor="#cc785c", sparkSize=10, sparkRad
 
         update_size()
         window.addEventListener("orientationchange", update_size)
+        # Reset ukuran saat viewport berubah, bukan hanya saat rotasi.
+        # Tanpa ini, canvas tetap seukuran layar lama setelah resize, dan efek
+        # klik tergambar di koordinat yang salah.
+        window.addEventListener("resize", update_size)
 
         def cleanup():
             window.removeEventListener("orientationchange", update_size)
+            window.removeEventListener("resize", update_size)
             if anim_id_ref.current:
                 cancelAnimationFrame(anim_id_ref.current)
                 set_ref(anim_id_ref, None)

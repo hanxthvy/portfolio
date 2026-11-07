@@ -369,3 +369,56 @@ html.dark .fill-ink {
   }
 }
 
+
+/* ========================================================
+   POLA TITIK HERO
+   Pengganti shader WebGL. Dua radial-gradient: satu untuk
+   titiknya, satu lagi memudarkan tepi supaya polanya tidak
+   berhenti mendadak di batas layar. Nol JavaScript, nol
+   canvas, dan seluruhnya dikerjakan compositor.
+   ======================================================== */
+.hero-dots {
+  background-image:
+    radial-gradient(circle at center, rgba(204, 120, 92, 0.55) 1.1px, transparent 1.2px),
+    radial-gradient(ellipse 70% 60% at 50% 45%, #faf9f5 0%, rgba(250, 249, 245, 0) 70%);
+  background-size: 22px 22px, 100% 100%;
+  background-position: center, center;
+  /* Tepi memudar tanpa mask supaya tidak butuh paint tambahan. */
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 30%, transparent 78%);
+}
+
+@media (min-width: 640px) {
+  .hero-dots { background-size: 26px 26px, 100% 100%; }
+}
+
+html.dark .hero-dots {
+  background-image:
+    radial-gradient(circle at center, rgba(204, 120, 92, 0.45) 1.1px, transparent 1.2px),
+    radial-gradient(ellipse 70% 60% at 50% 45%, var(--color-canvas) 0%, rgba(20, 20, 19, 0) 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-dots { transition: none !important; }
+}
+
+/* ========================================================
+   PANEL MENU NAVIGASI
+   Posisi "tersembunyi" HARUS berasal dari CSS, bukan dari GSAP.
+   Dulu panel digeser keluar layar lewat `gsap.set({xPercent:100})`
+   yang hanya jalan kalau JS hidup. Akibatnya, tanpa JS (atau saat JS
+   gagal/diblokir) panel muncul menutupi seluruh halaman dan isi hero
+   tidak terbaca sama sekali. Diverifikasi dengan memblokir *.js.
+   ======================================================== */
+.nav-panel {
+  transform: translate3d(100%, 0, 0);
+  will-change: transform;
+}
+
+.nav-panel.is-open {
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-panel { will-change: auto; }
+}
