@@ -413,12 +413,26 @@ html.dark .hero-dots {
 .nav-panel {
   transform: translate3d(100%, 0, 0);
   will-change: transform;
+  /* Posisi adalah urusan CSS; JS tidak menulis transform pada elemen ini.
+     Transisi di sini yang menggerakkan panel, bukan timeline GSAP. */
+  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
 }
 
 .nav-panel.is-open {
   transform: translate3d(0, 0, 0);
 }
 
+/* Isi panel: keadaan awal disembunyikan, lalu GSAP memunculkannya.
+   Tanpa ini, teks menu sempat terlihat di posisi akhir sebelum animasi mulai. */
+.nav-panel .sm-panel-itemLabel,
+.nav-panel .sm-socials-link {
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nav-panel { will-change: auto; }
+  .nav-panel {
+    will-change: auto;
+    transition: none;
+  }
 }

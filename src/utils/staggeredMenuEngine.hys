@@ -4,8 +4,19 @@ from "gsap" import gsap
 export def init_menu_gsap(panel, pre_layers, bar1, bar2, bar3):
     try:
         layers = gsap.utils.toArray(pre_layers)
+        # Panel TIDAK diposisikan di sini.
+        #
+        # Dulu `gsap.set(panel, {xPercent: 100})` yang menyembunyikannya. Itu
+        # menulis `transform` inline, dan karena itu (a) panel tidak tersembunyi
+        # sama sekali kalau JS gagal, dan (b) saat animasi buka jalan, GSAP
+        # menganimasikan xPercent dari 100 ke 0 sambil CSS juga menulis
+        # `transform` -- dua penulis pada properti yang sama, dan hasil akhirnya
+        # panel berhenti di luar layar sehingga isinya tidak pernah terlihat.
+        #
+        # Sekarang CSS (.nav-panel / .nav-panel.is-open) satu-satunya yang
+        # menentukan posisi. GSAP hanya menganimasikan opacity isi panel.
         if panel:
-            gsap.set(panel, {"xPercent": 100, "opacity": 1})
+            gsap.set(panel, {"opacity": 1})
         if len(layers) > 0:
             gsap.set(layers, {"xPercent": 100, "opacity": 1})
         if bar1:
@@ -45,7 +56,9 @@ export def play_open_menu(panel, pre_layers, on_complete=None):
         last_time = (len(layers) - 1) * 0.07 if len(layers) > 0 else 0
         panel_start = last_time + (0.08 if len(layers) > 0 else 0)
 
-        tl.fromTo(panel, {"xPercent": 100}, {"xPercent": 0, "duration": 0.65, "ease": "power4.out"}, panel_start)
+        # Posisi panel diatur transisi CSS, bukan timeline ini. Yang dianimasikan
+        # di sini hanya isi panel, supaya dua sistem tidak berebut `transform`.
+        tl.set(panel, {"opacity": 1}, panel_start)
 
         items_start = panel_start + 0.1
         if len(item_els) > 0:
@@ -68,7 +81,7 @@ export def play_close_menu(panel, pre_layers, on_complete=None):
             return None
 
         layers = gsap.utils.toArray(pre_layers)
-        targets = [panel] + list(layers)
+        layers_only = list(layers)
 
         def handle_done():
             item_els = gsap.utils.toArray(panel.querySelectorAll(".sm-panel-itemLabel"))
@@ -83,7 +96,15 @@ export def play_close_menu(panel, pre_layers, on_complete=None):
             if on_complete:
                 on_complete()
 
-        return gsap.to(targets, {
+        # `targets` sengaja hanya lapisan prelayer. Panel tidak ikut, karena
+        # posisinya diatur CSS (.nav-panel). Kalau GSAP menulis xPercent ke panel,
+        # ia meninggalkan `transform` inline yang mengalahkan CSS — dan itulah
+        # yang membuat panel tetap di luar layar walau kelas `is-open` sudah
+        # dipasang lagi.
+        panel.style.removeProperty("transform")
+        panel.style.removeProperty("translate")
+
+        return gsap.to(layers_only, {
             "xPercent": 100,
             "duration": 0.32,
             "ease": "power3.in",
