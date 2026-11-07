@@ -429,3 +429,19 @@ html.dark .hero-dots {
   transform: scale(0);
   opacity: 0;
 }
+
+/* ========================================================
+   SCRIM HERO
+   Latar belakang hero adalah gelombang oranye yang menyala; teksnya
+   krem terang. Dua-duanya terang, jadi judul jadi samar. Scrim ini
+   hanya menggelapkan area di belakang teks -- bukan seluruh hero --
+   supaya gelombangnya tetap terlihat di tepi.
+   ======================================================== */
+.hero-scrim {
+  background: radial-gradient(
+    ellipse 78% 62% at 50% 50%,
+    rgba(20, 20, 19, 0.82) 0%,
+    rgba(20, 20, 19, 0.66) 45%,
+    rgba(20, 20, 19, 0) 78%
+  );
+}

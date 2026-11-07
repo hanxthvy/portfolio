@@ -34,7 +34,6 @@ component Navbar():
     is_visible, set_is_visible = useState(False)
     is_open, set_is_open = useState(False)
     sweep_counter = useRef({"n": 0})
-    is_dark, set_is_dark = useState(False)
 
     panel_ref = useRef(None)
     pre_container_ref = useRef(None)
@@ -43,37 +42,22 @@ component Navbar():
     bar3_ref = useRef(None)
 
     def init_theme():
-        saved = localStorage.getItem("theme")
-        is_d = False
-        if saved == "dark":
-            is_d = True
-        elif saved == "light":
-            is_d = False
-        else:
-            is_d = window.matchMedia("(prefers-color-scheme: dark)").matches
-
-        if is_d:
-            document.documentElement.classList.add("dark")
-        else:
-            document.documentElement.classList.remove("dark")
-        set_is_dark(is_d)
-
-        def cleanup():
+        # Dark adalah satu-satunya tema.
+        #
+        # Toggle terang/gelap dihapus: dua tema berarti dua kali kerja untuk
+        # setiap warna di setiap komponen, dan yang terang tidak pernah
+        # dirawat sebaik yang gelap. Kelas `dark` selalu dipasang, dan
+        # localStorage tidak dibaca lagi -- preferensi lama diabaikan dengan
+        # sengaja supaya pengunjung yang pernah memilih "light" tidak
+        # terjebak di tema yang sudah tidak ada.
+        document.documentElement.classList.add("dark")
+        try:
+            localStorage.removeItem("theme")
+        except:
             pass
-        return cleanup
+        return lambda: None
 
     useEffect(init_theme, [])
-
-    def toggle_theme():
-        is_d = document.documentElement.classList.contains("dark")
-        if is_d:
-            document.documentElement.classList.remove("dark")
-            localStorage.setItem("theme", "light")
-            set_is_dark(False)
-        else:
-            document.documentElement.classList.add("dark")
-            localStorage.setItem("theme", "dark")
-            set_is_dark(True)
 
     def handle_scroll(frame):
         # Progress bar: cukup tulis width, tanpa render ulang.
@@ -229,26 +213,6 @@ component Navbar():
                         ):
                             "Contact"
 
-                    button(
-                        onClick=toggle_theme,
-                        className="w-8 h-8 rounded-full border border-[#cfcdc4] flex items-center justify-center text-[#5a5852] hover:text-[#a9583e] hover:border-[#cc785c] transition-colors cursor-pointer bg-transparent",
-                        title="Ganti Mode Gelap / Terang",
-                        aria_label="Toggle theme",
-                    ):
-                        if is_dark:
-                            svg(className="w-4 h-4", viewBox="0 0 24 24", fill="none", stroke="currentColor", strokeWidth="2", strokeLinecap="round", strokeLinejoin="round"):
-                                circle(cx="12", cy="12", r="4")
-                                path(d="M12 2v2")
-                                path(d="M12 20v2")
-                                path(d="m4.93 4.93 1.41 1.41")
-                                path(d="m17.66 17.66 1.41 1.41")
-                                path(d="M2 12h2")
-                                path(d="M20 12h2")
-                                path(d="m6.34 17.66-1.41 1.41")
-                                path(d="m19.07 4.93-1.41 1.41")
-                        else:
-                            svg(className="w-4 h-4", viewBox="0 0 24 24", fill="none", stroke="currentColor", strokeWidth="2", strokeLinecap="round", strokeLinejoin="round"):
-                                path(d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z")
 
                     button(
                         onClick=toggle_menu,
@@ -286,11 +250,6 @@ component Navbar():
                 span(className="text-xs font-mono text-[#6c6a64] tracking-[0.88px] uppercase"):
                     "// MENU NAVIGASI"
                 div(className="flex items-center gap-4"):
-                    button(
-                        onClick=toggle_theme,
-                        className="text-xs font-mono text-[#6c6a64] hover:text-[#a9583e] transition-colors cursor-pointer",
-                    ):
-                        "[MODE TERANG]" if is_dark else "[MODE GELAP]"
                     button(
                         onClick=close_menu,
                         className="text-xs font-mono text-[#6c6a64] hover:text-[#a9583e] transition-colors cursor-pointer",

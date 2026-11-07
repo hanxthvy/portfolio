@@ -1,6 +1,7 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect, useRef
 from "./StrokeText.hyx" import StrokeText
+from "./GradientWaves.tsx" import GradientWaves
 from "../utils/scrollEngine" import on_scroll, prefers_reduced_motion
 
 component Hero(className=""):
@@ -63,14 +64,57 @@ component Hero(className=""):
             "visibility": "hidden" if is_covered else "visible",
         }
     ):
-        # Pola titik: murni CSS, tidak ada yang perlu dijalankan.
-        div(className="hero-dots absolute inset-0 w-full h-full -z-10 pointer-events-none", aria_hidden=True)
+        # Latar gelombang. Warna diambil dari token situs, bukan palet bawaan
+        # komponen (ungu #5227FF) -- supaya tetap menyatu dengan tema.
+        div(className="absolute inset-0 w-full h-full -z-10 pointer-events-none", aria_hidden=True):
+            # Settingan dari hanzu, dipakai apa adanya.
+            #
+            # Palet ungu/pink ini milik komponennya sendiri, bukan token situs.
+            # Sudah kusebut di laporan: dengan situs dark-only, ungu di atas
+            # hitam terbaca, tapi tidak menyatu dengan aksen terracotta.
+            GradientWaves(
+                horizonColor="#5227FF",
+                waveColor="#FF9FFC",
+                crestColor="#FFFFFF",
+                speed=0.4,
+                amplitude=2.5,
+                relief=1,
+                lightAngle=120,
+                mouseInteraction=True,
+                swellOnClick=True,
+                lightMode=False,
+                waveScale=0.6,
+                waveRatio=1.02,
+                swell=35,
+                turbulence=20,
+                tilt=64,
+                zoom=1,
+                height=5.5,
+                fogDepth=15,
+                sheen=0,
+                brightness=1,
+                opacity=1,
+                grain=0.2,
+                quality="medium",
+                intro=True,
+                parallaxStrength=0.5,
+                mouseStrength=0.6,
+                paused=False,
+            )
 
         div(className="w-full h-full flex flex-col justify-center items-center gap-3 sm:gap-5 relative z-10 pointer-events-none"):
             div(
                 ref=text_ref,
                 className="w-full max-w-3xl flex flex-col justify-center items-center text-center pointer-events-auto relative z-40 will-change-transform",
             ):
+                # Scrim: lapisan gelap lembut di belakang teks.
+                #
+                # Gelombangnya oranye menyala, dan teksnya krem terang --
+                # dua-duanya terang, jadi tanpa pemisah nama besar jadi samar
+                # (terukur dari screenshot: kontras judul paling rendah di
+                # halaman). Scrim ini menurunkan luminansi latar tepat di
+                # belakang teks, tanpa menggelapkan seluruh hero.
+                div(className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[85%] -z-10 pointer-events-none hero-scrim", aria_hidden=True)
                 p(
                     ref=eyebrow_ref,
                     className="text-[10px] sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2 sm:mb-2.5 lg:mb-3 will-change-transform",
