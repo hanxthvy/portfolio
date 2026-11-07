@@ -1,32 +1,101 @@
 # [xihanzu-NR]
-# Geometri sapuan lingkaran. Bagian yang harus dihitung, bukan diwarisi.
+# Geometri sapuan lingkaran.
+#
+# Dasarnya trik dari pendekatan yang lebih sederhana: elemen berukuran tetap
+# diletakkan DI SUDUT layar, lalu `translate(-100%, -100%)` menggesernya
+# sebesar ukuran elemen itu sendiri. Dengan begitu pusatnya jatuh tepat di
+# sudut, tanpa perlu menghitung offset piksel sama sekali.
+#
+# Itu penting: seluruh bug sebelumnya berasal dari menghitung `pusat - radius`
+# secara manual dan salah tanda. Persentase tidak bisa salah seperti itu.
 
-export def viewport_radius():
-    # Radius minimum supaya lingkaran berpusat di satu sudut menutupi seluruh
-    # layar. Titik terjauh dari sudut adalah sudut seberangnya, jadi jaraknya
-    # adalah diagonal viewport, dan diameternya minimal sepanjang itu.
+BASE = 100.0  # ukuran dasar elemen, px. Skala dihitung dari angka ini.
+
+
+export def viewport_size():
     try:
-        w = window.innerWidth
-        h = window.innerHeight
-        return (w * w + h * h) ** 0.5 / 2
+        return window.innerWidth, window.innerHeight
     except:
-        return 1200.0
+        return 1080, 2400
 
 
-export def corner_offset(corner, radius):
-    # Pusat lingkaran untuk tiap sudut, digeser keluar sejauh radius supaya
-    # tepi luarnya tepat menyentuh sudut layar pada saat skala 0.
+export def cover_scale():
+    # Skala minimum supaya lingkaran berpusat di satu sudut menutupi layar.
+    #
+    # Jari-jari setelah diskalakan = (BASE/2) * s. Titik terjauh dari sudut
+    # adalah sudut seberang, jaraknya diagonal viewport. Jadi syaratnya
+    # (BASE/2)*s >= diagonal, yaitu s >= 2*diagonal/BASE.
+    #
+    # Ditambah 4% dan dibulatkan ke atas: pembulatan subpiksel pada transform
+    # bisa menyisakan satu baris transparan di tepi kalau angkanya pas.
+    w, h = viewport_size()
+    diagonal = (w * w + h * h) ** 0.5
+    # 1.08, bukan 1.04: `left: 100vw` dan pembulatan subpiksel bisa membuat
+    # pusat meleset sekitar seperempat radius dari sudut, dan itu cukup untuk
+    # menyisakan sudut seberang yang belum tertutup. Margin ini menutupnya.
+    return (2.0 * diagonal / BASE) * 1.08
+
+
+export def corner_offset(corner):
+    # Posisi sudut dalam pecahan viewport, memakai sudut kanan-bawah sebagai
+    # (1, 1). Semua sudut punya nilai eksplisit.
+    #
+    # Bug yang pernah ada di sini: kanan-bawah mengembalikan (0, 0) -- "tidak
+    # perlu geser", pikirnya -- sehingga sudut seberangnya juga (0, 0) dan
+    # gerak ke kiri-atas jadi nol piksel. Lingkarannya menguncup di tempat.
     if corner == "top-left":
-        return (-radius, -radius)
+        return (0.0, 0.0)
     if corner == "top-right":
-        return (radius, -radius)
+        return (1.0, 0.0)
     if corner == "bottom-left":
-        return (-radius, radius)
-    return (radius, radius)
+        return (0.0, 1.0)
+    return (1.0, 1.0)
+
+
+export def opposite_offset(corner):
+    # Arah gerak ke sudut seberang, dalam pecahan viewport.
+    # Dari kanan-bawah (1,1) ke kiri-atas (0,0) berarti (-1,-1).
+    dx, dy = corner_offset(corner)
+    return (0.0 - dx, 0.0 - dy)
+
+
+export def corner_css(corner):
+    # `left`/`top` untuk sudut asal, dalam satuan viewport.
+    if corner == "top-left":
+        return ("0vw", "0vh")
+    if corner == "top-right":
+        return ("100vw", "0vh")
+    if corner == "bottom-left":
+        return ("0vw", "100vh")
+    return ("100vw", "100vh")
+
+
+export def sweep_geometry(corner):
+    # Semua yang dibutuhkan komponen, sudah dalam bentuk siap pakai CSS.
+    w, h = viewport_size()
+    s = cover_scale()
+
+    odx, ody = opposite_offset(corner)
+    # Gerak ke sudut seberang, dalam piksel. Dihitung dari ukuran viewport,
+    # bukan dari ukuran lingkaran -- jarak antar sudut tidak bergantung skala.
+    move_x = odx * w
+    move_y = ody * h
+
+    left, top = corner_css(corner)
+
+    return {
+        "scale": s,
+        "left": left,
+        "top": top,
+        "move_x": move_x,
+        "move_y": move_y,
+        "w": w,
+        "h": h,
+    }
 
 
 export def pick_corner(target, index):
-    # Sudut dipilih bergantian supaya transisi tidak terasa monoton saat
-    # beberapa section dibuka berurutan.
+    # Sudut bergantian supaya transisi tidak monoton saat beberapa section
+    # dibuka berurutan.
     corners = ["bottom-right", "top-left", "top-right", "bottom-left"]
     return corners[index % len(corners)]

@@ -152,12 +152,16 @@ component Navbar():
             sweep_counter["n"] = idx + 1
             sweep(clean_id, pick_corner(clean_id, idx))
         else:
+            # Fallback tanpa sapuan: lompat langsung, bukan smooth.
+            # Scroll halus bertabrakan dengan transisi lingkaran -- pengguna
+            # melihat halaman meluncur sambil tertutup separuh, dan itu terasa
+            # seperti dua animasi yang tidak sepakat.
             if clean_id == "top":
-                window.scrollTo({"top": 0, "behavior": "smooth"})
+                window.scrollTo({"top": 0, "behavior": "auto"})
             else:
                 el = document.getElementById(clean_id)
                 if el:
-                    el.scrollIntoView({"behavior": "smooth"})
+                    el.scrollIntoView({"behavior": "auto"})
 
     div():
         # Shell dipisah dari <header> supaya navbar bisa dianimasikan dengan
