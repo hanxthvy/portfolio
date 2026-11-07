@@ -109,7 +109,14 @@ component Hero(className=""):
             div(
                 className="absolute inset-0 pointer-events-none",
                 style={
-                    "background": "radial-gradient(ellipse 70% 55% at 50% 50%, rgba(20,20,19,0.55) 0%, rgba(20,20,19,0.34) 55%, rgba(20,20,19,0.12) 100%)",
+                    # Dua lapis, bukan satu.
+                    #
+                    # Gradasi radial saja tidak cukup untuk latar ini: videonya
+                    # punya area terang (kabut, langit) yang bisa jatuh tepat di
+                    # belakang teks, dan tekstur ramai membuat tepi huruf
+                    # bergerigi. Lapis pertama meratakan seluruh layar sedikit;
+                    # lapis kedua menggelapkan pusat, tempat teks berada.
+                    "background": "radial-gradient(ellipse 75% 60% at 50% 50%, rgba(20,20,19,0.62) 0%, rgba(20,20,19,0.44) 55%, rgba(20,20,19,0.18) 100%), linear-gradient(rgba(20,20,19,0.28), rgba(20,20,19,0.28))",
                 },
                 aria_hidden=True,
             )
@@ -125,7 +132,7 @@ component Hero(className=""):
                 ):
                     "// DEVELOPER & SYSTEMS ENTHUSIAST"
 
-                h1(className="mb-2.5 sm:mb-3 lg:mb-4 w-full relative flex justify-center"):
+                h1(className="mb-2.5 sm:mb-3 lg:mb-4 w-full relative flex justify-center", style={"filter": "drop-shadow(0 2px 8px rgba(20,20,19,0.65))"}):
                     span(className="sr-only"): "Reyhan Akhtar Afriansyah"
                     StrokeText(
                         text="Reyhan Akhtar Afriansyah",
@@ -139,7 +146,7 @@ component Hero(className=""):
                         letterSpacing=-2,
                     )
 
-                p(className="text-[13px] sm:text-[17px] lg:text-[19px] font-normal leading-[1.5] sm:leading-[1.6] text-[#5a5852] max-w-2xl mb-4 sm:mb-6 lg:mb-8 text-center mx-auto"):
+                p(className="text-[13px] sm:text-[17px] lg:text-[19px] font-normal leading-[1.5] sm:leading-[1.6] text-[#ebe6df] max-w-2xl mb-4 sm:mb-6 lg:mb-8 text-center mx-auto", style={"textShadow": "0 1px 3px rgba(20,20,19,0.85)"}):
                     "Pengembang yang fokus mendalami web development, pengelolaan server Linux, toolchain compiler, dan perakitan hardware elektronika."
 
                 div(className="flex flex-row flex-wrap items-center justify-center gap-3 w-full sm:w-auto"):
