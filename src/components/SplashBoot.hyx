@@ -1,0 +1,159 @@
+# [xihanzu-NR]
+from "react" import useEffect
+
+# Splash ada di `index.html`, bukan di sini.
+#
+# Panelnya ditulis langsung di HTML shell supaya ikut first paint -- komponen
+# React baru hidup setelah bundle dimuat, dan splash yang muncul setelah itu
+# terbaca sebagai kedipan karena isi halaman sempat terlihat lebih dulu.
+#
+# Tugas modul ini tinggal satu: memberi tahu shell kapan animasinya boleh mulai.
+#
+# Tiga kesalahan yang sudah dibayar di sini, jangan diulang:
+#
+#   1. `document.images` bukan daftar gambar yang perlu ditunggu. Halaman ini
+#      memakai `loading="lazy"`, jadi gambarnya baru masuk DOM belakangan --
+#      daftar yang dibaca saat mount kosong, dan "tidak ada gambar" disalah-
+#      artikan sebagai "semua siap". Yang ditunggu sekarang hanya gambar yang
+#      BENAR-BENAR sedang dipakai di layar pertama, dan itu dicari ulang,
+#      bukan diambil sekali di awal.
+#
+#   2. Menunggu `load` window tidak sama dengan menunggu gambar. Kalau satu
+#      request gagal, event-nya bisa tidak pernah datang.
+#
+#   3. `document.fonts.ready` tidak pernah resolve kalau CDN font diblokir.
+#      Plafon dijalankan BERBARENGAN, bukan sesudahnya.
+
+READY_FLAG = "is-ready"
+BAIL_MS = 4200
+PEEK_SELECTOR = "h1, h2, [data-boot-critical]"
+
+
+def mark_ready():
+    el = document.getElementById("boot-splash")
+    if not el:
+        return
+    el.classList.add(READY_FLAG)
+
+
+def critical_images():
+    # Gambar yang terlihat di layar pertama. Pakai `boundingClientRect`
+    # terhadap viewport, bukan `loading` -- atribut itu tidak menjamin
+    # gambarnya sudah ada di DOM saat fungsi ini dipanggil.
+    out = []
+    try:
+        vh = window.innerHeight or 800
+        for img in document.images:
+            try:
+                r = img.getBoundingClientRect()
+                if r.top < vh and r.bottom > -200 and r.width > 0:
+                    out.append(img)
+            except:
+                continue
+    except:
+        return []
+    return out
+
+
+def wait_for_assets(cb, ceiling_ms):
+    # Selesai kalau semua gambar layar pertama punya ukuran, ATAU plafon habis.
+    # Plafon wajib: satu URL gambar yang menggantung tidak boleh menahan splash
+    # selamanya.
+    done = {"v": False}
+    pending = {"n": 0}
+
+    def fire():
+        if done["v"]:
+            return
+        done["v"] = True
+        cb()
+
+    imgs = critical_images()
+    pending["n"] = len(imgs)
+
+    def tick(_=None):
+        pending["n"] -= 1
+        if pending["n"] <= 0:
+            fire()
+
+    if not imgs:
+        # Tidak ada yang perlu ditunggu di layar pertama. Tetap beri satu
+        # putaran supaya React sempat commit sebelum animasi dimulai.
+        window.setTimeout(fire, 60)
+        return
+
+    for img in imgs:
+        if img.complete and img.naturalWidth > 0:
+            pending["n"] -= 1
+            continue
+        img.addEventListener("load", lambda _: tick(), {"once": True})
+        img.addEventListener("error", lambda _: tick(), {"once": True})
+
+    if pending["n"] <= 0:
+        window.setTimeout(fire, 60)
+        return
+
+    window.setTimeout(fire, ceiling_ms)
+
+
+def fonts_settled(cb, ceiling_ms):
+    done = {"v": False}
+
+    def fire():
+        if done["v"]:
+            return
+        done["v"] = True
+        cb()
+
+    t = window.setTimeout(fire, ceiling_ms)
+    try:
+        if document.fonts and document.fonts.ready:
+            document.fonts.ready.then(lambda _: fire())
+        else:
+            fire()
+    except:
+        fire()
+    return t
+
+
+component SplashBoot():
+    def boot():
+        if not document.getElementById("boot-splash"):
+            return lambda: None
+
+        fired = {"v": False}
+
+        def start():
+            if fired["v"]:
+                return
+            fired["v"] = True
+            mark_ready()
+
+        def after_assets():
+            # Dua frame: satu untuk commit React, satu untuk paint. Tanpa jeda
+            # ini transisi bisa dimulai sebelum browser mencatat keadaan awal,
+            # dan panelnya melompat alih-alih bergerak.
+            raf = window.requestAnimationFrame
+            if raf:
+                raf(lambda _: raf(lambda _: start()))
+            else:
+                window.setTimeout(start, 32)
+
+        # Jaring pengaman terakhir. Kalau ini yang menembak, berarti ada aset
+        # yang tidak kunjung siap -- splash tetap pergi, dan halaman tidak
+        # pernah tertutup selamanya.
+        t_bail = window.setTimeout(start, BAIL_MS)
+
+        def images_done(_=None):
+            wait_for_assets(after_assets, 1500)
+
+        t_fonts = fonts_settled(images_done, 2000)
+
+        def cleanup():
+            window.clearTimeout(t_bail)
+            window.clearTimeout(t_fonts)
+        return cleanup
+
+    useEffect(boot, [])
+
+    return None

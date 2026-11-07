@@ -67,22 +67,35 @@ component Hero(className=""):
         # Latar gelombang. Warna diambil dari token situs, bukan palet bawaan
         # komponen (ungu #5227FF) -- supaya tetap menyatu dengan tema.
         div(className="absolute inset-0 w-full h-full -z-10 pointer-events-none", aria_hidden=True):
-            # Settingan dari hanzu, dipakai apa adanya.
+            # PALET: dari token situs, bukan palet bawaan komponen.
             #
-            # Palet ungu/pink ini milik komponennya sendiri, bukan token situs.
-            # Sudah kusebut di laporan: dengan situs dark-only, ungu di atas
-            # hitam terbaca, tapi tidak menyatu dengan aksen terracotta.
+            # Komponen ini bawaannya ungu #5227FF + pink #FF9FFC. Di situs yang
+            # dark-only dengan aksen terracotta, ungu di atas hitam memang
+            # terbaca, tapi tidak menyatu dengan apa pun di halaman.
+            #
+            # Yang dipakai di sini semuanya warna yang sudah ada:
+            #   horizon #cc785c  --color-primary        (aksen terracotta)
+            #   wave    #a9583e  --color-primary-active (terracotta lebih tua)
+            #   crest   #141413  --color-canvas         (gelap, sama dengan latar)
+            #   latar   #141413  --color-canvas
+            #
+            # crest dibuat GELAP, bukan putih. Di versi terang, crest putih
+            # adalah highlight di atas gelombang berwarna. Di latar hitam,
+            # highlight putih justru jadi kabut yang membuat semuanya samar --
+            # dan itu yang bikin teks susah dibaca. Dengan crest gelap,
+            # gelombangnya oranye menyala sementara puncaknya tenggelam.
             GradientWaves(
-                horizonColor="#5227FF",
-                waveColor="#FF9FFC",
-                crestColor="#FFFFFF",
+                horizonColor="#cc785c",
+                waveColor="#a9583e",
+                crestColor="#141413",
+                backgroundColor="#141413",
+                lightMode=False,
                 speed=0.4,
                 amplitude=2.5,
                 relief=1,
                 lightAngle=120,
                 mouseInteraction=True,
                 swellOnClick=True,
-                lightMode=False,
                 waveScale=0.6,
                 waveRatio=1.02,
                 swell=35,
@@ -90,12 +103,12 @@ component Hero(className=""):
                 tilt=64,
                 zoom=1,
                 height=5.5,
-                fogDepth=15,
-                sheen=0,
-                brightness=1,
+                fogDepth=18,
+                sheen=0.35,
+                brightness=1.25,
                 opacity=1,
-                grain=0.2,
-                quality="medium",
+                grain=0.16,
+                quality="low",
                 intro=True,
                 parallaxStrength=0.5,
                 mouseStrength=0.6,
@@ -107,14 +120,6 @@ component Hero(className=""):
                 ref=text_ref,
                 className="w-full max-w-3xl flex flex-col justify-center items-center text-center pointer-events-auto relative z-40 will-change-transform",
             ):
-                # Scrim: lapisan gelap lembut di belakang teks.
-                #
-                # Gelombangnya oranye menyala, dan teksnya krem terang --
-                # dua-duanya terang, jadi tanpa pemisah nama besar jadi samar
-                # (terukur dari screenshot: kontras judul paling rendah di
-                # halaman). Scrim ini menurunkan luminansi latar tepat di
-                # belakang teks, tanpa menggelapkan seluruh hero.
-                div(className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[85%] -z-10 pointer-events-none hero-scrim", aria_hidden=True)
                 p(
                     ref=eyebrow_ref,
                     className="text-[10px] sm:text-[13px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2 sm:mb-2.5 lg:mb-3 will-change-transform",

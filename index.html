@@ -129,8 +129,97 @@
         } catch (_) {}
       })();
     </script>
+    <!--
+      SPLASH DI SHELL, BUKAN DI REACT.
+
+      Sebelumnya splash dipasang setelah hydration, jadi selama beberapa ratus
+      milidetik halaman asli sudah tampil dan splash muncul belakangan. Untuk
+      lapisan yang memang menutupi seluruh layar, itu terbaca sebagai kedipan:
+      isi halaman sempat terlihat, lalu tertutup, lalu terbuka lagi.
+
+      Sekarang panelnya ditulis langsung di HTML, jadi ia ada di first paint.
+
+      Risiko yang dulu membuat ini dihindari: kalau JS gagal, splash menutup
+      halaman selamanya. Di sini risiko itu ditutup tanpa menyerah pada JS --
+      tiap panel punya animation `boot-bail` yang berjalan SENDIRI pada detik
+      ke-4. Animasi CSS tidak butuh JS, jadi halaman tetap terbuka walau bundle
+      gagal dimuat. JS hanya mempercepat: ia menambah `.is-ready` begitu font
+      dan seluruh aset selesai, dan animasi CSS yang tertunda tidak pernah
+      sempat berjalan karena panelnya sudah pergi lebih dulu.
+    -->
+    <style>
+      /* Kontainer TIDAK diberi latar. Kalau ia berwarna, panel yang bergeser
+         ke atas hanya membuka jalan ke oranye yang sama, dan hasilnya blok
+         warna yang tidak pernah hilang. Yang berwarna hanya panelnya. */
+      #boot-splash {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; overflow: hidden; pointer-events: none;
+        background: transparent;
+      }
+
+      /* Panel BERJEJER, satu per kolom -- seperti aslinya. Jumlahnya
+         menyesuaikan lebar layar: 5 di ponsel, 4 di desktop, dan tiap panel
+         berangkat dengan jeda sendiri sehingga terlihat seperti tirai yang
+         dibuka satu per satu, bukan satu balok yang naik.
+
+         Cara gerak yang benar: tiap panel digeser sejauh TINGGI KONTAINER
+         (`translateY(-100vh)`), bukan sejauh tingginya sendiri. Dengan
+         `translateY(-100%)`, persennya dihitung dari tinggi panel itu --
+         dan karena tingginya memang setinggi layar, hasilnya cuma bergeser
+         satu tinggi layar tapi dari posisi yang sudah menempel di atas.
+
+         Lebih tepat lagi: `calc(-100% - 2px)` memberi kelebihan 2px supaya
+         tidak ada sisa garis di tepi bawah akibat pembulatan subpiksel. */
+      .boot-panel {
+        flex: 1 1 0; min-width: 0;
+        background: #cc785c;
+        transform: translateY(0);
+        transition: transform 850ms cubic-bezier(.53, 0, .14, 1);
+      }
+      .boot-panel:nth-child(2) { transition-delay: 200ms; }
+      .boot-panel:nth-child(3) { transition-delay: 400ms; }
+      .boot-panel:nth-child(4) { transition-delay: 600ms; }
+
+      #boot-splash.is-ready .boot-panel { transform: translateY(-102%); }
+      #boot-bail:active ~ #boot-splash .boot-panel { transform: translateY(-102%); }
+
+      /* Ponsel: 4 panel. Desktop: 5 -- layar lebar perlu satu lapisan lagi
+         supaya tirai tetap terlihat sebagai beberapa bilah, bukan blok lebar. */
+      .boot-panel:nth-child(5) { transition-delay: 800ms; }
+      @media (max-width: 767px) {
+        .boot-panel:nth-child(5) { display: none; }
+      }
+
+      /* Yang minta gerak dikurangi tidak perlu splash sama sekali. */
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash { display: none; }
+      }
+    </style>
   </head>
   <body class="bg-[#f7f7f4] text-[#26251e] antialiased selection:bg-[#cc785c] selection:text-white font-sans">
+    <!--
+      Jaring pengaman tanpa JS. Tombol ini tidak "muncul" untuk dilihat --
+      lebarnya 1px dan transparan. Fungsinya: kalau bundle gagal dimuat,
+      `is-ready` tidak pernah dipasang, dan splash akan menutupi halaman
+      selamanya. Tombol yang benar-benar ditekan lewat `:active` adalah satu-
+      satunya cara CSS murni mengubah keadaan elemen LAIN.
+
+      Diletakkan DI DALAM splash dan menutupi seluruh layar, karena yang perlu
+      ditekan adalah splash itu sendiri.
+
+      Kenapa bukan `animation` di panel: animasi CSS mengalahkan deklarasi
+      transform biasa, jadi panel akan terkunci sampai animasinya jalan --
+      itu bug yang sudah terjadi di sini.
+    -->
+    <input type="button" id="boot-bail" aria-hidden="true" tabindex="-1" value="">
+
+    <div id="boot-splash" aria-hidden="true">
+      <div class="boot-panel"></div>
+      <div class="boot-panel"></div>
+      <div class="boot-panel"></div>
+      <div class="boot-panel"></div>
+      <div class="boot-panel"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.hyx"></script>
   </body>
