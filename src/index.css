@@ -403,68 +403,14 @@ html.dark .hero-dots {
 }
 
 /* ========================================================
-   PANEL MENU NAVIGASI
-   Posisi "tersembunyi" HARUS berasal dari CSS, bukan dari GSAP.
-   Dulu panel digeser keluar layar lewat `gsap.set({xPercent:100})`
-   yang hanya jalan kalau JS hidup. Akibatnya, tanpa JS (atau saat JS
-   gagal/diblokir) panel muncul menutupi seluruh halaman dan isi hero
-   tidak terbaca sama sekali. Diverifikasi dengan memblokir *.js.
+   STAGGERED MENU — jaring pengaman tanpa JS
+   Posisi dan animasi sepenuhnya milik GSAP (lihat
+   staggeredMenuEngine.hys, port dari React Bits StaggeredMenu).
+   Yang tersisa di sini hanya satu hal: kalau JS tidak jalan, panel
+   dan tirai tidak boleh menutupi halaman. Opacity, bukan transform,
+   supaya GSAP bisa mengambil alih dari nol tanpa menjumlahkan nilai.
    ======================================================== */
-.nav-panel {
-  transform: translate3d(100%, 0, 0);
-  will-change: transform;
-  /* Posisi adalah urusan CSS; JS tidak menulis transform pada elemen ini.
-     Transisi di sini yang menggerakkan panel, bukan timeline GSAP. */
-  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
-  opacity: 1;
-}
-
-.nav-panel.is-open {
-  transform: translate3d(0, 0, 0);
-}
-
-/* Isi panel: keadaan awal disembunyikan, lalu GSAP memunculkannya.
-   Tanpa ini, teks menu sempat terlihat di posisi akhir sebelum animasi mulai. */
-.nav-panel .sm-panel-itemLabel,
-.nav-panel .sm-socials-link {
-  will-change: transform, opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav-panel {
-    will-change: auto;
-    transition: none;
-  }
-}
-
-/* ========================================================
-   TIRAI MENU (tiga lapis warna)
-   Posisi awal HARUS dari CSS, sama alasannya dengan .nav-panel:
-   GSAP baru menyentuhnya setelah JS hidup. Dulu tirai-tirai ini
-   tanpa transform awal, jadi sebelum animasi jalan ketiganya
-   menumpuk rapi di tempat yang sama -- dan karena z-nya di atas
-   panel, yang terlihat cuma lapisan paling atas, bukan menu.
-
-   Dengan `translate3d(100%,0,0)` tiap lapisan parkir di kanan
-   layar sejak HTML pertama, lalu GSAP menariknya masuk satu per
-   satu dengan jeda 70 ms sehingga warnanya muncul berurutan.
-   ======================================================== */
-.nav-curtain {
-  /* Tirai disembunyikan dengan OPACITY, bukan transform.
-   *
-   * Sebelumnya di sini ada `transform: translate3d(100%,0,0)` sebagai jaring
-   * pengaman untuk kondisi tanpa JS. Itu salah, dan gagalnya halus: GSAP
-   * membaca transform yang sudah ada sebagai 100%, lalu `xPercent: 100`
-   * menambah 100% lagi — jadi tirai beranimasi dari 200% ke 100%, yang
-   * seluruhnya di luar layar. Hasilnya menu terbuka tanpa satu pun pita warna
-   * terlihat: animasinya jalan, tapi di tempat yang tidak bisa dilihat.
-   *
-   * Opacity tidak disentuh sampai GSAP jalan, jadi tanpa JS tirai memang tidak
-   * tampil (benar: panelnya sendiri yang harus terlihat), dan saat JS hidup
-   * `gsap.set(layers, {xPercent: 100, opacity: 1})` mengambil alih dari nol. */
+.sm-panel,
+.sm-prelayer {
   opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav-curtain { will-change: auto; }
 }
