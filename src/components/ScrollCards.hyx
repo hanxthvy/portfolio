@@ -134,48 +134,6 @@ component ScrollCards(items=None, on_open=None):
                 pass
             return 0
 
-        def cull(geser, kw, wadah):
-            # Sembunyikan kartu yang seluruhnya di luar layar.
-            #
-            # Tanpa ini, semua kartu ada di dalam satu `baris` yang
-            # ditransform, jadi browser merasterisasi SELURUH jalur -- bukan
-            # hanya bagian yang terlihat. Terukur pada 1600px: luas lapisan
-            # komposit 6355x627 = 3.98 MP, padahal yang tampak cuma ~0.9 MP.
-            # Di desktop (kartu 90% x layar, tinggi penuh) itu yang membuat
-            # animasi tersendat; di mobile kartunya kecil jadi tidak terasa.
-            #
-            # `visibility` dipakai, bukan `display: none`, supaya tata letak
-            # tidak berubah sama sekali -- posisi kartu dihitung dari `left`
-            # per indeks, dan kalau satu kartu hilang dari alur, indeks
-            # sesudahnya ikut bergeser.
-            #
-            # Semua angkanya sudah dihitung di `tulis_kartu()`, jadi di sini
-            # tidak ada pembacaan layout sama sekali.
-            tampil = st["tampil"]
-            if len(tampil) != len(st["kiri"]):
-                return
-            for i in range(len(st["kiri"])):
-                x = st["kiri"][i] + geser
-                # Margin 1 lebar kartu: kartu yang baru akan masuk sudah
-                # disiapkan lebih dulu, jadi tidak muncul mendadak.
-                terlihat = (x + kw * 2 > 0) and (x < wadah + kw)
-                nilai = 1 if terlihat else 0
-                if tampil[i] != nilai:
-                    tampil[i] = nilai
-                    el = baris.children[i]
-                    if el:
-                        # `contain` memutus perhitungan gaya dan layout
-                        # kartu dari sisa halaman. Untuk kartu yang jauh di
-                        # luar layar, `content-visibility` membuat isinya
-                        # tidak dirasterisasi sama sekali sampai dibutuhkan.
-                        #
-                        # Ini yang menekan biaya di desktop: kartunya 90% x
-                        # layar dengan tinggi penuh, jadi empat kartu jauh
-                        # lebih berat daripada di mobile.
-                        el.style.visibility = "visible" if terlihat else "hidden"
-                        el.style.contain = "layout paint style"
-                        el.style.contentVisibility = "visible" if terlihat else "auto"
-
         def tulis_kartu():
             # Ukuran kartu HANYA dihitung ulang saat ukuran wadah berubah.
             #
@@ -269,12 +227,8 @@ component ScrollCards(items=None, on_open=None):
                     # menonjol, supaya foto tidak terpotong wadah.
                     badan.style.marginTop = f"{FOTO_KELUAR * th:.1f}px"
 
-            # Setelah semua posisi kartu diketahui, baru bisa ditentukan mana
-            # yang terlihat.
             st["kiri"] = kiri
             st["wadah"] = wadah
-            st["tampil"] = [-1] * len(kiri)
-            cull(st["geser"], kw, wadah)
 
         def ukur():
             vh = window.innerHeight or 800
@@ -283,31 +237,24 @@ component ScrollCards(items=None, on_open=None):
             # header (`top: header`), bukan di 0.
             stage.style.height = f"{tinggi}px"
             stage.style.top = f"{tinggi_header()}px"
-            # Tinggi track diturunkan dari geometrinya, bukan ditebak.
+            # Tinggi track diturunkan dari geometrinya.
             #
-            # `stage` menempel selama track masih berada di atas garis
-            # `top: header`, dan stage berhenti menempel ketika
-            # `top == header - (tinggi_track - tinggi_stage)`.
+            # Stage berhenti menempel ketika
+            #   top == header - (tinggi_track - tinggi_stage)
+            # dan progres mencapai 1 ketika
+            #   top == header - vh * (JARAK_SCROLL + AWALAN)
             #
-            # `baca()` memetakan progres 1 pada
-            # `top == header - vh * (JARAK_SCROLL + AWALAN)`.
+            # Supaya keduanya jatuh di titik yang sama, tinggi ekstra harus
+            #   vh * JARAK_SCROLL
+            # karena `AWALAN * vh` sudah terpakai sebagai jarak pra-gulir
+            # SEBELUM stage menempel.
             #
-            # Keduanya harus jatuh di titik yang SAMA, kalau tidak ada salah
-            # satu dari dua bug ini:
-            #
-            #   - tinggi ekstra kurang -> halaman kehabisan scroll sebelum
-            #     progres mencapai 1, kartu berhenti di tengah jalan;
-            #   - tinggi ekstra lebih  -> setelah kartu terakhir center masih
-            #     harus menggulir jauh untuk lepas dari tempelan.
-            #
-            # Menyamakan keduanya: tinggi_ekstra = vh * (JARAK_SCROLL + AWALAN).
-            # `AWALAN` ikut karena progres memang mulai `AWALAN * vh` lebih
-            # awal, jadi rentang totalnya memang sepanjang itu.
-            #
-            # Versi sebelumnya menambahkan satu `vh` cadangan. Cadangan itu
-            # langsung terlihat sebagai scroll mati ~1000px setelah kartu
-            # terakhir sampai di tengah.
-            track.style.height = f"{tinggi + vh * (JARAK_SCROLL + AWALAN)}px"
+            # Versi sebelumnya memakai `vh * (JARAK_SCROLL + AWALAN)`. Itu
+            # menghitung jarak pra-gulir dua kali: sekali lewat `awal` di
+            # `baca()`, sekali lagi lewat tinggi ekstra. Terukur di 857px:
+            # progres 1 pada top -963, stage lepas pada top -1135 -- 171px
+            # scroll mati setelah kartu terakhir sampai di tengah.
+            track.style.height = f"{tinggi + vh * JARAK_SCROLL}px"
             # Ukuran kartu bergantung pada lebar wadah, jadi ikut dihitung
             # ulang di sini -- bukan di dalam `posisi()`.
             tulis_kartu()
@@ -325,9 +272,7 @@ component ScrollCards(items=None, on_open=None):
             st["sekarang"] = p
             geser = trackOffset(len(items), st["jarak"], p) if st["jarak"] > 0 else 0.0
             baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
-            # Kartu di luar layar disembunyikan. Angkanya sudah tersedia, jadi
-            # ini aritmetika saja -- tidak ada pembacaan layout.
-            cull(geser, st["kw"], st["wadah"])
+
 
         def baca():
             # Progres = seberapa jauh track sudah lewat MELAMPAUI titik tempel.
@@ -515,11 +460,39 @@ component ScrollCards(items=None, on_open=None):
                                             style={},
                                         ):
                                             if items[i]["image"] != None:
+                                                # TANPA `loading="lazy"`.
+                                                #
+                                                # Lazy loading memutuskan kapan
+                                                # memuat berdasarkan posisi
+                                                # elemen di LAYOUT. Di sini
+                                                # gambar berada di dalam wadah
+                                                # yang digeser `transform`, dan
+                                                # transform tidak mengubah
+                                                # layout -- jadi browser
+                                                # menganggap semua kartu masih
+                                                # di tempat asalnya. Akibatnya
+                                                # gambar baru dimuat ketika
+                                                # kartunya sudah tampil, dan
+                                                # yang terlihat adalah kotak
+                                                # kosong lalu gambar muncul
+                                                # mendadak: persis "blinking".
+                                                #
+                                                # Terukur: ketiga gambar
+                                                # `complete: false`,
+                                                # `naturalWidth: 0` saat
+                                                # animasi mulai.
+                                                #
+                                                # `decoding="sync"` juga
+                                                # disengaja: `async` berarti
+                                                # gambar boleh tampil setelah
+                                                # decode selesai, dan pada
+                                                # layer yang bergerak itu
+                                                # terlihat sebagai kedipan.
                                                 img(
                                                     src=items[i]["image"],
                                                     alt=items[i]["title"],
-                                                    loading="lazy",
-                                                    decoding="async",
+                                                    loading="eager",
+                                                    decoding="sync",
                                                     className="w-full h-full object-cover",
                                                 )
                                             else:

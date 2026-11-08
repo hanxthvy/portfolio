@@ -171,6 +171,37 @@ export function normalizeWheel(
  * kartu bisa terus melaju sebentar setelah scroll berhenti, lalu melambat
  * karena redaman -- persis seperti benda yang punya massa.
  *
+ * ## Kenapa diselesaikan secara analitik, bukan langkah Euler
+ *
+ * Versi sebelumnya mengintegrasikan eksplisit:
+ *
+ *     a  = k*(target - x) - c*v
+ *     v += a*dt
+ *     x += v*dt
+ *
+ * Skema itu punya batas stabilitas. Dengan k=700 dan c=52.9, satu langkah
+ * dengan dt >= ~0.05 sudah menghasilkan x = 1.75 untuk target 1 (overshoot
+ * 75%), dan pada dt 0.064 hasilnya 2.87. Kalau dibiarkan berulang, nilainya
+ * tumbuh tanpa batas:
+ *
+ *     60fps -> stabil, 29 frame
+ *     30fps -> x = -2.3e+147   (meledak)
+ *     15fps -> NaN
+ *      5fps -> NaN
+ *
+ * Di desktop, satu frame yang terlewat (GC, decode gambar, komposit ulang)
+ * cukup untuk masuk ke wilayah tidak stabil itu. Nilainya lalu melompat ke
+ * ujung skala dan kartu terlihat meloncat lalu berkedip. Di mobile framenya
+ * lebih ringan sehingga jarang melewati ambang -- itu sebabnya gejalanya
+ * hanya muncul di desktop.
+ *
+ * Di sini gerakannya diselesaikan sebagai bentuk tertutup dari persamaan
+ * osilator teredam, jadi hasilnya benar untuk dt berapa pun:
+ *
+ *     x(t) = target + e^(-a*t) * ( (x0-target)*cos(w*t) + ((v0+a*(x0-target))/w)*sin(w*t) )
+ *
+ * Tidak ada akumulasi galat, tidak ada batas dt, dan tidak mungkin meledak.
+ *
  * @param x    posisi sekarang
  * @param v    kecepatan sekarang (satuan per detik)
  * @param tx   posisi target
@@ -184,14 +215,58 @@ export function stepSpring(
   dt: number,
   k = 700,
   redaman = 52.915,
-  // ^ k=700 dengan redaman 2*sqrt(700) = redaman kritis: seluruh rentang
-  //   ditempuh ~0.60 s pada 60fps, tanpa overshoot. Diukur, bukan ditebak.
 ): { x: number; v: number } {
   if (!(dt > 0)) return { x, v };
-  const d = dt > 0.064 ? 0.064 : dt;
-  const a = k * (tx - x) - redaman * v;
-  const nv = v + a * d;
-  const nx = x + nv * d;
+  // Satu frame yang sangat panjang (tab kembali aktif) dipotong: bukan karena
+  // rumusnya tidak stabil, tapi karena melompat beberapa detik sekaligus tidak
+  // pernah jadi gerakan yang masuk akal untuk dilihat.
+  const t = dt > 0.25 ? 0.25 : dt;
+
+  const d0 = x - tx;
+  const a = redaman / 2;
+  const w2 = k - a * a;
+
+  let nd: number;
+  let nv: number;
+
+  // Ambangnya harus jauh di atas `1e-9`: pada k=700 dan c=52.915 (redaman
+  // kritis), `w2 = 0.0007` -- nilai yang lolos ambang kecil tapi membuat
+  // `sin(w*t)/w` membagi dengan angka nyaris nol. Itu yang meledak.
+  // Di bawah ambang ini rumus redaman kritis dipakai, dan hasilnya sama saja
+  // secara matematis karena keduanya bertemu di titik itu.
+  if (w2 > 1e-3) {
+    // Kurang teredam: osilasi teredam.
+    const w = Math.sqrt(w2);
+    const e = Math.exp(-a * t);
+    const c = Math.cos(w * t);
+    const sn = Math.sin(w * t);
+    nd = e * (d0 * c + ((v + a * d0) / w) * sn);
+    nv = e * ((v + a * d0) * c - (d0 * w + (a * (v + a * d0)) / w) * sn);
+  } else if (w2 < -1e-3) {
+    // Terlalu teredam: dua akar nyata, tanpa osilasi.
+    const r = Math.sqrt(-w2);
+    const e1 = Math.exp((-a + r) * t);
+    const e2 = Math.exp((-a - r) * t);
+    const c1 = (v + (a + r) * d0) / (2 * r);
+    const c2 = d0 - c1;
+    nd = c1 * e1 + c2 * e2;
+    nv = c1 * (-a + r) * e1 + c2 * (-a - r) * e2;
+  } else {
+    // Redaman kritis: (C1 + C2*t) * e^(-a*t)
+    const e = Math.exp(-a * t);
+    const c1 = d0;
+    const c2 = v + a * d0;
+    nd = (c1 + c2 * t) * e;
+    nv = (c2 - a * (c1 + c2 * t)) * e;
+  }
+
+  const nx = tx + nd;
+
+  // Nilai tidak berhingga tidak mungkin lolos dari rumus di atas, tapi kalau
+  // terjadi (mis. parameter diubah jadi tidak masuk akal), lebih baik berhenti
+  // di target daripada menulis NaN ke transform.
+  if (!Number.isFinite(nx) || !Number.isFinite(nv)) return { x: tx, v: 0 };
+
   // Berhenti bersih kalau sudah sangat dekat dan sangat lambat, supaya loop
   // tidak berjalan selamanya untuk sisa yang tak terlihat.
   if (Math.abs(tx - nx) < 0.0002 && Math.abs(nv) < 0.002) return { x: tx, v: 0 };
