@@ -1,0 +1,85 @@
+# [xihanzu-NR]
+# Deteksi kelas perangkat: ponsel, tablet, desktop.
+#
+# Kenapa ini BUKAN `matchMedia` atau user-agent:
+#
+#   User-agent adalah string yang dikirim klien dan bisa berisi apa saja --
+#   "iPad" di Safari desktop, "Android" di Chromebook, dan apa pun yang diketik
+#   tangan. Memilih aset berdasarkan UA berarti pengunjung dengan UA aneh
+#   menerima aset yang salah, dan aset 2 MB yang salah lebih buruk daripada
+#   aset 1 MB yang benar.
+#
+#   `matchMedia` lebih baik, tapi tetap bertanya "seberapa lebar layarnya
+#   sekarang". Itu berubah saat jendela diubah ukurannya dan saat ponsel
+#   diputar -- dan aset yang sudah terunduh tidak bisa ditarik kembali.
+#
+# Yang dipakai di sini: lebar layar TERKECIL yang pernah terlihat, atau
+# `screen.width` kalau tersedia. Alasannya sederhana -- keputusan ini diambil
+# untuk memilih berkas yang akan diunduh, dan unduhan tidak bisa dibatalkan.
+# Kalau jendela desktop dikecilkan menjadi 400px, perangkatnya tetap desktop;
+# mengirim aset ponsel ke situ hanya menghemat bandwidth di atas kertas, dan
+# membuat gambar pecah di layar 4K.
+#
+# Hasilnya dipakai untuk dua hal berbeda, dan itu disengaja:
+#   1. Memilih aset (sekali, saat mount)  -> `perangkat()`
+#   2. Menyesuaikan tata letak (bisa berubah) -> `lebar_kini()`
+
+KATEGORI = ["ponsel", "tablet", "desktop"]
+
+
+def lebar_layar():
+        # Lebar viewport saat ini, dalam piksel CSS.
+    try:
+        return window.innerWidth or 1024
+    except:
+        return 1024
+
+
+def lebar_perangkat():
+        # Lebar layar fisik, kalau browser mengizinkannya.
+    #
+    # `screen.width` adalah ukuran layar, bukan jendela -- jadi jendela desktop
+    # yang dikecilkan tidak mengubahnya. Di beberapa browser privasi nilai ini
+    # dibulatkan, dan itu tidak masalah: yang dibutuhkan hanya kategorinya.
+    #
+    try:
+        w = window.screen and window.screen.width
+        if w and w > 0:
+            return w
+    except:
+        pass
+    return lebar_layar()
+
+
+def kategori_dari(lebar):
+    # Ambang batas mengikuti yang dipakai CSS di proyek ini (Tailwind `md` dan
+    # `lg`), supaya gambar dan tata letak tidak berbeda pendapat tentang apa itu
+    # "ponsel".
+    if lebar < 768:
+        return "ponsel"
+    if lebar < 1024:
+        return "tablet"
+    return "desktop"
+
+
+def perangkat():
+        # Kategori perangkat untuk MEMILIH ASET. Stabil selama halaman hidup.
+    #
+    # Tidak berubah saat jendela diubah ukurannya, karena aset yang sudah
+    # terunduh tidak bisa ditarik kembali -- mengganti gambar di tengah jalan
+    # hanya menambah unduhan, bukan menghemat.
+    #
+    return kategori_dari(lebar_perangkat())
+
+
+def kualitas():
+        # Perkiraan kepadatan piksel, dibatasi.
+    #
+    # dpr 3 pada ponsel 400px berarti gambar 1200px untuk ruang 400px. Untuk
+    # foto latar itu pemborosan; 2 sudah cukup tajam dan setengah beratnya.
+    #
+    try:
+        d = window.devicePixelRatio or 1
+        return max(1, min(2, round(d)))
+    except:
+        return 1

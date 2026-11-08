@@ -63,7 +63,45 @@ component Hero(className=""):
             "visibility": "hidden" if is_covered else "visible",
         }
     ):
-        # Latar polos.
+        # Latar: gambar berbeda per kelas perangkat.
+        #
+        # Pemilihan berkas diserahkan ke <picture> + `media`, BUKAN ke
+        # JavaScript. Alasannya bukan kerapian:
+        #
+        #   - Browser memilih SEBELUM React hidup, jadi gambar yang salah tidak
+        #     pernah terunduh. Kalau JavaScript yang memilih, berkas default
+        #     sudah terlanjur turun dan yang benar menyusul -- dua unduhan, dan
+        #     justru itu yang mau dihindari.
+        #   - Tidak ada layout shift: `media` dievaluasi saat parser HTML
+        #     berjalan, jadi tidak ada gambar yang muncul lalu berganti.
+        #   - Tanpa JS pun tetap benar.
+        #
+        # `media` di sini memakai lebar viewport, bukan lebar layar fisik. Itu
+        # memang berbeda dari `perangkat()` di utils, dan sengaja: di sini yang
+        # diputuskan adalah gambar mana yang PAS untuk ruang yang tersedia,
+        # bukan perangkat apa yang dipakai. Jendela desktop yang dikecilkan
+        # tetap mendapat gambar desktop, karena layarnya besar dan aset mobile
+        # akan pecah di sana.
+        div(
+            className="absolute inset-0 w-full h-full -z-10 pointer-events-none",
+            style={"background": "var(--color-canvas, #141413)"},
+            aria_hidden=True,
+        ):
+            picture():
+                # Urutan penting: yang pertama cocok menang. Dari terkecil ke
+                # terbesar, supaya ponsel tidak pernah jatuh ke gambar desktop.
+                source(media="(max-width: 767px)", srcSet="/images/hero-ponsel.webp", type="image/webp")
+                source(media="(max-width: 1023px)", srcSet="/images/hero-tablet.webp", type="image/webp")
+                source(srcSet="/images/hero-desktop.webp", type="image/webp")
+                img(
+                    src="/images/hero-desktop.webp",
+                    alt="",
+                    aria_hidden=True,
+                    className="absolute inset-0 w-full h-full object-cover",
+                    loading="eager",
+                    decoding="async",
+                    fetchPriority="high",
+                )
         #
         # Sebelumnya di sini ada GradientWaves (shader raymarching WebGL2, dua
         # kanvas, render loop kontinu). Bebannya terukur: TBT 3.3-5.8 detik,
