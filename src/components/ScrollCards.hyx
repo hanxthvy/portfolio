@@ -35,6 +35,17 @@ FOTO_KELUAR = 0.257
 # 1.2 berarti animasi menghabiskan 120% tinggi layar tambahan sebelum selesai.
 JARAK_SCROLL = 1.2
 
+# Seberapa awal animasi sudah berjalan SEBELUM stage menempel.
+#
+# 0.2 berarti: ketika stage masih 20% tinggi layar di bawah titik tempelnya,
+# kartu sudah mulai bergeser. Scroll terakhir sebelum menempel sudah
+# menggerakkan animasi, jadi tidak ada momen "diam lalu melompat".
+#
+# Kenapa perlu: tanpa ini, kartu diam total sampai stage menempel, dan gerakan
+# pertama datang sekaligus -- terasa seperti kunci yang menyambar. Dengan
+# awalan, gerakannya menyambung dari scroll biasa.
+AWALAN = 0.2
+
 
 component ScrollCards(items=None, on_open=None):
     if items == None:
@@ -161,12 +172,16 @@ component ScrollCards(items=None, on_open=None):
             # baru geser", sementara scroll dari bawah terlihat benar karena
             # arahnya sudah melewati titik itu.
             vh = window.innerHeight or 800
-            span = vh * JARAK_SCROLL
+            # Rentang diperpanjang sebesar AWALAN, sehingga progres mulai
+            # bergerak saat track masih `AWALAN * vh` di bawah titik tempel.
+            span = vh * (JARAK_SCROLL + AWALAN)
             if span <= 0:
                 return 1.0
             top = track.getBoundingClientRect().top
             mulai = tinggi_header()
-            return clamp((mulai - top) / span, 0.0, 1.0)
+            # `mulai + AWALAN * vh` = titik di mana progres == 0.
+            awal = mulai + vh * AWALAN
+            return clamp((awal - top) / span, 0.0, 1.0)
 
         def on_scroll(_=None):
             if st["raf"]:
