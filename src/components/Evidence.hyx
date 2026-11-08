@@ -1,6 +1,5 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect
-from "./SectionHeading.hyx" import SectionHeading
 from "./ScrollCards.hyx" import ScrollCards
 
 artifacts_data = [
@@ -68,23 +67,15 @@ component Evidence():
     # Section mengalir normal. Tinggi dan "penguncian" diurus ScrollCards
     # lewat track + sticky, bukan oleh section.
     section(id="evidence", className="w-full px-6 border-t border-[#e6e5e0] text-left"):
-        # Header — sengaja terpusat, beda dari section lain, supaya ritme
-        # halaman tidak terasa mengulang resep yang sama terus.
-        div(className="pt-24 pb-10 max-w-[1200px] w-full mx-auto"):
-            SectionHeading(
-                kicker="// ARSIP & KREDENSIAL",
-                title="Dokumentasi & Sertifikasi",
-                lede="Kredensial resmi, homelab, dan hasil oprek perangkat yang pernah saya kerjakan.",
-                align="center",
-                title_font_size=32,
-            )
-
-        # Deretan kartu yang bergeser horizontal saat scroll dikunci.
-        # Wadah kartu FULL-BLEED, bukan max-w-[1200px].
+        # Header TIDAK ditaruh di sini.
         #
-        # Kartu dimaksudkan 90% lebar layar. Dengan wadah dibatasi 1200px,
-        # kartu 90% x 1440 = 1296px terpotong ke 1200 -- jadi di layar lebar
-        # kartu justru mengisi penuh wadah dan celahnya hilang.
+        # ScrollCards menaruh judulnya sendiri di dalam stage yang menempel, dan
+        # judul di sini akan jadi judul kedua -- terukur: dua "Dokumentasi &
+        # Sertifikasi" di satu layar. Yang dipakai hanya yang di dalam stage,
+        # karena hanya itu yang tetap terlihat selama animasi berjalan.
+        #
+        # Wadah kartu FULL-BLEED: kartu 90% x 1440 = 1296px akan terpotong ke
+        # 1200 kalau dibatasi max-w-[1200px], dan celah antar kartu hilang.
         div(className="w-full"):
             ScrollCards(items=artifacts_data, on_open=open_modal)
 

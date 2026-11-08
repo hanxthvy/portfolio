@@ -125,18 +125,48 @@ component ScrollCards(items=None, on_open=None):
                 el.style.width = f"{kw:.2f}px"
                 el.style.left = f"{(wadah - kw) / 2 + i * jarak:.2f}px"
 
+                # Ukuran foto DIHITUNG dalam piksel, dari tinggi kartu.
+                #
+                # Versi sebelumnya memakai persen (`top: -25.7%`,
+                # `height: 48.6%`). Persen pada `top` dihitung dari tinggi
+                # INDUK, sedangkan `height: 100%` pada badan kartu membuat
+                # induknya setinggi kartu -- jadi `top: -25.7%` berarti 25.7%
+                # dari tinggi kartu, bukan dari tinggi foto. Hasilnya foto
+                # terdorong 248px ke bawah dan terlihat seperti celah kosong
+                # besar di dalam kartu.
+                badan = el.querySelector(".kartu-badan")
+                if not badan:
+                    continue
+                th = badan.getBoundingClientRect().height
+                if th <= 0:
+                    continue
+                foto = badan.querySelector("[data-foto]")
+                if foto:
+                    foto.style.top = f"{-FOTO_KELUAR * th:.1f}px"
+                    foto.style.height = f"{FOTO_TINGGI * th:.1f}px"
+                    # Badan kartu bergeser turun sebesar bagian foto yang
+                    # menonjol, supaya foto tidak terpotong wadah.
+                    badan.style.marginTop = f"{FOTO_KELUAR * th:.1f}px"
+
         def baca():
-            # Progres = seberapa jauh track sudah lewat, dibagi tinggi ekstra.
+            # Progres = seberapa jauh track sudah lewat MELAMPAUI titik tempel.
             #
-            # `getBoundingClientRect().top` negatif ketika track mulai lewat.
-            # Dibagi `vh * JARAK_SCROLL` supaya 0 di awal dan 1 tepat ketika
-            # sisa scrollnya habis.
+            # Titik nolnya BUKAN `top == 0`, melainkan `top == tinggi header`.
+            # Stage menempel di `top: header`, jadi perjalanan animasi baru
+            # dimulai ketika track mencapai angka itu -- sebelumnya stage masih
+            # bergerak naik bersama halaman, dan kalau progres dihitung dari 0,
+            # kartu sudah bergeser saat stage belum menempel.
+            #
+            # Itu gejala yang terukur: scroll dari atas terlihat "kunci dulu
+            # baru geser", sementara scroll dari bawah terlihat benar karena
+            # arahnya sudah melewati titik itu.
             vh = window.innerHeight or 800
             span = vh * JARAK_SCROLL
             if span <= 0:
                 return 1.0
             top = track.getBoundingClientRect().top
-            return clamp(-top / span, 0.0, 1.0)
+            mulai = tinggi_header()
+            return clamp((mulai - top) / span, 0.0, 1.0)
 
         def on_scroll(_=None):
             if st["raf"]:
@@ -185,21 +215,40 @@ component ScrollCards(items=None, on_open=None):
             ):
                 # Judul section. Tingginya tetap (`shrink-0`) supaya kartu yang
                 # menyesuaikan, bukan judulnya.
-                div(className="shrink-0 pt-20 pb-4 px-6 max-w-[1200px] w-full mx-auto"):
-                    span(className="text-[10px] sm:text-[11px] font-mono tracking-[0.88px] uppercase text-[#a9583e] block mb-2"):
+                div(className="shrink-0 pt-16 pb-0 px-6 max-w-[1200px] w-full mx-auto"):
+                    span(className="text-[10px] sm:text-[11px] font-mono tracking-[0.88px] uppercase text-[#a9583e] block mb-1.5"):
                         "// ARSIP & KREDENSIAL"
-                    h2(className="text-[24px] sm:text-[32px] font-semibold leading-[1.2] text-[#26251e]"):
+                    h2(className="text-[22px] sm:text-[30px] font-semibold leading-[1.15] text-[#26251e]"):
                         "Dokumentasi & Sertifikasi"
-                    p(className="text-[13px] sm:text-[15px] text-[#5a5852] leading-[1.5] mt-2 max-w-2xl"):
+                    p(className="text-[12px] sm:text-[14px] text-[#5a5852] leading-[1.45] mt-1 max-w-2xl"):
                         "Kredensial resmi, homelab, dan hasil oprek perangkat yang pernah saya kerjakan."
 
                 # Sisa tinggi setelah judul. `min-h-0` wajib: tanpa itu flex
                 # item menolak menyusut dan kartu meluber keluar stage.
-                div(className="flex-1 min-h-0 w-full flex items-center justify-center pb-4"):
+                # Kartu menempel ke ATAS area ini, bukan ke tengahnya.
+                #
+                # `items-center` pada wadah setinggi sisa viewport menaruh baris
+                # kartu di tengah, menyisakan celah kosong besar di atasnya.
+                # Terukur: deskripsi berakhir di y=210, kartu baru mulai di 346
+                # -- 136px kosong yang terlihat seperti jarak yang salah.
+                #
+                # Dengan `items-start`, celah itu hilang dan tinggi kartu
+                # menentukan sisanya.
+                # Kartu mengisi SISA tinggi, tidak dipatok persentase.
+                #
+                # Dengan `height: 62%` dari wadah yang tingginya = sisa
+                # viewport, kartu jadi 415px di layar 900 -- terlalu pendek,
+                # dan itu juga sumber celah yang terlihat: persentase tinggi
+                # dihitung dari wadah yang sudah dipotong judul, jadi angkanya
+                # mengecil dua kali.
+                #
+                # `height: 100%` pada baris, di dalam wadah yang `flex-1`,
+                # membuat kartu memakai semua ruang yang tersisa setelah judul.
+                div(className="flex-1 min-h-0 w-full flex items-stretch justify-center pt-3 pb-2"):
                     div(
                         ref=baris_ref,
                         className="relative w-full will-change-transform",
-                        style={"height": "62%", "transform": "translate3d(0,0,0)"},
+                        style={"height": "100%", "--kartu-h": "100%", "transform": "translate3d(0,0,0)"},
                     ):
                         for i in range(len(items)):
                             div(
@@ -212,15 +261,13 @@ component ScrollCards(items=None, on_open=None):
                                     onClick=lambda it=items[i]: (on_open(it) if (on_open != None and it["image"] != None) else None),
                                 ):
                                     div(
-                                        className="relative w-full flex-1 rounded-[14px] border border-[#e6e5e0] bg-white shadow-sm",
-                                        style={"marginTop": f"{FOTO_KELUAR * 100:.1f}%"},
+                                        className="relative w-full flex-1 rounded-[14px] border border-[#e6e5e0] bg-white shadow-sm kartu-badan",
+                                        style={"marginTop": "0"},
                                     ):
                                         div(
                                             className="absolute left-0 right-0 overflow-hidden rounded-[10px] bg-[#fafaf7] border border-[#e6e5e0]",
-                                            style={
-                                                "top": f"{-FOTO_KELUAR * 100:.1f}%",
-                                                "height": f"{FOTO_TINGGI * 100:.1f}%",
-                                            },
+                                            data_foto="1",
+                                            style={},
                                         ):
                                             if items[i]["image"] != None:
                                                 img(
