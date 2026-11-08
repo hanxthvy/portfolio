@@ -12,7 +12,7 @@ from "./components/Experience.hyx" import Experience
 from "./components/Evidence.hyx" import Evidence
 from "./components/TechStack.hyx" import TechStack
 from "./components/Contact.hyx" import Contact
-from "./utils/revealEngine" import init_reveal
+from "./utils/revealEngine.hys" import init_reveal
 
 def block_context_menu():
     # Klik kanan dimatikan di seluruh halaman.

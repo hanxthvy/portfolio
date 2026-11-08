@@ -1,7 +1,7 @@
 # [xihanzu-NR]
 from "react" import useRef, useState, useEffect, useId
 from "../utils/strokeEngine.hys" import split_indexed_chars, measure_bbox, is_box_equal, animate_stroke, prime_stroke
-from "../utils/revealEngine" import on_visible_once
+from "../utils/revealEngine.hys" import on_visible_once
 
 component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fillColor="#26251e", strokeWidth=1.5, drawDuration=1.5, fillDelay=0.15, stagger=0.04, ease="power2.out", fillMode="wipe", fontSize=72, fontWeight=500, letterSpacing=-2, animate_on_enter=False, className="", style={}):
     root_ref = useRef(None)
@@ -118,8 +118,13 @@ component StrokeText(text="Reyhan Akhtar Afriansyah", strokeColor="#cc785c", fil
                 Object.assign(node.style, {"strokeDasharray": "none", "strokeDashoffset": "0"})
             return lambda: None
 
-        # on_visible_once ada di utils/revealEngine.ts karena compiler .hyx
-        # memanggil konstruktor DOM tanpa `new`.
+        # `on_visible_once` ada di utils/revealEngine.hys.
+        #
+        # Catatan lama di sini mengatakan berkas itu harus .ts karena compiler
+        # memanggil konstruktor DOM tanpa `new`. Itu benar sebagai gejala, dan
+        # sudah diperbaiki: di dalam .hys, `window.IntersectionObserver(...)`
+        # memang tidak menjadi `new`, jadi konstruktornya dipanggil lewat
+        # `Reflect.construct`. Sekarang seluruh berkas utilitas .hys.
         return on_visible_once(root, lambda: run_once(root), 0.2, 200)
 
     useEffect(anim_effect, [box, fonts_ready])

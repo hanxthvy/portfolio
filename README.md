@@ -4,9 +4,9 @@
 Portofolio pribadi Reyhan Akhtar Afriansyah (Hanz), developer dan penggemar
 sistem dari SMK Ma'arif 1 Kroya.
 
-Ditulis hampir seluruhnya dalam HydraScript (`.hyx` dan `.hys`) di atas
-meta-framework Hydra. Empat berkas utilitas tetap TypeScript karena menulisnya
-ulang tidak memberi keuntungan — lihat [Berkas TypeScript](#berkas-typescript).
+Ditulis **seluruhnya** dalam HydraScript: setiap komponen UI adalah `.hyx` dan
+setiap utilitas adalah `.hys`. Tidak ada satu pun berkas TypeScript atau
+JavaScript di `src/` — itu batasan desain, bukan kebetulan.
 
 ---
 
@@ -43,29 +43,29 @@ ulang tidak memberi keuntungan — lihat [Berkas TypeScript](#berkas-typescript)
     ├── App.hyx          # shell aplikasi
     ├── hydra.hys        # hook React dan adaptor runtime
     ├── index.css        # stylesheet dasar
-    ├── components/      # komponen UI (.hyx, satu .tsx)
+    ├── components/      # komponen UI (.hyx)
     ├── data/            # konten portofolio (.hys)
-    └── utils/           # mesin animasi (campuran .hys dan .ts)
+    └── utils/           # mesin animasi (.hys)
 ```
 
 ---
 
-## Berkas TypeScript
+## Yang perlu diketahui soal menulis `.hys`
 
-README ini dulu mengklaim "zero TypeScript", dan itu tidak benar. Yang ada:
+Dua hal di bawah ini pernah membuat penulis sebelumnya menyerah dan memindahkan
+kode ke TypeScript. Keduanya tidak perlu:
 
-| Berkas | Isi |
-|---|---|
-| `src/utils/timeline.ts` | matematika posisi kartu dan peredam pegas — murni, tanpa DOM |
-| `src/utils/scrollEngine.ts` | satu listener scroll global, dibagikan lewat rAF |
-| `src/utils/revealEngine.ts` | IntersectionObserver untuk animasi reveal |
-| `src/components/GradientWaves.tsx` | latar gelombang WebGL |
+**Konstruktor DOM tidak otomatis `new`.** `window.IntersectionObserver(cb, opsi)`
+menghasilkan `TypeError: Please use the 'new' operator`. Kalau itu terjadi saat
+mount, seluruh halaman gagal render. Solusinya bukan pindah ke `.ts`, tapi
+`window.Reflect.construct(K, [cb, opsi])`.
 
-Alasannya sama untuk keempatnya: isinya perhitungan atau API browser yang lebih
-aman ditulis dengan tipe, dan menuliskannya ulang ke `.hys` hanya memindahkan
-risiko tanpa manfaat. Sisanya, termasuk seluruh komponen UI, tetap `.hyx`.
+**Fungsi tidak di-hoist.** Memanggil fungsi yang didefinisikan setelahnya
+menghasilkan `TypeError` yang sering tertelan `try/except`. Definisi dulu, pakai
+kemudian.
 
----
+Selain itu `.hys` biasa: `for i in range(len(x))`, akses dict, `export def`,
+dan `from "gsap" import gsap` bekerja seperti yang diharapkan.
 
 ## Pengembangan
 

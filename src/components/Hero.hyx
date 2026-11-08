@@ -1,7 +1,7 @@
 # [xihanzu-NR]
 from "react" import useState, useEffect, useRef
 from "./StrokeText.hyx" import StrokeText
-from "../utils/scrollEngine" import on_scroll, prefers_reduced_motion
+from "../utils/scrollEngine.hys" import on_scroll, prefers_reduced_motion
 
 component Hero(className=""):
     # Catatan arsitektur:

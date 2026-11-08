@@ -58,6 +58,10 @@ dipakai; kalau tidak, matikan di dashboard Cloudflare.
 
 ## Selesai (ringkas, untuk konteks)
 
+- **Nol TypeScript.** `timeline.ts`, `scrollEngine.ts`, `revealEngine.ts`, dan
+  `GradientWaves.tsx` sudah tidak ada. Yang dipakai tetap dikonversi ke `.hys`;
+  GradientWaves dihapus karena sudah tidak dipakai sejak hero diganti gambar.
+
 - Header & manifest: `llms.txt` dan `ai-catalog.json` sekarang dilayani dengan
   tipe benar, bukan HTML dari fallback SPA.
 - Urutan heading `h1 → h2 → h3`, tanpa lompatan level.

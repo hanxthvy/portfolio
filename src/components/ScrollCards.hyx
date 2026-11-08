@@ -1,6 +1,6 @@
 # [xihanzu-NR]
 from "react" import useEffect, useRef
-from "../utils/timeline" import clamp, trackOffset, stepSpring
+from "../utils/timeline.hys" import clamp, track_offset, step_spring
 
 # Deretan kartu horizontal yang digerakkan scroll.
 #
@@ -151,7 +151,7 @@ component ScrollCards(items=None, on_open=None):
             jarak = kw * (1 + CELAH)
             st["kw"] = kw
             st["jarak"] = jarak
-            st["geser"] = trackOffset(len(items), jarak, st["sekarang"])
+            st["geser"] = track_offset(len(items), jarak, st["sekarang"])
 
             kiri = []
             for i in range(len(baris.children)):
@@ -264,7 +264,7 @@ component ScrollCards(items=None, on_open=None):
                 return
             st["p"] = p
             st["sekarang"] = p
-            geser = trackOffset(len(items), st["jarak"], p) if st["jarak"] > 0 else 0.0
+            geser = track_offset(len(items), st["jarak"], p) if st["jarak"] > 0 else 0.0
             baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
 
 
@@ -323,7 +323,7 @@ component ScrollCards(items=None, on_open=None):
             # Sebelumnya di sini ada `batas <= 0 -> langsung ke target`, dan
             # karena frame pertama selalu `dt == 0`, cabang itu terpakai tepat
             # di frame paling penting dan mematikan peredamnya sepenuhnya.
-            hasil = stepSpring(st["sekarang"], st["v"], st["target"], dt, PEGAS_K, PEGAS_REDAMAN)
+            hasil = step_spring(st["sekarang"], st["v"], st["target"], dt, PEGAS_K, PEGAS_REDAMAN)
             st["sekarang"] = hasil["x"]
             st["v"] = hasil["v"]
 

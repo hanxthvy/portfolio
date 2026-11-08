@@ -1,0 +1,259 @@
+# [xihanzu-NR]
+# Mesin timeline untuk animasi berbasis progres.
+#
+# Dipisahkan dari DOM dan dari scroll dengan sengaja. Yang dihitung di sini
+# hanya satu hal: "pada progres p, di mana tiap benda seharusnya berada".
+# Tidak ada listener, tidak ada elemen, tidak ada requestAnimationFrame.
+#
+# Kenapa pemisahan ini penting, bukan sekadar rapi: percobaan sebelumnya
+# mencampur ketiganya dalam satu komponen, sehingga tidak ada cara menguji
+# apakah perhitungan posisinya benar tanpa menyeret browser. Akibatnya
+# kesalahan aritmetika terlihat sebagai "animasi aneh", bukan sebagai angka
+# yang salah di baris tertentu.
+#
+# Semua fungsi di sini murni: masukan sama, keluaran sama.
+
+
+export def clamp(v, lo, hi):
+    if v < lo:
+        return lo
+    if v > hi:
+        return hi
+    return v
+
+
+export def lerp(a, b, t):
+    return a + (b - a) * t
+
+
+def _ease(name, t):
+    # Empat kurva saja, dan sengaja bukan cubic-bezier penuh: yang dibutuhkan
+    # animasi kartu hanya "mulai pelan", "berhenti pelan", atau keduanya.
+    x = clamp(t, 0, 1)
+    if name == "in":
+        return x * x
+    if name == "out":
+        return 1 - (1 - x) * (1 - x)
+    if name == "in-out":
+        if x < 0.5:
+            return 2 * x * x
+        return 1 - 2 * (1 - x) * (1 - x)
+    return x
+
+
+export def ease(name, t):
+    return _ease(name, t)
+
+
+export def local(p, start, end):
+    # Progres lokal untuk satu rentang.
+    #
+    # Sebuah track tidak selalu bergerak sepanjang 0..1: kartu ketiga mungkin
+    # baru mulai setelah progres 0.6. Fungsi ini memetakan progres global ke
+    # posisi 0..1 DI DALAM rentang itu.
+    if end <= start:
+        if p >= start:
+            return 1.0
+        return 0.0
+    return clamp((p - start) / (end - start), 0, 1)
+
+
+export def value_at(keyframes, p, prop, fallback=0):
+    # Nilai satu properti pada progres p.
+    #
+    # Keyframe TIDAK harus berurutan di masukan -- diurutkan di sini, karena
+    # data yang tidak urut adalah kesalahan yang mudah terjadi dan hasilnya
+    # animasi yang melompat tanpa penjelasan.
+    if not keyframes or len(keyframes) == 0:
+        return fallback
+
+    urut = sorted(keyframes, key=lambda k: k["at"])
+
+    # Keyframe yang tidak menyebut properti ini TIDAK dianggap bernilai
+    # `fallback`. Kalau begitu, {at:0} (tanpa x) bercampur dengan {at:1,x:10}
+    # akan menghasilkan 8.5 di tengah -- interpolasi antara "nilai bawaan" dan
+    # 10, padahal tidak ada satu pun keyframe yang menyebut x di awal.
+    #
+    # Yang benar: cari keyframe TERDEKAT yang benar-benar punya properti ini.
+    # Kalau tidak ada sama sekali, barulah `fallback` dipakai.
+    punya = []
+    for k in urut:
+        if prop in k and k[prop] != None:
+            punya.append(k)
+
+    if len(punya) == 0:
+        return fallback
+    if len(punya) == 1:
+        return punya[0][prop]
+
+    f = punya[0]
+    l = punya[len(punya) - 1]
+    if p <= f["at"]:
+        return f[prop]
+    if p >= l["at"]:
+        return l[prop]
+
+    for i in range(1, len(punya)):
+        a = punya[i - 1]
+        b = punya[i]
+        if p <= b["at"]:
+            t = local(p, a["at"], b["at"])
+            return lerp(a[prop], b[prop], t)
+    return fallback
+
+
+export def track_offset(card_count, gap, progress):
+    # Jarak tempuh induk pada progres p.
+    #
+    # Ini model dari sumbernya (Alight Motion): SATU induk bergeser, kartu
+    # menempel padanya dengan jarak tetap. Jadi yang dihitung bukan posisi tiap
+    # kartu, melainkan satu angka.
+    #
+    # Pada p = 1 hasilnya negatif sebesar jarak x (jumlah-1), yang membuat
+    # kartu TERAKHIR tepat di tengah -- itu syarat yang diminta.
+    if card_count <= 1:
+        return 0.0
+    total = gap * (card_count - 1)
+    return -total * clamp(progress, 0, 1)
+
+
+export def card_centers(card_count, container_width, card_width, gap_ratio, progress):
+    # Posisi tengah tiap kartu di koordinat wadah, untuk progres p.
+    #
+    # Dipakai untuk memutuskan kartu mana yang perlu dilukis, dan untuk
+    # memeriksa apakah kartu pertama dan terakhir benar-benar berhenti di
+    # tengah.
+    gap = card_width * (1 + gap_ratio)
+    offset = track_offset(card_count, gap, progress)
+    mulai = container_width / 2
+    out = []
+    for i in range(card_count):
+        out.append(mulai + i * gap + offset)
+    return out
+
+
+export def normalize_wheel(delta_y, delta_mode, line_height=16, viewport_height=800):
+    # Normalisasi delta roda.
+    #
+    # `delta_mode` menentukan satuan: piksel, baris, atau halaman. Memakai
+    # `deltaY` mentah tanpa memeriksanya membuat satu kali scroll di Firefox
+    # (baris) jauh lebih kecil daripada di Chrome (piksel) -- animasi terasa
+    # sepuluh kali lebih lambat di satu browser.
+    if delta_mode == 1:
+        return delta_y * line_height
+    if delta_mode == 2:
+        return delta_y * viewport_height
+    return delta_y
+
+
+export def step_spring(x, v, tx, dt, k=700.0, redaman=52.915):
+    # Peredam berbasis pegas: menyimpan momentum, bukan hanya posisi.
+    #
+    # Ini yang menjawab "energi sisa scroll". Peredam berbasis posisi saja tidak
+    # punya inersia: begitu target berhenti bergerak, ia langsung mengerem.
+    # Dengan kecepatan sebagai state, kartu bisa terus melaju sebentar setelah
+    # scroll berhenti, lalu melambat karena redaman -- persis seperti benda
+    # yang punya massa.
+    #
+    # ## Kenapa diselesaikan secara analitik, bukan langkah Euler
+    #
+    # Versi sebelumnya mengintegrasikan eksplisit:
+    #
+    #     a  = k*(target - x) - c*v
+    #     v += a*dt
+    #     x += v*dt
+    #
+    # Skema itu punya batas stabilitas. Dengan k=700 dan c=52.9, satu langkah
+    # dengan dt >= ~0.05 sudah menghasilkan x = 1.75 untuk target 1 (overshoot
+    # 75%), dan pada dt 0.064 hasilnya 2.87. Kalau dibiarkan berulang, nilainya
+    # tumbuh tanpa batas:
+    #
+    #     60fps -> stabil, 29 frame
+    #     30fps -> x = -2.3e+147   (meledak)
+    #     15fps -> NaN
+    #      5fps -> NaN
+    #
+    # Di desktop, satu frame yang terlewat (GC, decode gambar, komposit ulang)
+    # cukup untuk masuk ke wilayah tidak stabil itu. Nilainya lalu melompat ke
+    # ujung skala dan kartu terlihat meloncat lalu berkedip. Di mobile framenya
+    # lebih ringan sehingga jarang melewati ambang -- itu sebabnya gejalanya
+    # hanya muncul di desktop.
+    #
+    # Di sini gerakannya diselesaikan sebagai bentuk tertutup dari persamaan
+    # osilator teredam, jadi hasilnya benar untuk dt berapa pun:
+    #
+    #     x(t) = target + e^(-a*t) * ( d0*cos(w*t) + ((v0+a*d0)/w)*sin(w*t) )
+    #
+    # Tidak ada akumulasi galat, tidak ada batas dt, dan tidak mungkin meledak.
+    if not (dt > 0):
+        return {"x": x, "v": v}
+
+    # Satu frame yang sangat panjang (tab kembali aktif) dipotong: bukan karena
+    # rumusnya tidak stabil, tapi karena melompat beberapa detik sekaligus tidak
+    # pernah jadi gerakan yang masuk akal untuk dilihat.
+    t = dt
+    if t > 0.25:
+        t = 0.25
+
+    d0 = x - tx
+    a = redaman / 2
+    w2 = k - a * a
+
+    nd = 0.0
+    nv = 0.0
+
+    # Ambangnya harus jauh di atas 1e-9: pada k=700 dan c=52.915 (redaman
+    # kritis), w2 = 0.0007 -- nilai yang lolos ambang kecil tapi membuat
+    # sin(w*t)/w membagi dengan angka nyaris nol. Itu yang meledak.
+    # Di bawah ambang ini rumus redaman kritis dipakai, dan hasilnya sama saja
+    # secara matematis karena keduanya bertemu di titik itu.
+    if w2 > 0.001:
+        # Kurang teredam: osilasi teredam.
+        w = Math.sqrt(w2)
+        e = Math.exp(-a * t)
+        c = Math.cos(w * t)
+        sn = Math.sin(w * t)
+        nd = e * (d0 * c + ((v + a * d0) / w) * sn)
+        nv = e * ((v + a * d0) * c - (d0 * w + (a * (v + a * d0)) / w) * sn)
+    elif w2 < -0.001:
+        # Terlalu teredam: dua akar nyata, tanpa osilasi.
+        r = Math.sqrt(-w2)
+        e1 = Math.exp((-a + r) * t)
+        e2 = Math.exp((-a - r) * t)
+        c1 = (v + (a + r) * d0) / (2 * r)
+        c2 = d0 - c1
+        nd = c1 * e1 + c2 * e2
+        nv = c1 * (-a + r) * e1 + c2 * (-a - r) * e2
+    else:
+        # Redaman kritis: (C1 + C2*t) * e^(-a*t)
+        e = Math.exp(-a * t)
+        c1 = d0
+        c2 = v + a * d0
+        nd = (c1 + c2 * t) * e
+        nv = (c2 - a * (c1 + c2 * t)) * e
+
+    nx = tx + nd
+
+    # Nilai tidak berhingga tidak mungkin lolos dari rumus di atas, tapi kalau
+    # terjadi (mis. parameter diubah jadi tidak masuk akal), lebih baik berhenti
+    # di target daripada menulis NaN ke transform.
+    if not _finite(nx) or not _finite(nv):
+        return {"x": tx, "v": 0.0}
+
+    # Berhenti bersih kalau sudah sangat dekat dan sangat lambat, supaya loop
+    # tidak berjalan selamanya untuk sisa yang tak terlihat.
+    if abs(tx - nx) < 0.0002 and abs(nv) < 0.002:
+        return {"x": tx, "v": 0.0}
+    return {"x": nx, "v": nv}
+
+
+def _finite(n):
+    # `Number.isFinite` untuk membuang NaN dan Infinity.
+    try:
+        if n != n:
+            return False
+        if n == float("inf") or n == float("-inf"):
+            return False
+        return True
+    except:
+        return True
