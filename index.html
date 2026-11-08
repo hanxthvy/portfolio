@@ -80,57 +80,70 @@
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!--
-      `media="print"` + `onload` is the standard way to load a stylesheet without
-      blocking the first paint. A plain  to a third-party
-      origin means the browser waits for fonts.googleapis.com before it paints
-      anything — on a slow or filtered connection that is a blank page, and the
-      page's own CSS is already enough to lay out the splash.
-    -->
-    <!--
-      Font adalah enhancement, bukan syarat paint.
+      Font di-host sendiri.
 
-      Tiga hal yang dijaga di sini, semuanya terukur:
+      Sebelumnya Inter dan JetBrains Mono dimuat dari fonts.googleapis.com:
+      satu request CSS ke origin lain, lalu dua request woff2 ke
+      fonts.gstatic.com. Terukur di PageSpeed: dua stylesheet pihak ketiga
+      (31 KB dan 47 KB) plus satu request CSS 1.2 KB, semuanya baru diketahui
+      setelah CSS Google diunduh.
 
-      1. `media="print"` + `onload` supaya stylesheet pihak ketiga tidak
-         memblokir first paint. Halaman sudah punya CSS sendiri yang cukup
-         untuk menata splash.
-      2. `crossorigin` wajib. Tanpa itu browser memakai mode no-cors dan file
-         font dari fonts.gstatic.com ditolak, sehingga `document.fonts.ready`
-         tidak pernah settle — dan splash serta animasi nama ikut menggantung.
-      3. `onerror` mengembalikan media ke `all`: kalau CDN diblokir, teks tetap
-         memakai font stack sistem dan halaman tidak menunggu apa pun.
+      Sekarang: satu file CSS 1.8 KB di origin sendiri, dan dua file woff2
+      (48 KB + 31 KB) yang bisa di-preload karena URL-nya sudah diketahui saat
+      build. Tidak ada koneksi ke origin ketiga sama sekali.
+
+      `font-display: swap` tetap dipakai: teks langsung tampil dengan font
+      sistem, lalu berganti. Tidak ada teks yang tak terlihat.
     -->
     <link
-      id="font-css"
       rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      as="font"
+      type="font/woff2"
+      href="/fonts/inter-latin.woff2"
       crossorigin
     />
-    <script>
-      // Font diterapkan setelah selesai diunduh, jadi tidak pernah memblokir
-      // render. `preload` membuat unduhannya tetap dimulai lebih awal.
-      (function () {
-        var l = document.getElementById("font-css");
-        if (!l) return;
-        var apply = function () {
-          l.rel = "stylesheet";
-        };
-        if (l.sheet) return apply();
-        l.addEventListener("load", apply, { once: true });
-        // Kalau CDN lambat atau diblokir, jangan tunggu: pakai font sistem.
-        setTimeout(apply, 3000);
-      })();
-    </script>
-    <noscript>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet"
-      />
-    </noscript>
+    <style id="font-face">@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
     <script>
       (function() {
         try {
