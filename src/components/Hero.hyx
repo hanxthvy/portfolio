@@ -102,20 +102,6 @@ component Hero(className=""):
                     decoding="async",
                     fetchPriority="high",
                 )
-        #
-        # Sebelumnya di sini ada GradientWaves (shader raymarching WebGL2, dua
-        # kanvas, render loop kontinu). Bebannya terukur: TBT 3.3-5.8 detik,
-        # task tunggal sampai 2.1 detik, FCP 4.7-5.0 detik pada CPU 4x lebih
-        # lambat -- cukup berat sampai Lighthouse kehabisan waktu dan melapor
-        # DEADLINE_EXCEEDED di Search Console.
-        #
-        # Warna diambil dari token situs (--color-canvas), bukan nilai mentah,
-        # supaya ikut tema kalau tokennya berubah.
-        div(
-            className="absolute inset-0 w-full h-full -z-10 pointer-events-none",
-            style={"background": "var(--color-canvas, #141413)"},
-            aria_hidden=True,
-        )
 
         div(className="w-full h-full flex flex-col justify-center items-center gap-3 sm:gap-5 relative z-10 pointer-events-none"):
             div(

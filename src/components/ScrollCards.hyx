@@ -1,0 +1,247 @@
+# [xihanzu-NR]
+from "react" import useEffect, useRef
+from "../utils/timeline" import clamp, trackOffset
+
+# Deretan kartu horizontal yang digerakkan scroll.
+#
+# Pendekatannya mengikuti pola "track + sticky", bukan mengunci scroll dengan
+# `position: fixed`.
+#
+# Kenapa berubah: tiga usaha sebelumnya memakai `position: fixed` pada body dan
+# semuanya gagal di tahap yang sama -- listener tidak pernah terpasang, atau
+# terkunci di posisi yang salah, atau halaman melompat. Yang terakhir terukur:
+# nol listener wheel, sehingga seluruh mesin input diam tanpa pesan apa pun.
+#
+# Pola sticky tidak punya masalah itu karena tidak ada yang dikunci:
+#
+#   - Track dibuat LEBIH TINGGI dari stage. Selisihnya adalah "bahan bakar"
+#     scroll untuk animasi.
+#   - Stage `position: sticky; top: 0`, jadi ia menempel selama track lewat.
+#   - Progres = seberapa jauh track sudah terlewati, dibagi tinggi ekstranya.
+#
+# Scroll tetap milik browser. Tidak ada `preventDefault`, tidak ada
+# `overscroll-behavior`, tidak ada risiko halaman macet kalau ada yang gagal.
+# Animasi tetap terasa "terkunci" karena stage tidak bergerak selama track
+# bergulir.
+#
+# Satu-satunya listener adalah `scroll` pasif yang membaca satu angka.
+
+KARTU_LEBAR = 0.90
+CELAH = 0.12
+FOTO_TINGGI = 0.486
+FOTO_KELUAR = 0.257
+
+# Berapa kali tinggi stage dipakai sebagai bahan bakar animasi.
+# 1.2 berarti animasi menghabiskan 120% tinggi layar tambahan sebelum selesai.
+JARAK_SCROLL = 1.2
+
+
+component ScrollCards(items=None, on_open=None):
+    if items == None:
+        items = []
+
+    stage_ref = useRef(None)
+    track_ref = useRef(None)
+    baris_ref = useRef(None)
+
+    def on_mount():
+        stage = stage_ref.current
+        track = track_ref.current
+        baris = baris_ref.current
+        if not stage or not track or not baris:
+            return lambda: None
+
+        try:
+            if window.matchMedia("(prefers-reduced-motion: reduce)").matches:
+                # Tanpa animasi: kartu ditata sekali, track tidak diberi tinggi
+                # ekstra, jadi scroll tidak terasa aneh di section ini.
+                track.style.height = "auto"
+                return lambda: None
+        except:
+            pass
+
+        st = {"p": -1.0, "raf": 0}
+
+        def tinggi_header():
+            # Tinggi header diukur dari elemennya, bukan ditebak dari angka.
+            #
+            # Header-nya `fixed`, jadi ia menutupi bagian atas viewport. Kalau
+            # stage memakai `innerHeight` penuh, judul section tertimpa header
+            # dan tidak pernah terlihat -- terukur pada tinggi 64px.
+            # Header di proyek ini adalah `<div>` dengan `position: fixed`,
+            # BUKAN `<header>` atau `<nav>`.
+            #
+            # Percobaan pertama mencari `document.querySelector("header")`
+            # lebih dulu. Elemen itu ADA (dan `offsetHeight`-nya 0 karena kosong
+            # atau tersembunyi), sehingga pencarian cadangan tidak pernah
+            # dijalankan -- hasilnya tinggi header dianggap 0 dan stage tetap
+            # setinggi viewport penuh. Terukur: stage 900px, header 65px, jadi
+            # 65px atas tertimpa.
+            #
+            # Yang dipakai: ukur SEMUA kandidat, ambil yang tingginya masuk akal.
+            try:
+                for el in document.querySelectorAll("header, nav, div"):
+                    cs = window.getComputedStyle(el)
+                    if cs.position != "fixed" or cs.top != "0px":
+                        continue
+                    h = el.offsetHeight or 0
+                    # 40..140: cukup tinggi untuk header, cukup rendah untuk
+                    # bukan panel atau overlay layar penuh.
+                    if h > 40 and h < 140:
+                        return h
+            except:
+                pass
+            return 0
+
+        def ukur():
+            vh = window.innerHeight or 800
+            tinggi = vh - tinggi_header()
+            # Stage setinggi viewport DIKURANGI header, dan ditempel di bawah
+            # header (`top: header`), bukan di 0.
+            stage.style.height = f"{tinggi}px"
+            stage.style.top = f"{tinggi_header()}px"
+            track.style.height = f"{tinggi * (1 + JARAK_SCROLL)}px"
+
+        def posisi(p):
+            # Hanya tulis kalau berubah cukup besar. Menulis transform di setiap
+            # event scroll tanpa ambang membuat browser menghitung ulang gaya
+            # pada puluhan event per detik untuk nilai yang sama.
+            if abs(p - st["p"]) < 0.0005:
+                return
+            st["p"] = p
+
+            wadah = baris.clientWidth
+            layar = window.innerWidth or wadah
+            kw = layar * KARTU_LEBAR
+            # Kartu tidak boleh lebih lebar dari wadahnya, kalau tidak sisi
+            # kanannya dipotong `overflow: hidden` berapa pun posisinya.
+            if kw > wadah:
+                kw = wadah
+            jarak = kw * (1 + CELAH)
+            geser = trackOffset(len(items), jarak, p)
+            baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
+            for i in range(len(baris.children)):
+                el = baris.children[i]
+                el.style.width = f"{kw:.2f}px"
+                el.style.left = f"{(wadah - kw) / 2 + i * jarak:.2f}px"
+
+        def baca():
+            # Progres = seberapa jauh track sudah lewat, dibagi tinggi ekstra.
+            #
+            # `getBoundingClientRect().top` negatif ketika track mulai lewat.
+            # Dibagi `vh * JARAK_SCROLL` supaya 0 di awal dan 1 tepat ketika
+            # sisa scrollnya habis.
+            vh = window.innerHeight or 800
+            span = vh * JARAK_SCROLL
+            if span <= 0:
+                return 1.0
+            top = track.getBoundingClientRect().top
+            return clamp(-top / span, 0.0, 1.0)
+
+        def on_scroll(_=None):
+            if st["raf"]:
+                return
+            raf = window.requestAnimationFrame
+
+            def kerja(_=None):
+                st["raf"] = 0
+                posisi(baca())
+
+            if raf:
+                st["raf"] = raf(kerja)
+            else:
+                kerja()
+
+        def on_resize(_=None):
+            ukur()
+            posisi(baca())
+
+        ukur()
+        posisi(baca())
+        window.addEventListener("scroll", on_scroll, {"passive": True})
+        window.addEventListener("resize", on_resize, {"passive": True})
+
+        def cleanup():
+            window.removeEventListener("scroll", on_scroll)
+            window.removeEventListener("resize", on_resize)
+            if st["raf"]:
+                window.cancelAnimationFrame(st["raf"])
+        return cleanup
+
+    useEffect(on_mount, [])
+
+    # Track (tinggi, tempat scroll berjalan) membungkus stage (menempel).
+    div(className="relative w-full"):
+        div(ref=track_ref, className="relative w-full"):
+            # Stage: judul di atas, deretan kartu memakai sisa tingginya.
+            #
+            # Sebelumnya stage hanya berisi kartu, jadi selama animasi berjalan
+            # satu viewport penuh terisi kartu saja tanpa konteks -- pengunjung
+            # tidak tahu sedang melihat bagian apa. Judul ikut ditempel karena
+            # ia ada di dalam stage yang sama.
+            div(
+                ref=stage_ref,
+                className="sticky top-0 w-full overflow-hidden flex flex-col",
+            ):
+                # Judul section. Tingginya tetap (`shrink-0`) supaya kartu yang
+                # menyesuaikan, bukan judulnya.
+                div(className="shrink-0 pt-20 pb-4 px-6 max-w-[1200px] w-full mx-auto"):
+                    span(className="text-[10px] sm:text-[11px] font-mono tracking-[0.88px] uppercase text-[#a9583e] block mb-2"):
+                        "// ARSIP & KREDENSIAL"
+                    h2(className="text-[24px] sm:text-[32px] font-semibold leading-[1.2] text-[#26251e]"):
+                        "Dokumentasi & Sertifikasi"
+                    p(className="text-[13px] sm:text-[15px] text-[#5a5852] leading-[1.5] mt-2 max-w-2xl"):
+                        "Kredensial resmi, homelab, dan hasil oprek perangkat yang pernah saya kerjakan."
+
+                # Sisa tinggi setelah judul. `min-h-0` wajib: tanpa itu flex
+                # item menolak menyusut dan kartu meluber keluar stage.
+                div(className="flex-1 min-h-0 w-full flex items-center justify-center pb-4"):
+                    div(
+                        ref=baris_ref,
+                        className="relative w-full will-change-transform",
+                        style={"height": "62%", "transform": "translate3d(0,0,0)"},
+                    ):
+                        for i in range(len(items)):
+                            div(
+                                key=items[i]["id"],
+                                className="absolute top-1/2 -translate-y-1/2",
+                                style={"height": "100%"},
+                            ):
+                                div(
+                                    className="relative h-full flex flex-col cursor-pointer",
+                                    onClick=lambda it=items[i]: (on_open(it) if (on_open != None and it["image"] != None) else None),
+                                ):
+                                    div(
+                                        className="relative w-full flex-1 rounded-[14px] border border-[#e6e5e0] bg-white shadow-sm",
+                                        style={"marginTop": f"{FOTO_KELUAR * 100:.1f}%"},
+                                    ):
+                                        div(
+                                            className="absolute left-0 right-0 overflow-hidden rounded-[10px] bg-[#fafaf7] border border-[#e6e5e0]",
+                                            style={
+                                                "top": f"{-FOTO_KELUAR * 100:.1f}%",
+                                                "height": f"{FOTO_TINGGI * 100:.1f}%",
+                                            },
+                                        ):
+                                            if items[i]["image"] != None:
+                                                img(
+                                                    src=items[i]["image"],
+                                                    alt=items[i]["title"],
+                                                    loading="lazy",
+                                                    decoding="async",
+                                                    className="w-full h-full object-cover",
+                                                )
+                                            else:
+                                                div(className="w-full h-full flex items-center justify-center px-4 text-center"):
+                                                    span(className="text-[10px] font-mono text-[#6c6a64] leading-relaxed"):
+                                                        "// FOTOGRAFI TIDAK DIIZINKAN"
+
+                                        div(
+                                            className="absolute left-0 right-0 bottom-0 p-5 sm:p-6 flex flex-col",
+                                            style={"top": f"{(FOTO_TINGGI - FOTO_KELUAR) * 100:.1f}%"},
+                                        ):
+                                            span(className="text-[10px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2"):
+                                                items[i]["category"]
+                                            h3(className="text-[15px] sm:text-[18px] font-semibold leading-[1.3] text-[#26251e] mb-2"):
+                                                items[i]["title"]
+                                            p(className="text-[11px] sm:text-[13px] font-normal leading-[1.55] text-[#5a5852]"):
+                                                items[i]["description"]
