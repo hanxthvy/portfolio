@@ -66,7 +66,11 @@ component Evidence():
 
     # Section mengalir normal. Tinggi dan "penguncian" diurus ScrollCards
     # lewat track + sticky, bukan oleh section.
-    section(id="evidence", className="w-full px-6 border-t border-[#e6e5e0] text-left"):
+    # Tanpa `px-6` di sini. Padding horizontal di section memotong 24px di
+    # tiap sisi, sehingga stage kartu hanya 1386px dari 1434px yang tersedia;
+    # kartu yang bergerak lalu terlihat "tertelan" tepi gelap di kiri dan
+    # kanan. Padding teks diberikan di dalam, bukan di wadah yang bergerak.
+    section(id="evidence", className="w-full border-t border-[#e6e5e0] text-left"):
         # Header TIDAK ditaruh di sini.
         #
         # ScrollCards menaruh judulnya sendiri di dalam stage yang menempel, dan
