@@ -45,10 +45,14 @@ JARAK_SCROLL = 1.2
 # kecepatan yang harus dibuang sedikit demi sedikit. Hasilnya kartu terus
 # melaju sebentar setelah scroll berhenti, lalu melambat karena redaman.
 #
-# k=200, redaman=2*sqrt(200)=28.284 (redaman kritis). Terukur: seluruh rentang
-# ditempuh ~0.95 s pada 60fps, tanpa overshoot, berhenti bersih.
-PEGAS_K = 200.0
-PEGAS_REDAMAN = 28.284
+# k=700, redaman=2*sqrt(700)=52.915 (redaman kritis). Terukur: seluruh rentang
+# ditempuh ~0.60 s pada 60fps, tanpa overshoot, berhenti bersih.
+#
+# Versi pertama memakai k=200 (0.95 s) dan terasa terlalu mengambang -- kartu
+# masih melaju jauh setelah jari berhenti. Pegas yang lebih kaku mengikuti jari
+# lebih rapat, jadi efek "melayang"-nya berkurang.
+PEGAS_K = 700.0
+PEGAS_REDAMAN = 52.915
 
 # Seberapa awal animasi sudah berjalan SEBELUM stage menempel.
 #

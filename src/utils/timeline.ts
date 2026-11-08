@@ -182,10 +182,10 @@ export function stepSpring(
   v: number,
   tx: number,
   dt: number,
-  k = 200,
-  redaman = 28.284,
-  // ^ k=200 dengan redaman 2*sqrt(200) = redaman kritis: seluruh rentang
-  //   ditempuh ~0.95 s pada 60fps, tanpa overshoot. Diukur, bukan ditebak.
+  k = 700,
+  redaman = 52.915,
+  // ^ k=700 dengan redaman 2*sqrt(700) = redaman kritis: seluruh rentang
+  //   ditempuh ~0.60 s pada 60fps, tanpa overshoot. Diukur, bukan ditebak.
 ): { x: number; v: number } {
   if (!(dt > 0)) return { x, v };
   const d = dt > 0.064 ? 0.064 : dt;
