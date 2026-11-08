@@ -1,0 +1,26 @@
+# Reyhan Akhtar Afriansyah — Portofolio
+
+Developer yang mengerjakan web, server, dan otomasi. Situs ini memuat proyek,
+pengalaman, dan kredensial.
+
+## Halaman utama
+
+- [Beranda](https://hanxthvy.my.id/): profil, proyek, pengalaman, dan sertifikasi
+- [Proyek](https://hanxthvy.my.id/#projects): daftar proyek yang pernah dikerjakan
+- [Pengalaman](https://hanxthvy.my.id/#experience): riwayat kerja dan magang
+- [Dokumentasi & Sertifikasi](https://hanxthvy.my.id/#evidence): kredensial dan
+  dokumentasi teknis
+- [Kontak](https://hanxthvy.my.id/#contact): cara menghubungi
+
+## Proyek
+
+- [HydraScript](https://github.com/hanxthvy/hydrascript): compiler dan
+  meta-framework berbasis Python-like syntax yang menghasilkan React, dengan
+  SSG, SSR, dan dukungan TypeScript.
+- [VyHost](https://vy-host.my.id): panel hosting dan store.
+
+## Catatan penggunaan
+
+Isi situs ini adalah portofolio pribadi. Silakan merujuk atau mengutip dengan
+atribusi. Untuk penggunaan data dalam pelatihan model, hubungi pemilik situs
+lebih dulu lewat halaman kontak.

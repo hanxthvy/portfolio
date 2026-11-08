@@ -46,7 +46,7 @@ component TechStack():
                         div(className="flex items-center gap-2.5"):
                             span(className="text-xs font-mono text-[#a9583e] font-semibold select-none"):
                                 cat["index"]
-                            h3(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
+                            h2(className="text-lg sm:text-[20px] font-semibold tracking-[-0.3px] text-[#26251e] group-hover:text-[#a9583e] transition-colors"):
                                 cat["category"]
                         p(className="text-xs font-normal text-[#5a5852] leading-relaxed max-w-sm pt-0.5"):
                             cat["description"]

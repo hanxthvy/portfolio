@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Agent-Recognition/ai-catalog/main/schema.json",
+  "version": "1.0",
+  "publisher": {
+    "name": "Reyhan Akhtar Afriansyah",
+    "url": "https://hanxthvy.my.id/"
+  },
+  "resources": [
+    {
+      "id": "portfolio",
+      "type": "website",
+      "name": "Reyhan Akhtar Afriansyah — Portofolio",
+      "description": "Portofolio pribadi: proyek, pengalaman kerja, dan kredensial teknis.",
+      "url": "https://hanxthvy.my.id/",
+      "documentation": "https://hanxthvy.my.id/llms.txt"
+    },
+    {
+      "id": "hydrascript",
+      "type": "software",
+      "name": "HydraScript",
+      "description": "Compiler dan meta-framework dengan sintaks mirip Python yang menghasilkan React, mendukung SSG, SSR, dan TypeScript.",
+      "url": "https://github.com/hanxthvy/hydrascript"
+    }
+  ]
+}

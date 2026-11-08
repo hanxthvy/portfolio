@@ -104,35 +104,29 @@ component ScrollCards(items=None, on_open=None):
         loop = {"id": 0}
 
         def tinggi_header():
-            # Tinggi header diukur dari elemennya, bukan ditebak dari angka.
+            # Tinggi header diukur sekali, bukan ditebak dari angka.
             #
-            # Header-nya `fixed`, jadi ia menutupi bagian atas viewport. Kalau
-            # stage memakai `innerHeight` penuh, judul section tertimpa header
-            # dan tidak pernah terlihat -- terukur pada tinggi 64px.
-            # Header di proyek ini adalah `<div>` dengan `position: fixed`,
-            # BUKAN `<header>` atau `<nav>`.
+            # Versi sebelumnya menelusuri `document.querySelectorAll("header,
+            # nav, div")` lalu memanggil `getComputedStyle` dan `offsetHeight`
+            # untuk SETIAP elemen di halaman. Itu ratusan pembacaan layout
+            # berturut-turut, dan karena `ukur()` juga menulis style sebelum
+            # ini, hasilnya paksa-layout berulang.
             #
-            # Percobaan pertama mencari `document.querySelector("header")`
-            # lebih dulu. Elemen itu ADA (dan `offsetHeight`-nya 0 karena kosong
-            # atau tersembunyi), sehingga pencarian cadangan tidak pernah
-            # dijalankan -- hasilnya tinggi header dianggap 0 dan stage tetap
-            # setinggi viewport penuh. Terukur: stage 900px, header 65px, jadi
-            # 65px atas tertimpa.
+            # Terukur di PageSpeed: "Ubah posisi/geometri yang dipaksa"
+            # 91 md di /assets/index-*.js -- dan itu hanya bagian yang
+            # dilaporkan.
             #
-            # Yang dipakai: ukur SEMUA kandidat, ambil yang tingginya masuk akal.
-            try:
-                for el in document.querySelectorAll("header, nav, div"):
-                    cs = window.getComputedStyle(el)
-                    if cs.position != "fixed" or cs.top != "0px":
-                        continue
-                    h = el.offsetHeight or 0
-                    # 40..140: cukup tinggi untuk header, cukup rendah untuk
-                    # bukan panel atau overlay layar penuh.
-                    if h > 40 and h < 140:
-                        return h
-            except:
-                pass
-            return 0
+            # Sekarang: satu query ke selektor yang spesifik, satu pembacaan.
+            # `[data-site-header]` dipasang di Navbar, jadi tidak perlu
+            # menebak dari `position: fixed`.
+            el = document.querySelector("[data-site-header]")
+            if el:
+                h = el.offsetHeight or 0
+                if h > 0:
+                    return h
+            # Cadangan kalau atributnya belum ada: satu elemen fixed di atas,
+            # bukan seluruh dokumen.
+            return 64
 
         def tulis_kartu():
             # Ukuran kartu HANYA dihitung ulang saat ukuran wadah berubah.
@@ -460,39 +454,42 @@ component ScrollCards(items=None, on_open=None):
                                             style={},
                                         ):
                                             if items[i]["image"] != None:
-                                                # TANPA `loading="lazy"`.
+                                                # `loading` DEFAULT, bukan
+                                                # `lazy` dan bukan `eager`.
                                                 #
-                                                # Lazy loading memutuskan kapan
-                                                # memuat berdasarkan posisi
-                                                # elemen di LAYOUT. Di sini
-                                                # gambar berada di dalam wadah
-                                                # yang digeser `transform`, dan
-                                                # transform tidak mengubah
-                                                # layout -- jadi browser
-                                                # menganggap semua kartu masih
-                                                # di tempat asalnya. Akibatnya
-                                                # gambar baru dimuat ketika
-                                                # kartunya sudah tampil, dan
-                                                # yang terlihat adalah kotak
-                                                # kosong lalu gambar muncul
-                                                # mendadak: persis "blinking".
+                                                # Keduanya pernah dicoba dan
+                                                # dua-duanya salah:
                                                 #
-                                                # Terukur: ketiga gambar
-                                                # `complete: false`,
-                                                # `naturalWidth: 0` saat
-                                                # animasi mulai.
+                                                # `lazy` -- keputusan muat
+                                                # diambil dari posisi di LAYOUT,
+                                                # sementara kartu digeser
+                                                # `transform` yang tidak
+                                                # mengubah layout. Jadi browser
+                                                # mengira kartu masih di luar
+                                                # layar, gambar baru dimuat saat
+                                                # kartu sudah tampil, dan
+                                                # hasilnya kotak kosong lalu
+                                                # gambar muncul: kedipan.
                                                 #
-                                                # `decoding="sync"` juga
-                                                # disengaja: `async` berarti
-                                                # gambar boleh tampil setelah
-                                                # decode selesai, dan pada
-                                                # layer yang bergerak itu
-                                                # terlihat sebagai kedipan.
+                                                # `eager` -- benar untuk kartu,
+                                                # salah untuk LCP. Terukur di
+                                                # PageSpeed throttle: tiga
+                                                # gambar 150/136/93 KB berebut
+                                                # bandwidth dengan hero, dan
+                                                # ketiganya di luar viewport.
+                                                #
+                                                # Tanpa atribut, browser memakai
+                                                # prioritas rendah untuk gambar
+                                                # di luar viewport tapi tetap
+                                                # memuatnya lebih awal daripada
+                                                # `lazy` -- cukup untuk
+                                                # mengantisipasi geseran
+                                                # transform, tanpa merebut
+                                                # bandwidth dari LCP.
                                                 img(
                                                     src=items[i]["image"],
                                                     alt=items[i]["title"],
-                                                    loading="eager",
-                                                    decoding="sync",
+                                                    decoding="async",
                                                     className="w-full h-full object-cover",
                                                 )
                                             else:

@@ -84,7 +84,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!--
       `media="print"` + `onload` is the standard way to load a stylesheet without
-      blocking the first paint. A plain <link rel="stylesheet"> to a third-party
+      blocking the first paint. A plain  to a third-party
       origin means the browser waits for fonts.googleapis.com before it paints
       anything — on a slow or filtered connection that is a blank page, and the
       page's own CSS is already enough to lay out the splash.
@@ -105,12 +105,26 @@
     -->
     <link
       id="font-css"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
-      onerror="this.media='all';this.dataset.failed='1'"
+      crossorigin
     />
+    <script>
+      // Font diterapkan setelah selesai diunduh, jadi tidak pernah memblokir
+      // render. `preload` membuat unduhannya tetap dimulai lebih awal.
+      (function () {
+        var l = document.getElementById("font-css");
+        if (!l) return;
+        var apply = function () {
+          l.rel = "stylesheet";
+        };
+        if (l.sheet) return apply();
+        l.addEventListener("load", apply, { once: true });
+        // Kalau CDN lambat atau diblokir, jangan tunggu: pakai font sistem.
+        setTimeout(apply, 3000);
+      })();
+    </script>
     <noscript>
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"

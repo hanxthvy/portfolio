@@ -185,6 +185,7 @@ component Navbar():
         div(
             ref=shell_ref,
             className="fixed top-0 left-0 right-0 z-40 bg-[#f7f7f4]/95 backdrop-blur-md border-b border-[#e6e5e0] shadow-sm select-none will-change-transform",
+            data_site_header="1",
             style={
                 "transform": "translate3d(0, 0%, 0)" if is_visible else "translate3d(0, -130%, 0)",
                 "opacity": "1" if is_visible else "0",
