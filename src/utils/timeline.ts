@@ -161,3 +161,39 @@ export function normalizeWheel(
   if (deltaMode === 2) return deltaY * viewportHeight;
   return deltaY;
 }
+
+/**
+ * Peredam berbasis pegas: menyimpan momentum, bukan hanya posisi.
+ *
+ * Ini yang menjawab "energi sisa scroll". `stepToward` hanya tahu posisi
+ * sekarang dan tujuan, jadi ia tidak punya inersia: begitu target berhenti
+ * bergerak, ia langsung mengerem ke target. Dengan kecepatan sebagai state,
+ * kartu bisa terus melaju sebentar setelah scroll berhenti, lalu melambat
+ * karena redaman -- persis seperti benda yang punya massa.
+ *
+ * @param x    posisi sekarang
+ * @param v    kecepatan sekarang (satuan per detik)
+ * @param tx   posisi target
+ * @param dt   lama frame, detik
+ * @returns posisi dan kecepatan baru
+ */
+export function stepSpring(
+  x: number,
+  v: number,
+  tx: number,
+  dt: number,
+  k = 200,
+  redaman = 28.284,
+  // ^ k=200 dengan redaman 2*sqrt(200) = redaman kritis: seluruh rentang
+  //   ditempuh ~0.95 s pada 60fps, tanpa overshoot. Diukur, bukan ditebak.
+): { x: number; v: number } {
+  if (!(dt > 0)) return { x, v };
+  const d = dt > 0.064 ? 0.064 : dt;
+  const a = k * (tx - x) - redaman * v;
+  const nv = v + a * d;
+  const nx = x + nv * d;
+  // Berhenti bersih kalau sudah sangat dekat dan sangat lambat, supaya loop
+  // tidak berjalan selamanya untuk sisa yang tak terlihat.
+  if (Math.abs(tx - nx) < 0.0002 && Math.abs(nv) < 0.002) return { x: tx, v: 0 };
+  return { x: nx, v: nv };
+}

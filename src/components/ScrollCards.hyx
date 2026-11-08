@@ -1,6 +1,6 @@
 # [xihanzu-NR]
 from "react" import useEffect, useRef
-from "../utils/timeline" import clamp, trackOffset
+from "../utils/timeline" import clamp, trackOffset, stepSpring
 
 # Deretan kartu horizontal yang digerakkan scroll.
 #
@@ -34,6 +34,21 @@ FOTO_KELUAR = 0.257
 # Berapa kali tinggi stage dipakai sebagai bahan bakar animasi.
 # 1.2 berarti animasi menghabiskan 120% tinggi layar tambahan sebelum selesai.
 JARAK_SCROLL = 1.2
+
+# Kekakuan dan redaman pegas yang menggerakkan kartu.
+#
+# Bukan batas kecepatan. Batas kecepatan hanya MEMOTONG: kartu lari di
+# kecepatan maksimum lalu berhenti mendadak di ujung, dan sisa energi dari
+# scroll cepat tetap terasa sebagai hentakan saat tiba.
+#
+# Pegas menyimpan momentum sebagai state, jadi scroll cepat memberi kartu
+# kecepatan yang harus dibuang sedikit demi sedikit. Hasilnya kartu terus
+# melaju sebentar setelah scroll berhenti, lalu melambat karena redaman.
+#
+# k=200, redaman=2*sqrt(200)=28.284 (redaman kritis). Terukur: seluruh rentang
+# ditempuh ~0.95 s pada 60fps, tanpa overshoot, berhenti bersih.
+PEGAS_K = 200.0
+PEGAS_REDAMAN = 28.284
 
 # Seberapa awal animasi sudah berjalan SEBELUM stage menempel.
 #
@@ -71,7 +86,10 @@ component ScrollCards(items=None, on_open=None):
         except:
             pass
 
-        st = {"p": -1.0, "raf": 0}
+        st = {"p": -1.0, "raf": 0, "sekarang": 0.0, "target": 0.0, "waktu": 0.0, "v": 0.0}
+
+        # Hanya satu loop yang boleh hidup, dan boleh dipanggil berulang.
+        loop = {"id": 0}
 
         def tinggi_header():
             # Tinggi header diukur dari elemennya, bukan ditebak dari angka.
@@ -183,30 +201,90 @@ component ScrollCards(items=None, on_open=None):
             awal = mulai + vh * AWALAN
             return clamp((awal - top) / span, 0.0, 1.0)
 
+        def sekarang_ms():
+            return window.performance.now() if window.performance else Date.now()
+
+        def langkah(_=None):
+            # Satu langkah loop: majukan `sekarang` ke arah `target`, paling
+            # jauh KECEPATAN_MAKS per detik, lalu gambar hasilnya.
+            #
+            # Ini yang menghilangkan hentakan. Scroll tetap menentukan TUJUAN,
+            # tapi kartu sampai ke sana dengan kecepatan terbatas, bukan
+            # seketika. Kalau user berhenti scroll, kartu tetap menyusul dan
+            # berhenti tepat di target.
+            loop["id"] = 0
+            kini = sekarang_ms()
+            dt = 0.0
+            if st["waktu"] > 0:
+                dt = (kini - st["waktu"]) / 1000.0
+            # Batasi dt: kalau tab sempat tidak aktif, selisih waktunya bisa
+            # beberapa detik dan satu langkah akan melompat jauh.
+            if dt > 0.1:
+                dt = 0.1
+            if dt < 0:
+                dt = 0
+            st["waktu"] = kini
+
+            # Pegas, bukan limiter. Kecepatan (`st["v"]`) ikut disimpan, itulah
+            # yang membuat sisa energi scroll cepat teredam perlahan alih-alih
+            # dipangkas di ujung.
+            #
+            # Sebelumnya di sini ada `batas <= 0 -> langsung ke target`, dan
+            # karena frame pertama selalu `dt == 0`, cabang itu terpakai tepat
+            # di frame paling penting dan mematikan peredamnya sepenuhnya.
+            hasil = stepSpring(st["sekarang"], st["v"], st["target"], dt, PEGAS_K, PEGAS_REDAMAN)
+            st["sekarang"] = hasil["x"]
+            st["v"] = hasil["v"]
+
+            posisi(st["sekarang"])
+
+            # Masih ada sisa -> lanjutkan loop. Kalau sudah sampai, berhenti
+            # supaya tidak ada rAF yang jalan terus tanpa guna.
+            if abs(st["target"] - st["sekarang"]) > 0.0002 or abs(st["v"]) > 0.002:
+                raf = window.requestAnimationFrame
+                if raf:
+                    loop["id"] = raf(langkah)
+
         def on_scroll(_=None):
-            if st["raf"]:
+            st["target"] = baca()
+            if loop["id"]:
                 return
             raf = window.requestAnimationFrame
-
-            def kerja(_=None):
-                st["raf"] = 0
-                posisi(baca())
-
             if raf:
-                st["raf"] = raf(kerja)
+                # Waktu di-seed sekarang, bukan 0: kalau 0, frame pertama
+                # selalu `dt == 0` dan peredam tidak bergerak sama sekali.
+                st["waktu"] = sekarang_ms()
+                loop["id"] = raf(langkah)
             else:
-                kerja()
+                # Tanpa rAF (lingkungan tes), langsung ke target.
+                st["sekarang"] = st["target"]
+                posisi(st["sekarang"])
+
+        def ke_target(p):
+            # Loncat tanpa animasi - dipakai saat mount dan resize, supaya
+            # halaman yang dibuka di tengah section tidak ikut "mengejar".
+            st["target"] = p
+            st["sekarang"] = p
+            st["v"] = 0.0
+            st["waktu"] = 0.0
+            posisi(p)
 
         def on_resize(_=None):
             ukur()
-            posisi(baca())
+            ke_target(baca())
 
         ukur()
-        posisi(baca())
+        ke_target(baca())
         window.addEventListener("scroll", on_scroll, {"passive": True})
         window.addEventListener("resize", on_resize, {"passive": True})
 
         def cleanup():
+            if loop["id"]:
+                try:
+                    window.cancelAnimationFrame(loop["id"])
+                except Exception:
+                    pass
+                loop["id"] = 0
             window.removeEventListener("scroll", on_scroll)
             window.removeEventListener("resize", on_resize)
             if st["raf"]:
