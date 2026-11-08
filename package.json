@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.6.2",
-    "hydrascript": "^0.13.3",
+    "hydrascript": "^0.14.0",
     "postcss": "^8.5.32",
     "tailwindcss": "^3.4.19"
   }
