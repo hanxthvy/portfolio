@@ -28,6 +28,14 @@ from "../utils/timeline" import clamp, trackOffset, stepSpring
 
 KARTU_LEBAR = 0.90
 CELAH = 0.12
+# Di layar selebar ini ke atas, kartu berubah jadi dua kolom: teks di kiri,
+# foto di kanan. Di bawahnya tetap satu kolom bertumpuk, karena dua kolom di
+# layar sempit membuat teksnya terlalu sempit untuk dibaca.
+AMBANG_DUA_KOLOM = 768
+
+# Bagian lebar kartu yang dipakai foto pada tata letak dua kolom.
+FOTO_KOLOM = 0.46
+
 FOTO_TINGGI = 0.486
 FOTO_KELUAR = 0.257
 
@@ -90,7 +98,7 @@ component ScrollCards(items=None, on_open=None):
         except:
             pass
 
-        st = {"p": -1.0, "raf": 0, "sekarang": 0.0, "target": 0.0, "waktu": 0.0, "v": 0.0, "kw": 0.0, "jarak": 0.0}
+        st = {"p": -1.0, "raf": 0, "sekarang": 0.0, "target": 0.0, "waktu": 0.0, "v": 0.0, "kw": 0.0, "jarak": 0.0, "kiri": [], "wadah": 0.0, "tampil": []}
 
         # Hanya satu loop yang boleh hidup, dan boleh dipanggil berulang.
         loop = {"id": 0}
@@ -126,6 +134,48 @@ component ScrollCards(items=None, on_open=None):
                 pass
             return 0
 
+        def cull(geser, kw, wadah):
+            # Sembunyikan kartu yang seluruhnya di luar layar.
+            #
+            # Tanpa ini, semua kartu ada di dalam satu `baris` yang
+            # ditransform, jadi browser merasterisasi SELURUH jalur -- bukan
+            # hanya bagian yang terlihat. Terukur pada 1600px: luas lapisan
+            # komposit 6355x627 = 3.98 MP, padahal yang tampak cuma ~0.9 MP.
+            # Di desktop (kartu 90% x layar, tinggi penuh) itu yang membuat
+            # animasi tersendat; di mobile kartunya kecil jadi tidak terasa.
+            #
+            # `visibility` dipakai, bukan `display: none`, supaya tata letak
+            # tidak berubah sama sekali -- posisi kartu dihitung dari `left`
+            # per indeks, dan kalau satu kartu hilang dari alur, indeks
+            # sesudahnya ikut bergeser.
+            #
+            # Semua angkanya sudah dihitung di `tulis_kartu()`, jadi di sini
+            # tidak ada pembacaan layout sama sekali.
+            tampil = st["tampil"]
+            if len(tampil) != len(st["kiri"]):
+                return
+            for i in range(len(st["kiri"])):
+                x = st["kiri"][i] + geser
+                # Margin 1 lebar kartu: kartu yang baru akan masuk sudah
+                # disiapkan lebih dulu, jadi tidak muncul mendadak.
+                terlihat = (x + kw * 2 > 0) and (x < wadah + kw)
+                nilai = 1 if terlihat else 0
+                if tampil[i] != nilai:
+                    tampil[i] = nilai
+                    el = baris.children[i]
+                    if el:
+                        # `contain` memutus perhitungan gaya dan layout
+                        # kartu dari sisa halaman. Untuk kartu yang jauh di
+                        # luar layar, `content-visibility` membuat isinya
+                        # tidak dirasterisasi sama sekali sampai dibutuhkan.
+                        #
+                        # Ini yang menekan biaya di desktop: kartunya 90% x
+                        # layar dengan tinggi penuh, jadi empat kartu jauh
+                        # lebih berat daripada di mobile.
+                        el.style.visibility = "visible" if terlihat else "hidden"
+                        el.style.contain = "layout paint style"
+                        el.style.contentVisibility = "visible" if terlihat else "auto"
+
         def tulis_kartu():
             # Ukuran kartu HANYA dihitung ulang saat ukuran wadah berubah.
             #
@@ -140,6 +190,7 @@ component ScrollCards(items=None, on_open=None):
             # transform.
             wadah = baris.clientWidth
             layar = window.innerWidth or wadah
+            dua_kolom = layar >= AMBANG_DUA_KOLOM
             kw = layar * KARTU_LEBAR
             # Kartu tidak boleh lebih lebar dari wadahnya, kalau tidak sisi
             # kanannya dipotong `overflow: hidden` berapa pun posisinya.
@@ -150,10 +201,13 @@ component ScrollCards(items=None, on_open=None):
             st["jarak"] = jarak
             st["geser"] = trackOffset(len(items), jarak, st["sekarang"])
 
+            kiri = []
             for i in range(len(baris.children)):
                 el = baris.children[i]
                 el.style.width = f"{kw:.2f}px"
-                el.style.left = f"{(wadah - kw) / 2 + i * jarak:.2f}px"
+                x_kartu = (wadah - kw) / 2 + i * jarak
+                el.style.left = f"{x_kartu:.2f}px"
+                kiri.append(x_kartu)
 
                 # Ukuran foto DIHITUNG dalam piksel, dari tinggi kartu.
                 #
@@ -171,12 +225,56 @@ component ScrollCards(items=None, on_open=None):
                 if th <= 0:
                     continue
                 foto = badan.querySelector("[data-foto]")
-                if foto:
-                    foto.style.top = f"{-FOTO_KELUAR * th:.1f}px"
-                    foto.style.height = f"{FOTO_TINGGI * th:.1f}px"
+                teks = badan.querySelector("[data-teks]")
+
+                if dua_kolom:
+                    # Layar lebar: teks di kiri, foto di kanan, dua-duanya
+                    # setinggi kartu.
+                    #
+                    # Tata letak vertikal (foto menonjol ke atas, teks di
+                    # bawahnya) hanya masuk akal kalau kartu sempit dan
+                    # tinggi. Di desktop kartu jadi lebar dan pendek, dan
+                    # foto yang menonjol ke atas cuma memakan ruang teks.
+                    if foto:
+                        foto.style.top = "0px"
+                        foto.style.height = "100%"
+                        foto.style.left = "auto"
+                        foto.style.right = "0"
+                        foto.style.width = f"{FOTO_KOLOM * 100:.1f}%"
+                        foto.style.borderRadius = "0 14px 14px 0"
+                    if teks:
+                        teks.style.top = "0"
+                        teks.style.height = "100%"
+                        teks.style.right = "auto"
+                        teks.style.width = f"{(1 - FOTO_KOLOM) * 100:.1f}%"
+                        teks.style.justifyContent = "center"
+                    badan.style.marginTop = "0px"
+                else:
+                    # Layar sempit: foto menonjol ke atas kartu, teks di
+                    # bawahnya -- seperti sebelumnya.
+                    if foto:
+                        foto.style.top = f"{-FOTO_KELUAR * th:.1f}px"
+                        foto.style.height = f"{FOTO_TINGGI * th:.1f}px"
+                        foto.style.left = "0"
+                        foto.style.right = "0"
+                        foto.style.width = "auto"
+                        foto.style.borderRadius = "10px"
+                    if teks:
+                        teks.style.top = f"{(FOTO_TINGGI - FOTO_KELUAR) * 100:.1f}%"
+                        teks.style.height = "auto"
+                        teks.style.right = "0"
+                        teks.style.width = "auto"
+                        teks.style.justifyContent = "flex-start"
                     # Badan kartu bergeser turun sebesar bagian foto yang
                     # menonjol, supaya foto tidak terpotong wadah.
                     badan.style.marginTop = f"{FOTO_KELUAR * th:.1f}px"
+
+            # Setelah semua posisi kartu diketahui, baru bisa ditentukan mana
+            # yang terlihat.
+            st["kiri"] = kiri
+            st["wadah"] = wadah
+            st["tampil"] = [-1] * len(kiri)
+            cull(st["geser"], kw, wadah)
 
         def ukur():
             vh = window.innerHeight or 800
@@ -185,7 +283,21 @@ component ScrollCards(items=None, on_open=None):
             # header (`top: header`), bukan di 0.
             stage.style.height = f"{tinggi}px"
             stage.style.top = f"{tinggi_header()}px"
-            track.style.height = f"{tinggi * (1 + JARAK_SCROLL)}px"
+            # Tinggi track harus menampung SELURUH rentang progres, bukan hanya
+            # sebagian darinya.
+            #
+            # Rentang progres yang dipakai `baca()` adalah
+            # `vh * (JARAK_SCROLL + AWALAN)`, sedangkan sebelumnya tinggi
+            # ekstra dihitung `tinggi * JARAK_SCROLL` (tinggi stage, bukan vh).
+            # Terukur di 1600x857: track 1742px untuk rentang 1200px -- sudah
+            # lebih, tapi begitu `AWALAN` ikut dihitung halaman mentok
+            # menggulir sebelum progres mencapai 1, dan kartu berhenti di
+            # tengah jalan.
+            #
+            # Ditambah satu vh lagi supaya selalu ada sisa ruang: kalau
+            # dokumen habis persis di titik progres 1, browser bisa berhenti
+            # satu piksel lebih awal dan progres tidak pernah genap 1.
+            track.style.height = f"{tinggi + vh * (JARAK_SCROLL + AWALAN) + vh}px"
             # Ukuran kartu bergantung pada lebar wadah, jadi ikut dihitung
             # ulang di sini -- bukan di dalam `posisi()`.
             tulis_kartu()
@@ -203,6 +315,9 @@ component ScrollCards(items=None, on_open=None):
             st["sekarang"] = p
             geser = trackOffset(len(items), st["jarak"], p) if st["jarak"] > 0 else 0.0
             baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
+            # Kartu di luar layar disembunyikan. Angkanya sudah tersedia, jadi
+            # ini aritmetika saja -- tidak ada pembacaan layout.
+            cull(geser, st["kw"], st["wadah"])
 
         def baca():
             # Progres = seberapa jauh track sudah lewat MELAMPAUI titik tempel.
@@ -404,6 +519,7 @@ component ScrollCards(items=None, on_open=None):
 
                                         div(
                                             className="absolute left-0 right-0 bottom-0 p-5 sm:p-6 flex flex-col",
+                                            data_teks="1",
                                             style={"top": f"{(FOTO_TINGGI - FOTO_KELUAR) * 100:.1f}%"},
                                         ):
                                             span(className="text-[10px] font-mono tracking-[0.6px] uppercase text-[#a9583e] mb-2"):
