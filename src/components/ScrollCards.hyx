@@ -283,21 +283,31 @@ component ScrollCards(items=None, on_open=None):
             # header (`top: header`), bukan di 0.
             stage.style.height = f"{tinggi}px"
             stage.style.top = f"{tinggi_header()}px"
-            # Tinggi track harus menampung SELURUH rentang progres, bukan hanya
-            # sebagian darinya.
+            # Tinggi track diturunkan dari geometrinya, bukan ditebak.
             #
-            # Rentang progres yang dipakai `baca()` adalah
-            # `vh * (JARAK_SCROLL + AWALAN)`, sedangkan sebelumnya tinggi
-            # ekstra dihitung `tinggi * JARAK_SCROLL` (tinggi stage, bukan vh).
-            # Terukur di 1600x857: track 1742px untuk rentang 1200px -- sudah
-            # lebih, tapi begitu `AWALAN` ikut dihitung halaman mentok
-            # menggulir sebelum progres mencapai 1, dan kartu berhenti di
-            # tengah jalan.
+            # `stage` menempel selama track masih berada di atas garis
+            # `top: header`, dan stage berhenti menempel ketika
+            # `top == header - (tinggi_track - tinggi_stage)`.
             #
-            # Ditambah satu vh lagi supaya selalu ada sisa ruang: kalau
-            # dokumen habis persis di titik progres 1, browser bisa berhenti
-            # satu piksel lebih awal dan progres tidak pernah genap 1.
-            track.style.height = f"{tinggi + vh * (JARAK_SCROLL + AWALAN) + vh}px"
+            # `baca()` memetakan progres 1 pada
+            # `top == header - vh * (JARAK_SCROLL + AWALAN)`.
+            #
+            # Keduanya harus jatuh di titik yang SAMA, kalau tidak ada salah
+            # satu dari dua bug ini:
+            #
+            #   - tinggi ekstra kurang -> halaman kehabisan scroll sebelum
+            #     progres mencapai 1, kartu berhenti di tengah jalan;
+            #   - tinggi ekstra lebih  -> setelah kartu terakhir center masih
+            #     harus menggulir jauh untuk lepas dari tempelan.
+            #
+            # Menyamakan keduanya: tinggi_ekstra = vh * (JARAK_SCROLL + AWALAN).
+            # `AWALAN` ikut karena progres memang mulai `AWALAN * vh` lebih
+            # awal, jadi rentang totalnya memang sepanjang itu.
+            #
+            # Versi sebelumnya menambahkan satu `vh` cadangan. Cadangan itu
+            # langsung terlihat sebagai scroll mati ~1000px setelah kartu
+            # terakhir sampai di tengah.
+            track.style.height = f"{tinggi + vh * (JARAK_SCROLL + AWALAN)}px"
             # Ukuran kartu bergantung pada lebar wadah, jadi ikut dihitung
             # ulang di sini -- bukan di dalam `posisi()`.
             tulis_kartu()
