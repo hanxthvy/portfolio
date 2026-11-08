@@ -29,6 +29,8 @@ component Navbar():
     # lewat ref, bukan lewat state. Sebelumnya setState dipanggil tiap event
     # scroll sehingga React merender ulang navbar terus-menerus.
     progress_ref = useRef(None)
+    # Posisi absolut #about, dihitung sekali (-1 = belum diukur).
+    posisi_about_ref = useRef(-1.0)
     shell_ref = useRef(None)
     visible_ref = useRef(False)
     is_visible, set_is_visible = useState(False)
@@ -67,8 +69,23 @@ component Navbar():
         # Catatan: assignment di dalam if/else (.hyx) ter-scope pada cabangnya,
         # jadi nilainya dihitung sebagai satu ekspresi agar tetap terlihat di
         # bawah. get("about", None) dipakai supaya tidak perlu cabang.
-        about_el = document.getElementById("about")
-        want = (about_el.getBoundingClientRect().top <= 80) if about_el else (frame.y >= (window.innerHeight * 0.7))
+        # `getBoundingClientRect()` di sini dibaca SETIAP frame scroll, dan
+        # karena `handle_scroll` jalan sesudah ScrollCards menulis transform,
+        # pembacaan itu memaksa browser menghitung ulang layout tepat di
+        # tengah animasi kartu. Di desktop (frame lebih banyak per detik)
+        # akibatnya terlihat sebagai glitch.
+        #
+        # Yang dibutuhkan cuma "apakah #about sudah lewat 80px dari atas",
+        # dan itu tidak perlu diukur ulang selama ukuran halaman tidak
+        # berubah. Posisi absolutnya dihitung sekali lalu disimpan; per frame
+        # tinggal dibandingkan dengan `frame.y` yang sudah tersedia.
+        pos_about = posisi_about_ref.current
+        if pos_about < 0:
+            about_el = document.getElementById("about")
+            if about_el:
+                pos_about = about_el.getBoundingClientRect().top + window.scrollY
+                Object.assign(posisi_about_ref, {"current": pos_about})
+        want = (frame.y + 80 >= pos_about) if pos_about >= 0 else (frame.y >= (window.innerHeight * 0.7))
 
         # Translasi shell ditulis per frame supaya munculnya benar-benar
         # mengikuti gulir, bukan melompat sekali.
@@ -83,8 +100,22 @@ component Navbar():
             Object.assign(visible_ref, {"current": want})
             set_is_visible(want)
 
+    def reset_ukur(frame=None):
+        # Posisi #about berubah kalau layar berubah ukuran (atau isi di
+        # atasnya berubah tinggi), jadi cache-nya dibuang.
+        Object.assign(posisi_about_ref, {"current": -1.0})
+
     def scroll_effect():
-        return on_scroll(handle_scroll)
+        batal = on_scroll(handle_scroll)
+        window.addEventListener("resize", reset_ukur, {"passive": True})
+
+        def bersih():
+            reset_ukur()
+            if batal:
+                batal()
+            window.removeEventListener("resize", reset_ukur)
+
+        return bersih
 
     useEffect(scroll_effect, [])
 

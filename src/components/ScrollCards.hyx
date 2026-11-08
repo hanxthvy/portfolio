@@ -90,7 +90,7 @@ component ScrollCards(items=None, on_open=None):
         except:
             pass
 
-        st = {"p": -1.0, "raf": 0, "sekarang": 0.0, "target": 0.0, "waktu": 0.0, "v": 0.0}
+        st = {"p": -1.0, "raf": 0, "sekarang": 0.0, "target": 0.0, "waktu": 0.0, "v": 0.0, "kw": 0.0, "jarak": 0.0}
 
         # Hanya satu loop yang boleh hidup, dan boleh dipanggil berulang.
         loop = {"id": 0}
@@ -126,23 +126,18 @@ component ScrollCards(items=None, on_open=None):
                 pass
             return 0
 
-        def ukur():
-            vh = window.innerHeight or 800
-            tinggi = vh - tinggi_header()
-            # Stage setinggi viewport DIKURANGI header, dan ditempel di bawah
-            # header (`top: header`), bukan di 0.
-            stage.style.height = f"{tinggi}px"
-            stage.style.top = f"{tinggi_header()}px"
-            track.style.height = f"{tinggi * (1 + JARAK_SCROLL)}px"
-
-        def posisi(p):
-            # Hanya tulis kalau berubah cukup besar. Menulis transform di setiap
-            # event scroll tanpa ambang membuat browser menghitung ulang gaya
-            # pada puluhan event per detik untuk nilai yang sama.
-            if abs(p - st["p"]) < 0.0005:
-                return
-            st["p"] = p
-
+        def tulis_kartu():
+            # Ukuran kartu HANYA dihitung ulang saat ukuran wadah berubah.
+            #
+            # Sebelumnya ini ada di dalam `posisi()`, jadi setiap frame
+            # membaca `getBoundingClientRect()` per kartu setelah menulis
+            # transform -- itu memaksa layout sinkron di setiap frame, dan di
+            # desktop (yang menjalankan lebih banyak frame per detik) hasilnya
+            # terlihat sebagai glitch: kartu berkedip dan melompat.
+            #
+            # Layout read setelah layout write dalam satu frame adalah sumber
+            # utama "layout thrashing". Dipisah, satu frame hanya menulis
+            # transform.
             wadah = baris.clientWidth
             layar = window.innerWidth or wadah
             kw = layar * KARTU_LEBAR
@@ -151,8 +146,10 @@ component ScrollCards(items=None, on_open=None):
             if kw > wadah:
                 kw = wadah
             jarak = kw * (1 + CELAH)
-            geser = trackOffset(len(items), jarak, p)
-            baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
+            st["kw"] = kw
+            st["jarak"] = jarak
+            st["geser"] = trackOffset(len(items), jarak, st["sekarang"])
+
             for i in range(len(baris.children)):
                 el = baris.children[i]
                 el.style.width = f"{kw:.2f}px"
@@ -180,6 +177,32 @@ component ScrollCards(items=None, on_open=None):
                     # Badan kartu bergeser turun sebesar bagian foto yang
                     # menonjol, supaya foto tidak terpotong wadah.
                     badan.style.marginTop = f"{FOTO_KELUAR * th:.1f}px"
+
+        def ukur():
+            vh = window.innerHeight or 800
+            tinggi = vh - tinggi_header()
+            # Stage setinggi viewport DIKURANGI header, dan ditempel di bawah
+            # header (`top: header`), bukan di 0.
+            stage.style.height = f"{tinggi}px"
+            stage.style.top = f"{tinggi_header()}px"
+            track.style.height = f"{tinggi * (1 + JARAK_SCROLL)}px"
+            # Ukuran kartu bergantung pada lebar wadah, jadi ikut dihitung
+            # ulang di sini -- bukan di dalam `posisi()`.
+            tulis_kartu()
+
+        def posisi(p):
+            # Fungsi ini dipanggil tiap frame, jadi isinya sengaja seminimal
+            # mungkin: hitung satu angka, tulis satu transform.
+            #
+            # Tidak ada `getBoundingClientRect`, tidak ada `clientWidth`, tidak
+            # ada pembacaan layout sama sekali. Semua nilai yang dibutuhkan
+            # sudah disimpan oleh `tulis_kartu()` saat mount / resize.
+            if abs(p - st["p"]) < 0.0002:
+                return
+            st["p"] = p
+            st["sekarang"] = p
+            geser = trackOffset(len(items), st["jarak"], p) if st["jarak"] > 0 else 0.0
+            baris.style.transform = f"translate3d({geser:.2f}px,0,0)"
 
         def baca():
             # Progres = seberapa jauh track sudah lewat MELAMPAUI titik tempel.
