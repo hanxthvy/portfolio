@@ -39,6 +39,17 @@ FOTO_KOLOM = 0.46
 FOTO_TINGGI = 0.486
 FOTO_KELUAR = 0.257
 
+# Tinggi kartu dua kolom TIDAK ditarik setinggi sisa layar.
+#
+# Versi sebelumnya memaksa kartu mengisi seluruh tinggi yang tersisa, jadi di
+# layar lebar kartunya jadi panel 670-850px berisi teks 200px yang mengapung di
+# tengah -- terlihat seperti celah yang salah, bukan tata letak. Sekarang tinggi
+# kartu diturunkan dari lebar kolom foto dengan rasio tetap, jadi potongan
+# fotonya konsisten di semua ukuran layar, dan baris kartu menempel ke ATAS area
+# (top: 0), bukan mengisi sampai bawah.
+RASIO_KARTU = 0.78
+TINGGI_MIN_KARTU = 320
+
 # Berapa kali tinggi stage dipakai sebagai bahan bakar animasi.
 # 1.2 berarti animasi menghabiskan 120% tinggi layar tambahan sebelum selesai.
 JARAK_SCROLL = 1.2
@@ -153,10 +164,34 @@ component ScrollCards(items=None, on_open=None):
             st["jarak"] = jarak
             st["geser"] = track_offset(len(items), jarak, st["sekarang"])
 
+            # Tinggi kartu (hanya dua kolom). Diukur dari lebar, bukan dari
+            # sisa viewport: dengan begitu tinggi kartu sama di setiap lebar
+            # layar dan tidak ikut melar ketika jendela ditinggikan.
+            avail = baris.clientHeight or 0
+            tinggi_kartu = 0.0
+            if dua_kolom:
+                tinggi_kartu = kw * FOTO_KOLOM * RASIO_KARTU
+                if tinggi_kartu < TINGGI_MIN_KARTU:
+                    tinggi_kartu = TINGGI_MIN_KARTU
+                if avail > 0 and tinggi_kartu > avail:
+                    tinggi_kartu = avail
+
             kiri = []
             for i in range(len(baris.children)):
                 el = baris.children[i]
                 el.style.width = f"{kw:.2f}px"
+                # Dua kolom: kartu setinggi hasil hitungan di atas, ditempel
+                # ke atas area. Satu kolom: tetap mengisi sisa tinggi, karena
+                # di layar sempit foto menonjol ke atas kartu dan tata letaknya
+                # memang butuh seluruh ruang.
+                if dua_kolom:
+                    el.style.height = f"{tinggi_kartu:.2f}px"
+                    el.style.top = "0px"
+                    el.style.transform = "none"
+                else:
+                    el.style.height = "100%"
+                    el.style.top = "50%"
+                    el.style.transform = "translateY(-50%)"
                 x_kartu = (wadah - kw) / 2 + i * jarak
                 el.style.left = f"{x_kartu:.2f}px"
                 kiri.append(x_kartu)
